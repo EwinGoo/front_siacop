@@ -110,3 +110,9 @@ body.swal2-height-auto {
     color: var(--#{$prefix}primary);
   }
 }
+
+// Az re styling 
+
+.swal2-container .swal2-html-container {
+    max-height: none;
+}

@@ -17,7 +17,7 @@ const Content = ({children}: WithChildren) => {
     <div
       id='kt_app_content'
       className={clsx(
-        'app-content flex-column-fluid',
+        'app-content flex-column-fluid p-0',
         classes.content.join(' '),
         config?.app?.content?.class
       )}

@@ -13,6 +13,7 @@ import {toast} from 'react-toastify'
 import {Button} from 'react-bootstrap'
 import Flatpickr from 'react-flatpickr'
 import {Spanish} from 'flatpickr/dist/l10n/es'
+import Select from 'react-select'
 import {FieldsAsueto} from './FieldsAsueto'
 import {FieldsFeriado} from './FieldsFeriado'
 
@@ -21,6 +22,10 @@ type Props = {
   feriadoAsueto: FeriadoAsueto
   onClose: () => void
 }
+const opciones = [
+  { label: 'Asueto', value: 'ASUETO' },
+  { label: 'Feriado', value: 'FERIADO' },
+]
 
 const editFeriadoAsuetoSchema = Yup.object().shape({
   nombre_evento: Yup.string()
@@ -195,8 +200,37 @@ const EditModalForm: FC<Props> = ({feriadoAsueto, isFeriadoAsuetoLoading, onClos
 
           {/* Tipo de Evento */}
           <div className='fv-row mb-7 px-1'>
-            <label className='required fw-bold fs-6 mb-2'>Tipo</label>
-            <select
+            <label className='required fw-bold fs-6 mb-2'>Tipo de Evento</label>
+            <Select
+            className="react-select-styled react-select-solid bg-gray"
+            classNamePrefix="react-select"
+            value={opciones.find(op => op.value === formik.values.tipo_evento) || null}
+            onChange={(selectedOption) =>{
+              if(selectedOption){
+                formik.setFieldValue('tipo_evento',selectedOption.value)
+              }
+            }}
+            options={opciones}
+            placeholder="Seleccione un tipo de evento"
+            isDisabled={formik.isSubmitting}
+            styles={{
+                control: (base, state) => ({
+                  ...base,
+                  borderColor: !isFieldValid('tipo_evento')
+                    ? '#F64E60'
+                    : formik.touched.tipo_evento && isFieldValid('tipo_evento')
+                    ? '#1BC5BD'
+                    : base.borderColor,
+                  boxShadow: 'none',
+                  minHeight: '44px',
+                  border: 'none',
+                  backgroundColor: '#f9f9f9', 
+                  borderRadius: '0.475rem',
+                }),
+              }}
+            
+            />
+            {/* <select
               {...formik.getFieldProps('tipo_evento')}
               className={clsx('form-control form-control-solid', {
                 'is-invalid': !isFieldValid('tipo_evento'),
@@ -206,7 +240,7 @@ const EditModalForm: FC<Props> = ({feriadoAsueto, isFeriadoAsuetoLoading, onClos
             >
               <option value='ASUETO'>Asueto</option>
               <option value='FERIADO'>Feriado</option>
-            </select>
+            </select> */}
             {!isFieldValid('tipo_evento') && (
               <div className='fv-plugins-message-container'>
                 <span role='alert'>{getFieldError('tipo_evento')}</span>
@@ -220,7 +254,7 @@ const EditModalForm: FC<Props> = ({feriadoAsueto, isFeriadoAsuetoLoading, onClos
               <div className='fv-row mb-7 px-1'>
                 <label className='required fw-bold fs-6 mb-2'>Fecha del Evento</label>
                 <Flatpickr
-                  value={formik.values.fecha_evento}
+                  value={formik.values.fecha_evento ? new Date(formik.values.fecha_evento) : undefined}
                   onChange={([date]) => formik.setFieldValue('fecha_evento', date)}
                   options={{
                     dateFormat: 'Y-m-d',
@@ -306,7 +340,7 @@ const EditModalForm: FC<Props> = ({feriadoAsueto, isFeriadoAsuetoLoading, onClos
               <div className='col-md-6 fv-row'>
                 <label className='required fw-bold fs-6 mb-2'>Fecha Inicio</label>
                 <Flatpickr
-                  value={formik.values.fecha_inicio}
+                  value={formik.values.fecha_fin ? new Date(formik.values.fecha_fin) : undefined}
                   onChange={([date]) => formik.setFieldValue('fecha_inicio', date)}
                   options={{dateFormat: 'Y-m-d', locale: Spanish, monthSelectorType: "static"}}
                   className={clsx('form-control form-control-solid', {
@@ -324,7 +358,7 @@ const EditModalForm: FC<Props> = ({feriadoAsueto, isFeriadoAsuetoLoading, onClos
               <div className='col-md-6 fv-row'>
                 <label className='required fw-bold fs-6 mb-2'>Fecha Fin</label>
                 <Flatpickr
-                  value={formik.values.fecha_fin}
+                  value={formik.values.fecha_fin ? new Date(formik.values.fecha_fin) : undefined}
                   onChange={([date]) => formik.setFieldValue('fecha_fin', date)}
                   options={{dateFormat: 'Y-m-d', locale: Spanish, monthSelectorType: "static"}}
                   className={clsx('form-control form-control-solid', {

@@ -30,7 +30,7 @@ const ListToolbar = () => {
       </button> */}
         <Button variant='primary' onClick={openAddModal}>
           <KTIcon iconName='plus' className='fs-2' />
-          Agregar Tipo Permiso
+          Agregar
         </Button>
       {/* end::Add user */}
     </div>

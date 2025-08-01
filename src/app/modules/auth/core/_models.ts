@@ -1,3 +1,5 @@
+import {RoleValue} from './roles'
+
 export interface AuthModel {
   api_token: string
   refreshToken?: string
@@ -42,6 +44,14 @@ export interface UserSocialNetworksModel {
   twitter: string
   instagram: string
 }
+export interface UserMenuLink {
+  url: string
+  label: string
+}
+
+export type UserMenu = {
+  [key: string]: UserMenuLink[] // Clave dinámica con arreglo de enlaces
+}
 
 export interface UserModel {
   id: number
@@ -64,4 +74,15 @@ export interface UserModel {
   communication?: UserCommunicationModel
   address?: UserAddressModel
   socialNetworks?: UserSocialNetworksModel
+  menu?: UserMenu
+  groups?: RoleValue[]
+  active_asignacion?: {
+    active: boolean
+    message?: string
+  }
+}
+
+export interface UserCheckRequest {
+  authenticated: boolean
+  user: UserModel
 }

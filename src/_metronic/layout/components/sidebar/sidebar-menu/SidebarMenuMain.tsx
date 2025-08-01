@@ -4,10 +4,14 @@ import {useIntl} from 'react-intl'
 import {KTIcon} from '../../../../helpers'
 import {SidebarMenuItemWithSub} from './SidebarMenuItemWithSub'
 import {SidebarMenuItem} from './SidebarMenuItem'
+import { useAuth } from '../../../../../app/modules/auth'
 
 const SidebarMenuMain = () => {
   const intl = useIntl()
-
+  const {currentUser} =  useAuth()
+  const menu = currentUser;
+  // console.log(menu);
+  
   return (
     <>
       {/* <SidebarMenuItem
@@ -17,27 +21,33 @@ const SidebarMenuMain = () => {
         fontIcon='bi-app-indicator'
       /> */}
       {/* <SidebarMenuItem to='/builder' icon='switch' title='Layout Builder' fontIcon='bi-layers' /> */}
-      <SidebarMenuItem
+      {/* <SidebarMenuItem
         to='/apps/gestion-persona'
         title='Personas'
         icon='profile-circle'
         fontIcon='bi-person'
-      />
+      /> */}
       <SidebarMenuItem
         to='/apps/comisiones/listar'
-        title='Comisiones'
+        title='Permisos por Hora'
+        icon='time'
+        fontIcon='bi-person'
+      />  
+      <SidebarMenuItem
+        to='/apps/asistencias-permisos/listar'
+        title='Permisos por Día'
         icon='calendar-search'
         fontIcon='bi-person'
       />  
       <SidebarMenuItem
-        to='/apps/comisiones/aprobar-qr'
-        title='Aprobar por QR'
+        to='/apps/comisiones/gestion-qr'
+        title='Recepcionar por QR'
         icon='calendar-search'
         fontIcon='bi-person'
       />  
       <SidebarMenuItem
-        to='/apps/permisos/listar'
-        title='Permisos'
+        to='/apps/declaratoria-comision/listar'
+        title='Declaratoria Comisión'
         icon='security-user'
         fontIcon='bi-person'
       />
@@ -46,12 +56,6 @@ const SidebarMenuMain = () => {
         title='Feriados & Asuetos'
         icon='element-7'
         fontIcon='bi-layers'
-      />
-      <SidebarMenuItem
-        to='/apps/asistencias-permisos/listar'
-        title='Asistencias & Permisos'
-        icon='calendar-search'
-        fontIcon='bi-person'
       />
       <SidebarMenuItem
         to='/apps/tipos-permisos/listar'

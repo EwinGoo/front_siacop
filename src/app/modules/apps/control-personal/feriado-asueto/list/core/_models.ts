@@ -4,10 +4,10 @@ export type FeriadoAsueto = {
   id_asistencia_feriado_asueto?: ID
   id_usuario?: number
   nombre_evento?: string
-  fecha_evento?: string | null // DATE -> string (ISO)
+  fecha_evento?: Date | null // DATE -> string (ISO)
   tipo_evento?: 'ASUETO' | 'FERIADO'
-  fecha_inicio?: string | null // DATE -> string (ISO)
-  fecha_fin?: string | null // DATE -> string (ISO)
+  fecha_inicio?: Date | null // DATE -> string (ISO)
+  fecha_fin?: Date | null // DATE -> string (ISO)
   hora_inicio?: string | null // TIME -> string (HH:MM:SS)
   hora_fin?: string | null // TIME -> string (HH:MM:SS)
   aplicado_a?: 'MASCULINO' | 'FEMENINO' | 'TODOS'
@@ -59,10 +59,10 @@ export type FeriadoAsuetoQueryResponse = {
 export const initialFeriadoAsueto: FeriadoAsueto = {
   id_usuario: 0,
   nombre_evento: '',
-  fecha_evento: new Date().toISOString().split('T')[0], // Fecha actual (YYYY-MM-DD)
+  fecha_evento: new Date(), // Fecha actual (YYYY-MM-DD)
   tipo_evento: 'ASUETO',
-  fecha_inicio: new Date().toISOString().split('T')[0],
-  fecha_fin: new Date().toISOString().split('T')[0],
+  fecha_inicio: new Date(),
+  fecha_fin: new Date(),
   hora_inicio: '08:00:00',
   hora_fin: '17:00:00',
   aplicado_a: 'TODOS',

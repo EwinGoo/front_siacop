@@ -9,12 +9,6 @@ const usersBreadcrumbs: Array<PageLink> = [
     isSeparator: false,
     isActive: false,
   },
-  {
-    title: '',
-    path: '', 
-    isSeparator: true,
-    isActive: false,
-  },
 ]
 
 const TipoPermisoPage = () => {

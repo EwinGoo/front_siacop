@@ -11,6 +11,8 @@ import {PrivateRoutes} from './PrivateRoutes'
 import {ErrorsPage} from '../modules/errors/ErrorsPage'
 import {Logout, AuthPage, useAuth} from '../modules/auth'
 import {App} from '../App'
+import { ExternalRedirect } from './components/ExternalRedirect'
+import { API_URL } from '../config/apiRoutes'
 
 /**
  * Base URL of the website.
@@ -34,6 +36,7 @@ const AppRoutes: FC = () => {
             </>
           ) : (
             <>
+              {/* <Route path='*' element={<ExternalRedirect url={`${API_URL}/login`} />} /> */}
               <Route path='auth/*' element={<AuthPage />} />
               <Route path='*' element={<Navigate to='/auth' />} />
             </>

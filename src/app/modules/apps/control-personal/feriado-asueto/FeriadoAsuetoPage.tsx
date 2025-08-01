@@ -4,15 +4,9 @@ import {FeriadoAsuetoListWrapper} from './list/FeriadoAsuetoList'
 
 const usersBreadcrumbs: Array<PageLink> = [
   {
-    title: 'Gestion de Comisiones',
-    path: '/apps/comisiones/listar',
+    title: 'Gestión de registros',
+    path: '',
     isSeparator: false,
-    isActive: false,
-  },
-  {
-    title: '',
-    path: '', 
-    isSeparator: true,
     isActive: false,
   },
 ]

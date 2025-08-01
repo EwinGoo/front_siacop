@@ -1,32 +1,32 @@
 import { useMemo } from 'react';
 import { useTable, ColumnInstance, Row } from 'react-table';
-import { CustomHeaderColumn } from './columns/CustomHeaderColumn';
-import { CustomRow } from './columns/CustomRow';
 import { useQueryResponseData, useQueryResponseLoading } from '../core/QueryResponseProvider';
-import { Columns } from './columns/_columns'; // Cambiar a columnas de Persona
 import { Comision } from '../core/_models';
-import { ListLoading } from '../components/loading/ListLoading';
+import { getColumns } from './columns/_columns';
+import { CustomRow } from './columns/CustomRow';
+import { CustomHeaderColumn } from './columns/CustomHeaderColumn';
 import { ListPagination } from '../components/pagination/ListPagination';
 import { KTCardBody } from '../../../../../../../_metronic/helpers';
+import { usePermissions } from 'src/app/modules/auth/core/usePermissions';
+import { ListLoading } from 'src/app/modules/components/loading/ListLoading';
 
 const ComisionTable = () => {
   const comisiones = useQueryResponseData();
   const isLoading = useQueryResponseLoading();
   const data = useMemo(() => comisiones, [comisiones]);
-  const columns = useMemo(() => Columns, []); // Cambiar a columnas de Persona
+  const {isAdminComision} = usePermissions()
+  const columns = useMemo(() => getColumns({ isAdmin: isAdminComision }), [isAdminComision])
+
   const { getTableProps, getTableBodyProps, headers, rows, prepareRow } = useTable({
     columns,
     data,
   });
 
-  // console.log(headers);
-  
-
   return (
     <KTCardBody className='py-4'>
       <div className='table-responsive'>
         <table
-          id='kt_table_comisiones'
+          id='kt_table_hover'
           className='table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer'
           {...getTableProps()}
         >
@@ -45,7 +45,7 @@ const ComisionTable = () => {
               })
             ) : (
               <tr>
-                <td colSpan={7}>
+                <td colSpan={10}>
                   <div className='d-flex text-center w-100 align-content-center justify-content-center'>
                     No se encontraron registros
                   </div>

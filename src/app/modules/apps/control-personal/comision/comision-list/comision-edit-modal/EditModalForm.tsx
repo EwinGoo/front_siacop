@@ -1,81 +1,41 @@
-import {FC, useState} from 'react'
-import * as Yup from 'yup'
-import {useFormik} from 'formik'
-import {isNotEmpty, KTIcon} from '../../../../../../../_metronic/helpers'
-import {initialComision, Comision} from '../core/_models'
+import {FC, useState, useCallback, useEffect} from 'react'
 import clsx from 'clsx'
-import {useListView} from '../core/ListViewProvider'
-import {ListLoading} from '../components/loading/ListLoading'
-import {createComision, updateComision} from '../core/_requests'
-import {useQueryResponse} from '../core/QueryResponseProvider'
-import Swal from 'sweetalert2'
+import {useFormik} from 'formik'
 import {toast} from 'react-toastify'
 import {Button} from 'react-bootstrap'
-import Flatpickr from 'react-flatpickr'
-import {Spanish} from 'flatpickr/dist/l10n/es'
-import Select from 'react-select'
-// import DatePicker from 'react-datepicker'
-// import 'react-datepicker/dist/react-datepicker.css'
+import {isNotEmpty, KTIcon} from 'src/_metronic/helpers'
+import {initialComision, Comision} from '../core/_models'
+import {useListView} from '../core/ListViewProvider'
+import {createComision, getPersonaAutocomplete, updateComision} from '../core/_requests'
+import {useQueryResponse} from '../core/QueryResponseProvider'
+import {editComisionSchema} from './schemas/editComisionSchema'
+import {SelectPickerField} from './components/SelectPickerField'
+import {DatePickerField} from 'src/app/modules/components/DatePickerField'
+import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
+import AsyncSelect from 'react-select/async'
+import {debounce} from 'lodash'
+import {ValidationError} from 'src/app/utils/httpErrors'
+import {format} from 'date-fns'
+import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
+import {FormActions} from 'src/app/modules/components/FormActions'
+import AsyncSelectField from './components/AsyncSelectField'
+import { useApiFieldErrors } from 'src/app/hooks/useApiFieldErrors'
 
 type Props = {
-  isComisionLoading: boolean
+  isLoading: boolean
   comision: Comision
   onClose: () => void
 }
 
-// Función para formatear la fecha
-const formatDate = (date: Date) => {
-  const options: Intl.DateTimeFormatOptions = {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }
-  return new Intl.DateTimeFormat('es-ES', options).format(date)
-}
-
-// Función para generar las opciones de fecha
-const generateDateOptions = () => {
-  const today = new Date()
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-
-  return [
-    {date: yesterday, label: formatDate(yesterday), value: yesterday.toISOString().split('T')[0]},
-    {date: today, label: formatDate(today), value: today.toISOString().split('T')[0]},
-    {date: tomorrow, label: formatDate(tomorrow), value: tomorrow.toISOString().split('T')[0]},
-  ]
-}
-
-const editComisionSchema = Yup.object().shape({
-  descripcion_comision: Yup.string()
-    .min(10, 'Mínimo 10 caracteres')
-    .max(255, 'Máximo 255 caracteres')
-    .required('La descripción es requerida'),
-  recorrido_de: Yup.string()
-    .min(3, 'Mínimo 3 caracteres')
-    .max(55, 'Máximo 55 caracteres')
-    .required('Origen es requerido'),
-  recorrido_a: Yup.string()
-    .min(3, 'Mínimo 3 caracteres')
-    .max(55, 'Máximo 55 caracteres')
-    .required('Destino es requerido'),
-  fecha_comision: Yup.date().required('Fecha es requerida'),
-  hora_salida: Yup.string().required('Hora de salida es requerida'),
-  hora_retorno: Yup.string().required('Hora de retorno es requerida'),
-  tipo_comision: Yup.string()
-    .oneOf(['COMISION', 'TRANSPORTE'], 'Tipo inválido')
-    .required('Tipo es requerido'),
-})
-
-const EditModalForm: FC<Props> = ({comision, isComisionLoading, onClose}) => {
+const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
+  const {isAdminComision} = usePermissions()
+  const {apiErrors, setApiErrors, clearFieldError} = useApiFieldErrors()
 
   const [comisionForEdit] = useState<Comision>({
     ...comision,
+    id_usuario_generador: comision.id_usuario_generador,
     descripcion_comision: comision.descripcion_comision || initialComision.descripcion_comision,
     recorrido_de: comision.recorrido_de || initialComision.recorrido_de,
     recorrido_a: comision.recorrido_a || initialComision.recorrido_a,
@@ -87,7 +47,7 @@ const EditModalForm: FC<Props> = ({comision, isComisionLoading, onClose}) => {
       comision.estado_boleta_comision || initialComision.estado_boleta_comision,
   })
 
-  const [backendErrors, setBackendErrors] = useState<Record<string, string>>({})
+  // const [apiErrors, setApiErrors] = useState<Record<string, string>>({})
 
   const cancel = (withRefresh?: boolean) => {
     if (withRefresh) {
@@ -98,44 +58,31 @@ const EditModalForm: FC<Props> = ({comision, isComisionLoading, onClose}) => {
 
   const formik = useFormik({
     initialValues: comisionForEdit,
-    validationSchema: editComisionSchema,
+    validationSchema: () => editComisionSchema({isAdmin: isAdminComision}),
+    // validationSchema: null, // Elimina el schema de validación
+    // validateOnBlur: false, // Desactiva validación al perder foco
+    // validateOnChange: false,
     onSubmit: async (values, {setSubmitting}) => {
       setSubmitting(true)
-      setBackendErrors({})
+      setApiErrors({})
 
       try {
         if (isNotEmpty(values.id_comision)) {
           await updateComision(values)
-          toast.success('Comisión actualizada correctamente', {
-            position: 'top-right',
-            autoClose: 5000,
-          })
+          toast.success('Comisión actualizada correctamente')
         } else {
           await createComision(values)
-          toast.success('Comisión creada correctamente', {
-            position: 'top-right',
-            autoClose: 5000,
-          })
+          toast.success('Comisión creada correctamente')
         }
         cancel(true)
         onClose()
       } catch (error: any) {
-        console.error(error)
-        if (error.response?.status === 422 && error.response.data?.validation_errors) {
-          setBackendErrors(error.response.data.validation_errors)
-          await Swal.fire({
-            icon: 'error',
-            title: 'Error de validación',
-            html: Object.entries(error.response.data.validation_errors)
-              .map(([field, message]) => `<li>${message}</li>`)
-              .join(''),
-          })
+        if (error instanceof ValidationError) {
+          setApiErrors(error.validationErrors)
+          toast.error(error.message)
         } else {
-          await Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: error.response?.data?.message || 'Error al procesar la solicitud',
-          })
+          console.log(error)
+          toast.error('Error inesperado: ' + error.message)
         }
       } finally {
         setSubmitting(false)
@@ -143,50 +90,98 @@ const EditModalForm: FC<Props> = ({comision, isComisionLoading, onClose}) => {
     },
   })
 
+  // useEffect(() => {
+  //   console.log('Formik errors:', formik.errors)
+  //   console.log('Initial values:', comisionForEdit)
+  // }, [formik.errors])
+
   const getFieldError = (fieldName: string) => {
-    return formik.errors[fieldName] || backendErrors[fieldName]
+    return formik.errors[fieldName] || apiErrors[fieldName]
   }
 
   const isFieldValid = (fieldName: string) => {
     return !(formik.touched[fieldName] && getFieldError(fieldName))
   }
-
-  const generateDateOptions = () => {
-    const today = new Date()
-    const yesterday = new Date(today)
-    yesterday.setDate(yesterday.getDate() - 1)
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-
-    return [
-      {
-        value: yesterday.toISOString().split('T')[0],
-        label: formatDate(yesterday),
-        data: yesterday,
-      },
-      {
-        value: today.toISOString().split('T')[0],
-        label: formatDate(today),
-        data: today,
-      },
-      {
-        value: tomorrow.toISOString().split('T')[0],
-        label: formatDate(tomorrow),
-        data: tomorrow,
-      },
-    ]
+  interface OptionType {
+    value: number
+    label: string
   }
 
-  const dateOptions = generateDateOptions()
+  const [selectedOption, setSelectedOption] = useState<OptionType | null>(null)
+  const fetchPersonaOptions = async (input: string): Promise<OptionType[]> => {
+    const response = await getPersonaAutocomplete(input)
 
-  // Encontrar la opción seleccionada actualmente
-  const selectedDate =
-    dateOptions.find((option) => option.value === formik.values.fecha_comision) || null
+    return response.sugerencias.map((item) => ({
+      value: item.id,
+      label: item.texto,
+    }))
+  }
+
+   const handleChange = (fieldName: keyof Comision) => (value: any) => {
+      formik.setFieldValue(fieldName, value)
+      clearFieldError(fieldName)
+    }
+  // const debouncedFetcher = useCallback(
+  //   debounce(async (inputValue: string, callback: (options: OptionType[]) => void) => {
+  //     try {
+  //       const data = await getPersonaAutocomplete(inputValue)
+  //       const options = data.sugerencias.map((item) => ({
+  //         label: item.texto,
+  //         value: item.id,
+  //       }))
+  //       callback(options)
+  //     } catch (error) {
+  //       console.error('Error en autocomplete:', error)
+  //       callback([])
+  //     }
+  //   }, 200), // espera 500ms después de que el usuario deje de escribir
+  //   []
+  // )
+
+  // const loadOptions = (inputValue: string, callback: (options: OptionType[]) => void) => {
+  //   if (inputValue.length < 2) {
+  //     callback([]) // importante: evita que se quede "buscando..." para siempre
+  //     return
+  //   }
+  //   debouncedFetcher(inputValue, callback)
+  // }
 
   return (
     <>
       <form id='kt_modal_add_comision_form' className='form' onSubmit={formik.handleSubmit}>
         <div className='d-flex flex-column scroll-y me-n7 pe-7 pt-5'>
+          {isAdminComision && (
+            <div className='fv-row mb-7 px-1'>
+              <label className='required fw-bold fs-6 mb-2'>Solicitante:</label>
+              {comision.id_comision ? (
+                // Modo edición - mostrar campo readonly
+                <input
+                  type='text'
+                  className='form-control form-control-solid'
+                  readOnly
+                  value={`${comision.ci || ''} - ${comision.nombre_generador || ''}`}
+                />
+              ) : (
+                <AsyncSelectField
+                  value={selectedOption}
+                  onChange={(selected) => {
+                    setSelectedOption(selected)
+                    formik.setFieldValue('id_usuario_generador', selected?.value ?? '')
+                    formik.setFieldValue('id_asignacion_administrativo', selected?.id_asignacion_administrativo ?? '')
+                  }}
+                  onBlur={() => formik.setFieldTouched('id_usuario_generador', true)}
+                  fetchOptions={fetchPersonaOptions}
+                  isInvalid={!isFieldValid('id_usuario_generador')}
+                />
+              )}
+              {!isFieldValid('id_usuario_generador') && (
+                <div className='fv-plugins-message-container'>
+                  <span role='alert'>{getFieldError('id_usuario_generador')}</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Tipo de Comisión */}
           <div className='fv-row mb-7 px-1 d-none'>
             <label className='required fw-bold fs-6 mb-2'>Tipo Comisión</label>
@@ -208,57 +203,28 @@ const EditModalForm: FC<Props> = ({comision, isComisionLoading, onClose}) => {
             )}
           </div>
 
-          {/* Descripción */}
-          <div className='fv-row mb-7 px-1'>
-            <label className='required fw-bold fs-6 mb-2'>Descripción</label>
-            <textarea
-              {...formik.getFieldProps('descripcion_comision')}
-              className={clsx('form-control form-control-solid', {
-                'is-invalid': !isFieldValid('descripcion_comision'),
-                'is-valid':
-                  formik.touched.descripcion_comision && isFieldValid('descripcion_comision'),
-              })}
-              rows={3}
-              disabled={formik.isSubmitting}
-            />
-            {!isFieldValid('descripcion_comision') && (
-              <div className='fv-plugins-message-container'>
-                <span role='alert'>{getFieldError('descripcion_comision')}</span>
-              </div>
-            )}
-          </div>
-
           {/* Fecha */}
           <div className='fv-row mb-7 px-1'>
             <label className='required fw-bold fs-6 mb-2'>Fecha comisión</label>
-            <Select
-              className='react-select-styled react-select-solid bg-gray'
-              classNamePrefix='react-select'
-              value={selectedDate}
-              onChange={(selectedOption) => {
-                if (selectedOption) {
-                  formik.setFieldValue('fecha_comision', selectedOption.value)
-                }
-              }}
-              options={dateOptions}
-              placeholder='Seleccione una fecha'
-              isDisabled={formik.isSubmitting}
-              styles={{
-                control: (base, state) => ({
-                  ...base,
-                  borderColor: !isFieldValid('fecha_comision')
-                    ? '#F64E60'
-                    : formik.touched.fecha_comision && isFieldValid('fecha_comision')
-                    ? '#1BC5BD'
-                    : base.borderColor,
-                  boxShadow: 'none',
-                  minHeight: '44px',
-                  border: 'none',
-                  backgroundColor: '#f9f9f9', 
-                  borderRadius: '0.475rem',
-                }),
-              }}
-            />
+            {isAdminComision ? (
+              <DatePickerField
+                field={formik.getFieldProps('fecha_comision')}
+                form={formik}
+                isFieldValid={isFieldValid('fecha_comision')}
+                isSubmitting={formik.isSubmitting}
+                // onChange={handleChange('fecha_fin_permiso')}
+                // onChange={([date]) => handleChange('fecha_comision')(date)}
+                onChange={handleChange('fecha_comision')}
+               
+              />
+            ) : (
+              <SelectPickerField
+                field={formik.getFieldProps('fecha_comision')}
+                form={formik}
+                isFieldValid={isFieldValid('fecha_comision')}
+                isSubmitting={formik.isSubmitting}
+              />
+            )}
             {!isFieldValid('fecha_comision') && (
               <div className='fv-plugins-message-container'>
                 <span role='alert'>{getFieldError('fecha_comision')}</span>
@@ -304,10 +270,10 @@ const EditModalForm: FC<Props> = ({comision, isComisionLoading, onClose}) => {
             </div>
           </div>
 
-          {/* Ruta */}
+          {/* {formik.values.tipo_comision === 'TRANSPORTE' && ( */}
           <div className='row mb-7 px-1'>
             <div className='col-md-6 fv-row'>
-              <label className='required fw-bold fs-6 mb-2'>Origen</label>
+              <label className='required fw-bold fs-6 mb-2'>Punto de partida (Desde)</label>
               <input
                 {...formik.getFieldProps('recorrido_de')}
                 className={clsx('form-control form-control-solid', {
@@ -323,7 +289,7 @@ const EditModalForm: FC<Props> = ({comision, isComisionLoading, onClose}) => {
               )}
             </div>
             <div className='col-md-6 fv-row'>
-              <label className='required fw-bold fs-6 mb-2'>Destino</label>
+              <label className='required fw-bold fs-6 mb-2'>Destino final (Hacia)</label>
               <input
                 {...formik.getFieldProps('recorrido_a')}
                 className={clsx('form-control form-control-solid', {
@@ -339,33 +305,42 @@ const EditModalForm: FC<Props> = ({comision, isComisionLoading, onClose}) => {
               )}
             </div>
           </div>
+          {/* )} */}
+
+          {/* Descripción */}
+          {/* {formik.values.tipo_comision === 'COMISION' && ( */}
+          <div className='fv-row mb-7 px-1'>
+            <label className='required fw-bold fs-6 mb-2'>Motivo de la comisión</label>
+            <textarea
+              {...formik.getFieldProps('descripcion_comision')}
+              className={clsx('form-control form-control-solid', {
+                'is-invalid': !isFieldValid('descripcion_comision'),
+                'is-valid':
+                  formik.touched.descripcion_comision && isFieldValid('descripcion_comision'),
+              })}
+              rows={3}
+              disabled={formik.isSubmitting}
+            />
+            {!isFieldValid('descripcion_comision') && (
+              <div className='fv-plugins-message-container'>
+                <span role='alert'>{getFieldError('descripcion_comision')}</span>
+              </div>
+            )}
+          </div>
+          {/* )} */}
+
+          {/* Ruta */}
         </div>
 
         {/* Actions */}
-        <div className='text-center pt-5 mb-6'>
-          <Button variant='light' onClick={onClose} className='me-3' disabled={formik.isSubmitting}>
-            <KTIcon iconName='cross' className='fs-2' />
-            Cancelar
-          </Button>
-          <Button
-            variant='primary'
-            type='submit'
-            disabled={formik.isSubmitting || !formik.isValid || !formik.touched}
-          >
-            {formik.isSubmitting ? (
-              <>
-                Procesando... <span className='spinner-border spinner-border-sm ms-2' />
-              </>
-            ) : (
-              <>
-                <KTIcon iconName='check' className='fs-2 me-1' />
-                {comision.id_comision ? 'Actualizar' : 'Guardar'}
-              </>
-            )}
-          </Button>
-        </div>
+        <FormActions
+          onClose={onClose}
+          isSubmitting={formik.isSubmitting}
+          isValid={formik.isValid}
+          isEdit={!!comision.id_comision}
+        />
       </form>
-      {(formik.isSubmitting || isComisionLoading) && <ListLoading />}
+      {(formik.isSubmitting || isLoading) && <ListLoading />}
     </>
   )
 }

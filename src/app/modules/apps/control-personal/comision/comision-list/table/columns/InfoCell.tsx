@@ -49,7 +49,7 @@ const InfoCell: FC<Props> = ({comision}) => {
       <div className='d-flex flex-column'>
         {/* Main description */}
         <a href='#' className='text-gray-800 text-hover-primary fw-bolder mb-1 fs-6'>
-          {comision.descripcion_comision || 'Comisión sin descripción'}
+          {comision.tipo_comision || 'Comisión sin descripción'}
         </a>
 
         {/* Secondary info row */}

@@ -1,13 +1,14 @@
-import { useQuery } from 'react-query'
-import { EditModalForm } from './EditModalForm'
-import { isNotEmpty, QUERIES } from '../../../../../../../../_metronic/helpers'
-import { useListView } from '../core/ListViewProvider'
-import { getTipoPermisoById } from '../core/_requests'
+import {useQuery} from 'react-query'
+import {EditModalForm} from './EditModalForm'
+import {isNotEmpty, QUERIES} from '../../../../../../../../_metronic/helpers'
+import {useListView} from '../core/ListViewProvider'
+import {getTipoPermisoById} from '../core/_requests'
+import {initialTipoPermiso} from '../core/_models'
 
-const EditModalFormWrapper = ({ onClose }) => {
-  const { itemIdForUpdate, setItemIdForUpdate } = useListView()
+const EditModalFormWrapper = ({onClose}) => {
+  const {itemIdForUpdate, setItemIdForUpdate} = useListView()
   const enabledQuery: boolean = isNotEmpty(itemIdForUpdate)
-  
+
   const {
     isLoading,
     data: tipoPermiso,
@@ -33,10 +34,10 @@ const EditModalFormWrapper = ({ onClose }) => {
 
   if (!itemIdForUpdate) {
     return (
-      <EditModalForm 
-        onClose={onClose} 
-        isLoading={isLoading} 
-        tipoPermiso={{ id_tipo_permiso: undefined }} 
+      <EditModalForm
+        onClose={onClose}
+        isLoading={isLoading}
+        tipoPermiso={{...initialTipoPermiso}}
       />
     )
   }
@@ -54,16 +55,10 @@ const EditModalFormWrapper = ({ onClose }) => {
   }
 
   if (!isLoading && !error && tipoPermiso) {
-    return (
-      <EditModalForm 
-        onClose={onClose} 
-        isLoading={isLoading} 
-        tipoPermiso={tipoPermiso} 
-      />
-    )
+    return <EditModalForm onClose={onClose} isLoading={isLoading} tipoPermiso={tipoPermiso} />
   }
 
   return null
 }
 
-export { EditModalFormWrapper }
+export {EditModalFormWrapper}

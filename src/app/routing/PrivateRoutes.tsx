@@ -7,7 +7,7 @@ import {MenuTestPage} from '../pages/MenuTestPage'
 import {getCSSVariableValue} from '../../_metronic/assets/ts/_utils'
 import {WithChildren} from '../../_metronic/helpers'
 import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
-import AsistenciaPermisoPage from '../modules/apps/control-personal/permisos/asistencia-permisos/AsistenciaPermisoPage'
+// import AsistenciaPermisoPage from '../modules/apps/control-personal/permisos/asistencia-permisos/AsistenciaPermisoPage'
 
 const PrivateRoutes = () => {
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
@@ -19,6 +19,8 @@ const PrivateRoutes = () => {
 
   const PersonPage = lazy(() => import('../modules/apps/person-management/PersonPage'))
   const ComisionPage = lazy(() => import('../modules/apps/control-personal/comision/ComisionPage'))
+  const AsistenciaPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/asistencia-permiso/AsistenciaPermisoPage'))
+  const DeclaratoriaComisionPage = lazy(() => import('../modules/apps/control-personal/declaratoria-comision/DeclaratoriaComisionPage'))
   const TipoPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/tipos-permisos/TipoPermisoPage'))
   const FeriadoAsuetoPage = lazy(() => import('../modules/apps/control-personal/feriado-asueto/FeriadoAsuetoPage'))
 
@@ -125,6 +127,14 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <ComisionPage />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path='apps/declaratoria-comision/*' 
+          element={
+            <SuspensedView>
+              <DeclaratoriaComisionPage />
             </SuspensedView>
           }
         />

@@ -1,25 +1,34 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import {FC, useEffect} from 'react'
 import {useMutation, useQueryClient} from 'react-query'
-import {MenuComponent} from '../../../../../../../../_metronic/assets/ts/components'
-import {ID, KTIcon, QUERIES} from '../../../../../../../../_metronic/helpers'
+import {MenuComponent} from 'src/_metronic/assets/ts/components'
+import {ID, KTIcon, QUERIES} from 'src/_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
-import {deleteComision, aprobarComision} from '../../core/_requests'
+import {COMISION_URL, deleteComision, procesarEstadoComision} from '../../core/_requests'
 import {toast} from 'react-toastify'
-import Swal from 'sweetalert2'
-
-const COMISION_URL = process.env.REACT_APP_THEME_API_URL + '/boletas-comision'
+import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
+import {showToast} from 'src/app/utils/toastHelper'
+import {showConfirmDialog} from 'src/app/utils/swalHelpers.ts'
+import {getPermisosComision} from 'src/app/modules/auth/core/permissions'
 
 type Props = {
   id: ID
-  estado?: 'PENDIENTE' | 'APROBADO' // Add estado prop for comision-specific actions
+  estado?: 'GENERADO' | 'ENVIADO' | 'RECEPCIONADO' | 'APROBADO' | 'OBSERVADO' // Add estado prop for comision-specific actions
+  hash?: string
 }
 
-const ActionsCell: FC<Props> = ({id, estado}) => {
-  const {setItemIdForUpdate, setIsShow} = useListView()
+const ActionsCell: FC<Props> = ({id, estado, hash = null}) => {
+  const {setAccion, setItemIdForUpdate, setIsShow} = useListView()
+  const {canManageComisiones} = usePermissions()
   const {query} = useQueryResponse()
   const queryClient = useQueryClient()
+
+  const permisos = getPermisosComision({
+    estado: estado || 'GENERADO',
+    puedeGestionar: canManageComisiones,
+  })
+  // console.log(currentUser?.groups)
 
   useEffect(() => {
     MenuComponent.reinitialization()
@@ -27,20 +36,32 @@ const ActionsCell: FC<Props> = ({id, estado}) => {
 
   const openEditModal = async () => {
     setItemIdForUpdate(id)
+    setAccion('editar')
     setIsShow(true)
   }
 
-  const approveItem = useMutation(() => aprobarComision(id), {
+  const openObsertacionModal = async () => {
+    setItemIdForUpdate(id)
+    setAccion('observar')
+    setIsShow(true)
+  }
+
+  const receiveItem = useMutation(() => procesarEstadoComision({code: id, action: 'receive'}), {
     onSuccess: () => {
       queryClient.invalidateQueries([`${QUERIES.COMISIONES_LIST}-${query}`])
-      toast.success('Comisión aprobada correctamente', {
-        position: 'top-right',
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
+      showToast({
+        message: 'Comisión recepcionada correctamente',
+        type: 'success',
+      })
+    },
+  })
+
+  const approveItem = useMutation(() => procesarEstadoComision({code: id, action: 'approve'}), {
+    onSuccess: () => {
+      queryClient.invalidateQueries([`${QUERIES.COMISIONES_LIST}-${query}`])
+      showToast({
+        message: 'Comisión aprobada correctamente',
+        type: 'success',
       })
     },
   })
@@ -48,44 +69,59 @@ const ActionsCell: FC<Props> = ({id, estado}) => {
   const deleteItem = useMutation(() => deleteComision(id), {
     onSuccess: () => {
       queryClient.invalidateQueries([`${QUERIES.COMISIONES_LIST}-${query}`])
-      toast.success('Comisión eliminada correctamente', {
-        position: 'top-right',
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
+      showToast({
+        message: 'Comisión eliminada correctamente',
+        type: 'success',
       })
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Error al eliminar la comisión', {
-        position: 'top-right',
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
+      showToast({
+        message: error.response?.data?.message || 'Error al eliminar la comisión',
+        type: 'error',
       })
     },
   })
 
+  const sendItem = useMutation(() => procesarEstadoComision({code: id, action: 'send'}), {
+    onSuccess: () => {
+      queryClient.invalidateQueries([`${QUERIES.COMISIONES_LIST}-${query}`])
+      showToast({message: 'Comisión enviada correctamente', type: 'success'})
+    },
+    onError: () => {
+      showToast({message: 'Error al enviar la comisión', type: 'error'})
+    },
+  })
+  const handlePrintConfirm = async () => {
+    try {
+      if (estado !== 'GENERADO') {
+        window.open(COMISION_URL + '/reporte/' + hash, '_blank')
+        return
+      }
+
+      // Si está en GENERADO, mostrar confirmación
+      const result = await showConfirmDialog({
+        title: '¿Está seguro?',
+        html: '<div>Una vez que imprima, la comisión <strong>no podrá ser modificada</strong> y se marcará como </div><span class="badge badge-light-warning fs-5 mt-3">ENVIADO</span>',
+        icon: 'warning',
+        confirmButtonText: 'Sí, imprimir',
+      })
+
+      if (result.isConfirmed) {
+        await sendItem.mutateAsync()
+        window.open(COMISION_URL + '/reporte/' + hash, '_blank')
+      }
+    } catch (error) {
+      showToast({message: 'Error al procesar la impresión', type: 'error'})
+    }
+  }
+
   const handleDelete = async () => {
     try {
-      const result = await Swal.fire({
+      const result = await showConfirmDialog({
         title: '¿Estás seguro?',
         text: '¡No podrás revertir esta acción!',
         icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
         confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar',
-        customClass: {
-          confirmButton: 'btn btn-primary',
-          cancelButton: 'btn btn-danger',
-        },
       })
 
       if (result.isConfirmed) {
@@ -98,22 +134,32 @@ const ActionsCell: FC<Props> = ({id, estado}) => {
 
   const handleApprove = async () => {
     try {
-      const result = await Swal.fire({
+      const result = await showConfirmDialog({
         title: '¿Aprobar comisión?',
-        text: 'Esta acción cambiará el estado a APROBADO',
+        html: 'Esta acción cambiará el estado a <span class="badge badge-light-success">APROBADO</span>',
         icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
         confirmButtonText: 'Sí, aprobar',
-        cancelButtonText: 'Cancelar',
       })
 
       if (result.isConfirmed) {
         await approveItem.mutateAsync()
       }
+    } catch (error) {}
+  }
+  const handleReceive = async () => {
+    try {
+      const result = await showConfirmDialog({
+        title: '¿Recepcionar comisión?',
+        html: 'Esta acción cambiará el estado a <span class="badge badge-light-info">RECEPCIONADO</span>',
+        icon: 'question',
+        confirmButtonText: 'Sí, continuar',
+      })
+
+      if (result.isConfirmed) {
+        await receiveItem.mutateAsync()
+      }
     } catch (error) {
-      toast.error('Error al aprobar la comisión')
+      toast.error('Error al recepcionar la comisión')
     }
   }
 
@@ -135,33 +181,55 @@ const ActionsCell: FC<Props> = ({id, estado}) => {
       >
         {/* Imprimir action */}
         <div className='menu-item px-3'>
-          <a href={COMISION_URL + '/reporte/' + id} className='menu-link px-3'>
+          <a href='#' className='menu-link px-3' onClick={handlePrintConfirm}>
             <i className='las la-print fs-5 me-2'></i> Imprimir
           </a>
         </div>
 
         {/* Edit action */}
-        <div className='menu-item px-3'>
-          <a className='menu-link px-3' onClick={openEditModal}>
-            <i className='las la-edit fs-5 me-2'></i> Editar
-          </a>
-        </div>
+        {permisos.puedeEditar && (
+          <div className='menu-item px-3'>
+            <a href='#' className='menu-link px-3' onClick={openEditModal}>
+              <i className='las la-edit fs-5 me-2'></i> Editar
+            </a>
+          </div>
+        )}
+        {/* estado_boleta_comision: 'GENERADO' | 'ENVIADO' | 'RECEPCIONADO' | 'APROBADO' | 'OBSERVADO' */}
 
         {/* Approve action (only shown for PENDIENTE) */}
-        {estado === 'PENDIENTE' && (
+        {permisos.puedeAprobar && (
           <div className='menu-item px-3'>
-            <a className='menu-link px-3' onClick={handleApprove}>
+            <a href='#' className='menu-link px-3' onClick={handleApprove}>
               <i className='las la-check-circle fs-5 me-2'></i> Aprobar
             </a>
           </div>
         )}
 
+        {permisos.puedeRecepcionar && (
+          <div className='menu-item px-3'>
+            <a href='#' className='menu-link px-3' onClick={handleReceive}>
+              <i className='las la-check-circle fs-5 me-2'></i> Recepcionar
+            </a>
+          </div>
+        )}
+
+        {/* Accion observar */}
+        {permisos.puedeObservar && (
+          <div className='menu-item px-3'>
+            <a href='#' className='menu-link px-3' onClick={openObsertacionModal}>
+              <i className='las la-info-circle fs-5 me-2'></i> Observar
+            </a>
+          </div>
+        )}
+
         {/* Delete action */}
-        <div className='menu-item px-3'>
-          <a className='menu-link px-3' onClick={handleDelete}>
-            <i className='las la-trash-alt fs-5 me-2'></i> Eliminar
-          </a>
-        </div>
+        {permisos.puedeEliminar && (
+          <div className='menu-item px-3'>
+            <a href='#' className='menu-link px-3' onClick={handleDelete}>
+              <i className='las la-trash-alt fs-5 me-2'></i> Eliminar
+            </a>
+          </div>
+        )}
       </div>
       {/* end::Menu */}
     </>

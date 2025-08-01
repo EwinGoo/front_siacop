@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from 'axios';
 import { ID, Response } from '../../../../../../../../_metronic/helpers';
 import { TipoPermiso, TipoPermisoQueryResponse, BackendResponse, TipoPermisoBackendData } from './_models';
+import { API_ROUTES } from 'src/app/config/apiRoutes';
 
-const API_URL = process.env.REACT_APP_THEME_API_URL;
-const TIPO_PERMISO_URL = `${API_URL}/tipos-permiso`;
+export const TIPO_PERMISO_URL = API_ROUTES.CONTROL_PERSONAL + '/tipos-permiso'
 
 const getTiposPermiso = (query: string): Promise<TipoPermisoQueryResponse> => {
   return axios

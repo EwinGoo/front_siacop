@@ -4,12 +4,11 @@ import {
   calculatedGroupingIsDisabled,
   calculateIsAllDataSelected,
   groupingOnSelect,
-  initialListView,
-  ListViewContextProps,
   groupingOnSelectAll,
   WithChildren,
-} from '../../../../../../../_metronic/helpers'
+} from 'src/_metronic/helpers'
 import {useQueryResponse, useQueryResponseData} from './QueryResponseProvider'
+import {ListViewContextProps, initialListView} from './_models'
 
 const ListViewContext = createContext<ListViewContextProps>(initialListView)
 
@@ -17,12 +16,12 @@ const ListViewProvider: FC<WithChildren> = ({children}) => {
   const [selected, setSelected] = useState<Array<ID>>(initialListView.selected)
   const [itemIdForUpdate, setItemIdForUpdate] = useState<ID>(initialListView.itemIdForUpdate)
   const [isShow, setIsShow] = useState<boolean>(initialListView.isShow)
+  const [accion, setAccion] = useState<'editar' | 'aprobar' | 'observar' | 'report' | undefined>(undefined)
 
   const {isLoading} = useQueryResponse()
   const data = useQueryResponseData()
   const disabled = useMemo(() => calculatedGroupingIsDisabled(isLoading, data), [isLoading, data])
   const isAllSelected = useMemo(() => calculateIsAllDataSelected(data, selected), [data, selected])
-
 
   return (
     <ListViewContext.Provider
@@ -36,13 +35,22 @@ const ListViewProvider: FC<WithChildren> = ({children}) => {
           groupingOnSelect(id, selected, setSelected)
         },
         onSelectAll: () => {
-          groupingOnSelectAll(isAllSelected, setSelected, data)
+          if (isAllSelected) {
+            setSelected([])
+            return
+          }
+          if (!data || !data.length) {
+            return
+          }
+          setSelected(data.filter((item) => item.id_comision).map((item) => item.id_comision))
         },
         clearSelected: () => {
           setSelected([])
         },
         isShow,
         setIsShow,
+        accion,
+        setAccion,
       }}
     >
       {children}

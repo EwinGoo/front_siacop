@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
+  /* eslint-disable jsx-a11y/anchor-is-valid */
 import {FC, useEffect} from 'react'
 import {useMutation, useQueryClient} from 'react-query'
 import {MenuComponent} from '../../../../../../../../_metronic/assets/ts/components'
@@ -65,8 +65,8 @@ const ActionsCell: FC<Props> = ({id}) => {
         confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar',
         customClass: {
-          confirmButton: 'btn btn-primary',
-          cancelButton: 'btn btn-danger'
+          confirmButton: 'btn btn-sm btn-primary',
+          cancelButton: 'btn btn-sm btn-danger'
         },
       })
 

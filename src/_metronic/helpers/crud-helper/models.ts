@@ -63,6 +63,13 @@ export type Response<T> = {
   }
 }
 
+export interface ApiResponse<T> {
+  status: number
+  error: boolean
+  message: string
+  data: T
+}
+
 export type QueryState = PaginationState & SortState & FilterState & SearchState
 
 export type QueryRequestContextProps = {
@@ -78,7 +85,7 @@ export const initialQueryState: PaginationState = {
   pageCount: 1,
   next: null,
   previous: null,
-  links: []
+  links: [],
 }
 
 export const initialQueryRequest: QueryRequestContextProps = {
@@ -100,7 +107,7 @@ export type ListViewContextProps = {
   onSelect: (selectedId: ID) => void
   onSelectAll: () => void
   clearSelected: () => void
-  
+
   // NULL => (CREATION MODE) | MODAL IS OPENED
   // NUMBER => (EDIT MODE) | MODAL IS OPENED
   // UNDEFINED => MODAL IS CLOSED

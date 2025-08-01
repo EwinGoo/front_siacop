@@ -61,7 +61,7 @@ const ThemeModeSwitcher = ({
             <span className='menu-icon' data-kt-element='icon'>
               <KTIcon iconName='night-day' className='fs-1' />
             </span>
-            <span className='menu-title'>Light</span>
+            <span className='menu-title'>Claro</span>
           </a>
         </div>
         {/* end::Menu item */}
@@ -76,7 +76,7 @@ const ThemeModeSwitcher = ({
             <span className='menu-icon' data-kt-element='icon'>
               <KTIcon iconName='moon' className='fs-1' />
             </span>
-            <span className='menu-title'>Dark</span>
+            <span className='menu-title'>Oscuro</span>
           </a>
         </div>
         {/* end::Menu item */}
@@ -91,7 +91,7 @@ const ThemeModeSwitcher = ({
             <span className='menu-icon' data-kt-element='icon'>
               <KTIcon iconName='screen' className='fs-1' />
             </span>
-            <span className='menu-title'>System</span>
+            <span className='menu-title'>Sistema</span>
           </a>
         </div>
         {/* end::Menu item */}

@@ -7,7 +7,7 @@ import {useQueryResponse} from '../../core/QueryResponseProvider'
 const ListFilter = () => {
   const {updateState} = useQueryRequest()
   const {isLoading} = useQueryResponse()
-  const [role, setRole] = useState<string | undefined>()
+  const [estado, setEstado] = useState<string | undefined>()
   const [lastLogin, setLastLogin] = useState<string | undefined>()
 
   useEffect(() => {
@@ -20,7 +20,7 @@ const ListFilter = () => {
 
   const filterData = () => {
     updateState({
-      filter: {role, last_login: lastLogin},
+      filter: {estado, last_login: lastLogin},
       ...initialQueryState,
     })
   }
@@ -31,19 +31,19 @@ const ListFilter = () => {
       <button
         disabled={isLoading}
         type='button'
-        className='btn btn-light-primary me-3'
+        className='btn btn-light-primary me-0'
         data-kt-menu-trigger='click'
         data-kt-menu-placement='bottom-end'
       >
         <KTIcon iconName='filter' className='fs-2' />
-        Filter
+        Filtro
       </button>
       {/* end::Filter Button */}
       {/* begin::SubMenu */}
       <div className='menu menu-sub menu-sub-dropdown w-300px w-md-325px' data-kt-menu='true'>
         {/* begin::Header */}
         <div className='px-7 py-5'>
-          <div className='fs-5 text-dark fw-bolder'>Filter Options</div>
+          <div className='fs-5 text-dark fw-bolder'>Optiones de Filtro</div>
         </div>
         {/* end::Header */}
 
@@ -55,7 +55,7 @@ const ListFilter = () => {
         <div className='px-7 py-5' data-kt-user-table-filter='form'>
           {/* begin::Input group */}
           <div className='mb-10'>
-            <label className='form-label fs-6 fw-bold'>Role:</label>
+            <label className='form-label fs-6 fw-bold'>Estado:</label>
             <select
               className='form-select form-select-solid fw-bolder'
               data-kt-select2='true'
@@ -63,21 +63,20 @@ const ListFilter = () => {
               data-allow-clear='true'
               data-kt-user-table-filter='role'
               data-hide-search='true'
-              onChange={(e) => setRole(e.target.value)}
-              value={role}
+              onChange={(e) => setEstado(e.target.value)}
+              value={estado}
             >
               <option value=''></option>
-              <option value='Administrator'>Administrator</option>
-              <option value='Analyst'>Analyst</option>
-              <option value='Developer'>Developer</option>
-              <option value='Support'>Support</option>
-              <option value='Trial'>Trial</option>
+              <option value='GENERADO'>Generado</option>
+              <option value='RECEPCIONADO'>Recepcionado</option>
+              <option value='APROBADO'>Aprobado</option>
+              <option value='OBSERVADO'>Observado</option>
             </select>
           </div>
           {/* end::Input group */}
 
           {/* begin::Input group */}
-          <div className='mb-10'>
+          {/* <div className='mb-10'>
             <label className='form-label fs-6 fw-bold'>Last login:</label>
             <select
               className='form-select form-select-solid fw-bolder'
@@ -95,7 +94,7 @@ const ListFilter = () => {
               <option value='5 hours ago'>5 hours ago</option>
               <option value='2 days ago'>2 days ago</option>
             </select>
-          </div>
+          </div> */}
           {/* end::Input group */}
 
           {/* begin::Actions */}
@@ -103,22 +102,22 @@ const ListFilter = () => {
             <button
               type='button'
               disabled={isLoading}
-              onClick={filterData}
+              onClick={resetData}
               className='btn btn-light btn-active-light-primary fw-bold me-2 px-6'
               data-kt-menu-dismiss='true'
               data-kt-user-table-filter='reset'
             >
-              Reset
+              Resetear
             </button>
             <button
               disabled={isLoading}
               type='button'
-              onClick={resetData}
+              onClick={filterData}
               className='btn btn-primary fw-bold px-6'
               data-kt-menu-dismiss='true'
               data-kt-user-table-filter='filter'
             >
-              Apply
+              Aplicar
             </button>
           </div>
           {/* end::Actions */}

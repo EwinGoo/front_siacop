@@ -1,9 +1,10 @@
 import axios, { AxiosResponse } from 'axios'
 import { ID, Response } from '../../../../../../../_metronic/helpers'
 import { FeriadoAsueto, FeriadoAsuetoQueryResponse, BackendResponse, FeriadoAsuetoBackendData } from './_models'
+import { API_ROUTES } from 'src/app/config/apiRoutes'
 
-const API_URL = process.env.REACT_APP_THEME_API_URL
-const FERIADO_ASUETO_URL = `${API_URL}/asistencia-feriado-asueto`
+const FERIADO_ASUETO_URL = API_ROUTES.CONTROL_PERSONAL + '/asistencia-feriado-asueto'
+
 
 const getFeriadosAsuetos = (query: string): Promise<FeriadoAsuetoQueryResponse> => {
   return axios

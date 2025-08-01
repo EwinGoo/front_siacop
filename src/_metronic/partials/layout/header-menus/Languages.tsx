@@ -7,33 +7,13 @@ import {useLang, setLanguage} from '../../../i18n/Metronici18n'
 const languages = [
   {
     lang: 'en',
-    name: 'English',
+    name: 'Ingles',
     flag: toAbsoluteUrl('/media/flags/united-states.svg'),
   },
   {
-    lang: 'zh',
-    name: 'Mandarin',
-    flag: toAbsoluteUrl('/media/flags/china.svg'),
-  },
-  {
     lang: 'es',
-    name: 'Spanish',
+    name: 'Español',
     flag: toAbsoluteUrl('/media/flags/spain.svg'),
-  },
-  {
-    lang: 'ja',
-    name: 'Japanese',
-    flag: toAbsoluteUrl('/media/flags/japan.svg'),
-  },
-  {
-    lang: 'de',
-    name: 'German',
-    flag: toAbsoluteUrl('/media/flags/germany.svg'),
-  },
-  {
-    lang: 'fr',
-    name: 'French',
-    flag: toAbsoluteUrl('/media/flags/france.svg'),
   },
 ]
 
@@ -49,7 +29,7 @@ const Languages: FC = () => {
     >
       <a href='#' className='menu-link px-5'>
         <span className='menu-title position-relative'>
-          Language
+          Idiomas
           <span className='fs-8 rounded bg-light px-3 py-2 position-absolute translate-middle-y top-50 end-0'>
             {currentLanguage?.name}{' '}
             <img

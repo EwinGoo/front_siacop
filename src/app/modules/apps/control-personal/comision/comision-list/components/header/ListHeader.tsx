@@ -8,6 +8,7 @@ const ListHeader = () => {
   return (
     <div className='card-header border-0 pt-6'>
       <ListSearchComponent />
+      {/* <ToolbarClassic /> */}
       {/* begin::Card toolbar */}
       <div className='card-toolbar'>
         {/* begin::Group actions */}

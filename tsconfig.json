@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "downlevelIteration": true,
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -17,11 +18,11 @@
     "noEmit": true,
     "jsx": "react-jsx",
     // Añade estas dos líneas para los alias
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"],
+      "src/*": ["src/*"],
       "@/_metronic/*": ["src/_metronic/*"],
-      "@/_metronic/layout/core": ["src/_metronic/layout/core/index.ts"],// o la ruta exacta
+      "@/_metronic/layout/core": ["src/_metronic/layout/core/index.ts"], // o la ruta exacta
       "@/_metronic/helpers": ["src/_metronic/helpers/index.ts"],
       "@/_metronic/assets/ts/components": ["src/_metronic/assets/ts/components/index.ts"],
       "@components/*": ["src/components/*"],

@@ -11,8 +11,11 @@ import {
 import {LayoutSplashScreen} from '../../../../_metronic/layout/core'
 import {AuthModel, UserModel} from './_models'
 import * as authHelper from './AuthHelpers'
-import {getUserByToken} from './_requests'
+// import {getUserByToken} from './_requests'
+import {getUserBySession} from './_requests'
 import {WithChildren} from '../../../../_metronic/helpers'
+import {APP_ROLES, PERMISSION_GROUPS, RoleKey} from './roles'
+import {useNavigate} from 'react-router-dom'
 
 type AuthContextProps = {
   auth: AuthModel | undefined
@@ -20,6 +23,8 @@ type AuthContextProps = {
   currentUser: UserModel | undefined
   setCurrentUser: Dispatch<SetStateAction<UserModel | undefined>>
   logout: () => void
+  hasRole: (roleKey: RoleKey) => boolean
+  hasPermission: (permissionKey: keyof typeof PERMISSION_GROUPS) => boolean
 }
 
 const initAuthContextPropsState = {
@@ -28,6 +33,8 @@ const initAuthContextPropsState = {
   currentUser: undefined,
   setCurrentUser: () => {},
   logout: () => {},
+  hasRole: (_roleKey) => false,
+  hasPermission: (_permissionKey) => false,
 }
 
 const AuthContext = createContext<AuthContextProps>(initAuthContextPropsState)
@@ -43,6 +50,7 @@ const AuthProvider: FC<WithChildren> = ({children}) => {
     setAuth(auth)
     if (auth) {
       authHelper.setAuth(auth)
+      // setCurrentUser(auth.user);
     } else {
       authHelper.removeAuth()
     }
@@ -53,8 +61,24 @@ const AuthProvider: FC<WithChildren> = ({children}) => {
     setCurrentUser(undefined)
   }
 
+  const hasRole = (roleKey: RoleKey): boolean => {
+    return currentUser?.groups?.includes(APP_ROLES[roleKey]) ?? false
+  }
+
+  const hasPermission = (permissionKey: keyof typeof PERMISSION_GROUPS): boolean => {
+    const allowedRoles = PERMISSION_GROUPS[permissionKey]
+    if (!allowedRoles) {
+      // No existe ese grupo de permiso
+      console.warn(`Permiso no definido: ${permissionKey}`)
+      return false
+    }
+    return currentUser?.groups?.some((group) => allowedRoles.includes(group)) ?? false
+  }
+
   return (
-    <AuthContext.Provider value={{auth, saveAuth, currentUser, setCurrentUser, logout}}>
+    <AuthContext.Provider
+      value={{auth, saveAuth, currentUser, setCurrentUser, logout, hasRole, hasPermission}}
+    >
       {children}
     </AuthContext.Provider>
   )
@@ -64,18 +88,32 @@ const AuthInit: FC<WithChildren> = ({children}) => {
   const {auth, logout, setCurrentUser} = useAuth()
   const didRequest = useRef(false)
   const [showSplashScreen, setShowSplashScreen] = useState(true)
+  const navigate = useNavigate()
   // We should request user by authToken (IN OUR EXAMPLE IT'S API_TOKEN) before rendering the application
   useEffect(() => {
-    const requestUser = async (apiToken: string) => {
+    const requestUser = async () => {
       try {
         if (!didRequest.current) {
-          const {data} = await getUserByToken(apiToken)
+          // Cambiamos esta parte para usar la sesión en lugar del token
+          const {data} = await getUserBySession()
           if (data) {
-            setCurrentUser(data)
+            setCurrentUser(data.user)
+            // Creamos un auth model básico para mantener compatibilidad
+            const authModel: AuthModel = {
+              api_token: 'session-based', // Esto es simbólico
+              refreshToken: undefined,
+            }
+            authHelper.setAuth(authModel)
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error(error)
+        if (error.code === 'ERR_NETWORK') {
+          // Redirige a página de error 500
+          navigate('/error/500')
+          return
+        }
+
         if (!didRequest.current) {
           logout()
         }
@@ -85,16 +123,8 @@ const AuthInit: FC<WithChildren> = ({children}) => {
 
       return () => (didRequest.current = true)
     }
-    
-    // console.log(auth,auth?.api_token);
-    
 
-    if (auth && auth.api_token) {
-      requestUser(auth.api_token)
-    } else {
-      logout()
-      setShowSplashScreen(false)
-    }
+    requestUser()
     // eslint-disable-next-line
   }, [])
 

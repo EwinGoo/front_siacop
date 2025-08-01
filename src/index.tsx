@@ -34,6 +34,7 @@ import {AuthProvider, setupAxios} from './app/modules/auth'
  *
  * @see https://github.com/axios/axios#interceptors
  */
+
 setupAxios(axios)
 Chart.register(...registerables)
 

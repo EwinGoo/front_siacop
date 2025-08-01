@@ -7,7 +7,7 @@ import {useListView} from '../core/ListViewProvider'
 import {KTIcon} from '../../../../../../../_metronic/helpers'
 
 const EditModal = () => {
-  const {setItemIdForUpdate, setIsShow, isShow, itemIdForUpdate} = useListView()
+  const {accion, setItemIdForUpdate, setIsShow, isShow, itemIdForUpdate} = useListView()
   const [selectedType, setSelectedType] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
 
@@ -25,6 +25,10 @@ const EditModal = () => {
       setShowForm(true)
     }
   }, [itemIdForUpdate])
+
+  if (!(isShow && accion === 'editar')) {
+    return null
+  }
 
   const handleTypeSelect = (type: string) => {
     setSelectedType(type)

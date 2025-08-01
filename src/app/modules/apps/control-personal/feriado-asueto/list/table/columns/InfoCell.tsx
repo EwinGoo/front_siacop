@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import clsx from 'clsx'
 import {FC} from 'react'
 import {KTIcon} from '../../../../../../../../_metronic/helpers'
 import {FeriadoAsueto} from '../../core/_models'
@@ -10,21 +8,10 @@ type Props = {
 }
 
 const InfoCell: FC<Props> = ({feriadoAsueto}) => {
-  // Format dates if they exist
-  const formattedEventDate = feriadoAsueto.fecha_evento
-    ? new Date(feriadoAsueto.fecha_evento).toLocaleDateString()
-    : 'Sin fecha definida'
-
-  const formattedRange = feriadoAsueto.fecha_inicio && feriadoAsueto.fecha_fin
-    ? `${new Date(feriadoAsueto.fecha_inicio).toLocaleDateString()} - ${new Date(feriadoAsueto.fecha_fin).toLocaleDateString()}`
-    : 'Sin rango definido'
-
-  // Type badge classes
-  const typeClass = feriadoAsueto.tipo_evento === 'FERIADO' ? 'badge-light-primary' : 'badge-light-info'
 
   return (
     <div className='d-flex align-items-center'>
-      {/* Icon based on event type */}
+      {/* Icono basada segun evento */}
       <Tooltip
         title={feriadoAsueto.tipo_evento === 'FERIADO' ? 'Feriado' : 'Asueto'}
         arrow
@@ -47,41 +34,10 @@ const InfoCell: FC<Props> = ({feriadoAsueto}) => {
       </Tooltip>
 
       <div className='d-flex flex-column'>
-        {/* Event name */}
+        {/* Nombre de evento */}
         <a href='#' className='text-gray-800 text-hover-primary fw-bolder mb-1 fs-6'>
           {feriadoAsueto.nombre_evento || 'Evento sin nombre'}
         </a>
-
-        {/* Secondary info row */}
-        <div className='d-flex flex-wrap align-items-center'>
-          {/* Event date */}
-          <span className='text-muted fw-bold me-2'>
-            <KTIcon iconName='calendar' className='fs-5 me-1' />
-            {formattedEventDate}
-          </span>
-
-          {/* Type badge */}
-          <span className={clsx('badge', typeClass, 'me-2')}>
-            {feriadoAsueto.tipo_evento}
-          </span>
-
-          {/* Date range */}
-          <span className='text-muted fw-bold me-2'>
-            <KTIcon iconName='clock' className='fs-5 me-1' />
-            {formattedRange}
-          </span>
-
-          {/* Applied to */}
-          {feriadoAsueto.aplicado_a && (
-            <span className={clsx('badge', {
-              'badge-light-success': feriadoAsueto.aplicado_a === 'TODOS',
-              'badge-light-primary': feriadoAsueto.aplicado_a === 'MASCULINO',
-              'badge-light-danger': feriadoAsueto.aplicado_a === 'FEMENINO'
-            })}>
-              {feriadoAsueto.aplicado_a}
-            </span>
-          )}
-        </div>
       </div>
     </div>
   )

@@ -242,3 +242,15 @@
     }
   }
 }
+
+// az custom styles
+#kt_table_hover tbody tr {
+  &:hover {
+    background-color: var(--kt-hover-bg, #f5f8fa); // para modo claro
+
+    // Si usas clase .dark-mode en body para modo oscuro:
+    html[data-bs-theme='dark'] & {
+      background-color: var(--kt-hover-bg-dark, rgba(255, 255, 255, 0.1));
+    }
+  }
+}

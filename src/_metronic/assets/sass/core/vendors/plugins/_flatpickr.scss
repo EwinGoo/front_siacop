@@ -401,43 +401,75 @@ span.flatpickr-weekday {
   }
 }
 
-// // Week numbers
-// .flatpickr-weekwrapper {
-//   margin-right: 5px;
-// }
+// FlatPicker Dark mode
 
-// // .flatpickr-calendar {
-// //   z-index: 99999 !important;
-// // }
-// .flatpickr-wrapper{
-//   // z-index: 99999 !important;
-//   display: block !important;
-// }
+.flatpickr-dark {
+  background-color: #1e1e2d;
+  color: #ffffff;
+  border-color: #2b2b40;
+  // -webkit-box-shadow: none;
+  box-shadow: none !important;
 
-// /* Añade esto a tu CSS global */
-// .flatpickr-calendar.open {
-//   z-index: 99999 !important;
-//   overflow: visible !important;
-// }
+  .flatpickr-calendar {
+    background-color: #1e1e2d !important;
+    border: 1px solid #2b2b40 !important;
+  }
 
-// .flatpickr-monthDropdown-months {
-//   position: absolute !important;
-//   z-index: 999999 !important;
-//   background: white !important;
-//   border: 1px solid #ccc !important;
-//   border-radius: 4px !important;
-//   box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
-// }
+  .flatpickr-day {
+    color: #ffffff;
 
-// .flatpickr-monthDropdown-month {
-//   padding: 5px 10px !important;
-// }
+    &.today {
+      border-color: #3699ff;
+    }
 
-// /* Si usas Bootstrap */
-// .modal {
-//   overflow: visible !important;
-// }
+    &:hover {
+      background-color: #2b2b40;
+    }
 
-// .modal-content {
-//   overflow: visible !important;
-// }
+    &.selected,
+    &.startRange,
+    &.endRange {
+      background: #3699ff;
+      border-color: #3699ff;
+      color: #ffffff;
+    }
+  }
+
+  .flatpickr-months {
+    background-color: #1e1e2d;
+    color: #ffffff;
+  }
+
+  .flatpickr-weekday {
+    color: #92929f;
+  }
+
+  .flatpickr-time {
+    background-color: #1e1e2d;
+    color: #ffffff;
+  }
+
+  input {
+    background-color: #1e1e2d;
+    color: #ffffff;
+  }
+  .flatpickr-innerContainer {
+    background-color: #1e1e2d;
+  }
+  .flatpickr-months {
+    .flatpickr-month {
+      .flatpickr-current-month {
+        color: #ffffff;
+      }
+    }
+  }
+  .flatpickr-day.nextMonthDay,
+  .flatpickr-day.prevMonthDay {
+    color: #9a9abb !important; // Gris azulado tenue, buena visibilidad
+    opacity: 0.6;
+
+    &:hover {
+      background-color: #2b2b40 !important;
+    }
+  }
+}

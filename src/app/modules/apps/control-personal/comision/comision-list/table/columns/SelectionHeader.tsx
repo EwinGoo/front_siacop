@@ -9,6 +9,7 @@ type Props = {
 
 const SelectionHeader: FC<Props> = ({tableProps}) => {
   const {isAllSelected, onSelectAll} = useListView()
+  
   return (
     <th {...tableProps.column.getHeaderProps()} className='w-10px pe-2'>
       <div className='form-check form-check-sm form-check-custom form-check-solid me-3'>

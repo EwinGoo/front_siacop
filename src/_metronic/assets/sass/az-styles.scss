@@ -1,20 +1,20 @@
 /* Estilo base de la card */
 .card-flush {
-    transition: background-color 0.3s ease; /* Transición suave */
-  }
-  
-  /* Efecto hover */
-  .card-flush:hover {
-    background-color: rgba(0, 0, 0, 0.05); /* Oscurece ligeramente el fondo */
-  }
-  
-  /* Si está seleccionada (bg-primary), oscurece más al hacer hover */
-  .card-flush.bg-primary:hover {
-    background-color: #0d6efd; /* Color primario más oscuro (ajusta el valor según tu tema) */
-    opacity: 0.9; /* Otra opción: reducir opacidad */
-  }
+  transition: background-color 0.3s ease; /* Transición suave */
+}
 
-  /* Si usas un archivo CSS */
+/* Efecto hover */
+.card-flush:hover {
+  background-color: rgba(0, 0, 0, 0.05); /* Oscurece ligeramente el fondo */
+}
+
+/* Si está seleccionada (bg-primary), oscurece más al hacer hover */
+.card-flush.bg-primary:hover {
+  background-color: #0d6efd; /* Color primario más oscuro (ajusta el valor según tu tema) */
+  opacity: 0.9; /* Otra opción: reducir opacidad */
+}
+
+/* Si usas un archivo CSS */
 .hover-rotate {
   transition: transform 0.5s ease;
 }
@@ -26,6 +26,83 @@
 .fw-black {
   font-weight: 900 !important;
 }
+
 .modal-backdrop {
   --bs-backdrop-opacity: 0.7;
+}
+
+.az-w-650px {
+  width: 650px !important;
+}
+
+@media (max-width: 576px) {
+  .az-w-650px {
+    width: 290px !important;
+  }
+}
+
+.form-check-input {
+  cursor: pointer;
+}
+
+// .scan-line {
+//   position: absolute;
+//   top: 0;
+//   left: 50%;
+//   width: 200px;
+//   height: 2px;
+//   background: #00ff00;
+//   transform: translateX(-50%);
+//   animation: scan-move 2s infinite linear;
+//   z-index: 11;
+//   opacity: 0.8;
+//   box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+// }
+
+// @keyframes scan-move {
+//   0% {
+//     top: 0;
+//   }
+//   50% {
+//     top: calc(100% - 2px);
+//   }
+//   100% {
+//     top: 0;
+//   }
+// }
+
+.scan-line {
+  position: absolute;
+  top: 10;
+  left: 50%;
+  width: 60%;
+  height: 1px;
+  background: transparent;
+  transform: translateX(-50%);
+  animation: scan-move 2.5s infinite linear;
+  z-index: 11;
+  opacity: 0.7;
+  box-shadow: 0 0 10px 2px #00ff00, 0 0 20px 4px #00ff00;
+  pointer-events: none;
+}
+@keyframes scan-move {
+  10% {
+    top: 0;
+  }
+  50% {
+    top: calc(100% - 30px);
+  }
+  100% {
+    top: 0;
+  }
+}
+
+.badge.badge-light-secondary {
+  color: #938888;
+}
+
+@include color-mode(dark) {
+  .form-control.form-control-solid {
+    border-color: #2d2d43;
+  }
 }

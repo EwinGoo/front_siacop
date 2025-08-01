@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import {KTIcon, toAbsoluteUrl} from '../../../helpers'
 import {HeaderNotificationsMenu, HeaderUserMenu, Search, ThemeModeSwitcher} from '../../../partials'
 import {useLayout} from '../../core'
+import {useAuth} from '../../../../app/modules/auth'
 
 const itemClass = 'ms-1 ms-md-4'
 const btnClass =
@@ -11,6 +12,9 @@ const btnIconClass = 'fs-2'
 
 const Navbar = () => {
   const {config} = useLayout()
+  const {currentUser, logout} = useAuth()
+  const firstChar = currentUser?.first_name?.charAt(0).toUpperCase() ?? ''
+
   return (
     <div className='app-navbar flex-shrink-0'>
       <div className={clsx('app-navbar-item align-items-stretch', itemClass)}>
@@ -53,12 +57,17 @@ const Navbar = () => {
           data-kt-menu-attach='parent'
           data-kt-menu-placement='bottom-end'
         >
-          <img src={toAbsoluteUrl('/media/images/images.jpeg')} alt='' />
+          {/* <img src={toAbsoluteUrl('/media/images/images.jpeg')} alt='' /> */}
+          <div className='symbol symbol-30px me-5'>
+            <div className='symbol-label fs-2 fw-semibold bg-primary text-inverse-primary'>
+              {firstChar}
+            </div>
+          </div>
         </div>
         <HeaderUserMenu />
       </div>
 
-      {config.app?.header?.default?.menu?.display && (
+      {/* {config.app?.header?.default?.menu?.display && (
         <div className='app-navbar-item d-lg-none ms-2 me-n3' title='Show header menu'>
           <div
             className='btn btn-icon btn-active-color-primary w-35px h-35px'
@@ -67,7 +76,7 @@ const Navbar = () => {
             <KTIcon iconName='text-align-left' className={btnIconClass} />
           </div>
         </div>
-      )}
+      )} */}
     </div>
   )
 }

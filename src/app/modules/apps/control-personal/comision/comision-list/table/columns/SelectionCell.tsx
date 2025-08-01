@@ -9,6 +9,7 @@ type Props = {
 const SelectionCell: FC<Props> = ({id}) => {
   const {selected, onSelect} = useListView()
   const isSelected = useMemo(() => selected.includes(id), [id, selected])
+
   return (
     <div className='form-check form-check-custom form-check-solid'>
       <input

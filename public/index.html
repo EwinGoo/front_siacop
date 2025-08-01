@@ -1,55 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Metronic React Demo 1" />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700"
-    />
-    <title>Siacop</title>
-    <link rel="shortcut icon" href="%PUBLIC_URL%/media/logos/favicon.ico" />
-    <link rel="stylesheet" id="layout-styles-anchor" href="%PUBLIC_URL%/splash-screen.css" />
-  </head>
 
-  <body id="kt_body" class="page-loading">
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <!--begin::Theme mode setup on page load-->
-    <script>
-      let themeMode = 'system'
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Sistema de Administración y Control de Personal de la UPEA" />
+  <meta name="author" content="Sergio Garcia Mamani & Adalid Alanoca Ramirez" />
+  <meta name="keywords" content="siacop, siacopv2, siacop2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta property="og:locale" content="es_LA" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Sistema de Control de Planillas Siacop" />
+  <meta property="og:url" content="%PUBLIC_URL%" />
+  <meta property="og:site_name" content="Sistema de Control de Planillas Siacop" />
+  <link rel="canonical" href="%PUBLIC_URL%" />
 
-      if (localStorage.getItem('kt_theme_mode_value')) {
-        themeMode = localStorage.getItem('kt_theme_mode_value')
-      }
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+  <title>SiACop</title>
+  <link rel="shortcut icon" href="%PUBLIC_URL%/media/logos/favicon.ico" />
+  <link rel="stylesheet" id="layout-styles-anchor" href="%PUBLIC_URL%/splash-screen.css" />
+</head>
 
-      if (themeMode === 'system') {
-        themeMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-      }
+<body id="kt_body" class="page-loading">
+  <button id="a11y-sentinel"
+    style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; padding: 0; margin: -1px;"
+    tabindex="0">.</button>
 
-      document.documentElement.setAttribute('data-bs-theme', themeMode)
-    </script>
-    <!--end::Theme mode setup on page load-->
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <!--begin::Theme mode setup on page load-->
+  <script>
+    let themeMode = 'system'
 
-    <div id="root"></div>
+    if (localStorage.getItem('kt_theme_mode_value')) {
+      themeMode = localStorage.getItem('kt_theme_mode_value')
+    }
 
-    <!--begin::Loading markup-->
-    <div id="splash-screen" class="splash-screen">
-      <img
-        src="%PUBLIC_URL%/media/logos/default-dark.svg"
-        class="dark-logo"
-        alt="Metronic dark logo"
-      />
-      <img
-        src="%PUBLIC_URL%/media/logos/default.svg"
-        class="light-logo"
-        alt="Metronic light logo"
-      />
-      <span>Loading ...</span>
-    </div>
-    <!--end::Loading markup-->
+    if (themeMode === 'system') {
+      themeMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
 
-    <div id="root-modals"></div>
-  </body>
+    document.documentElement.setAttribute('data-bs-theme', themeMode)
+  </script>
+  <!--end::Theme mode setup on page load-->
+
+  <div id="root"></div>
+
+  <!--begin::Loading markup-->
+  <div id="splash-screen" class="splash-screen">
+    <img src="%PUBLIC_URL%/media/logos/logo_siacop.png" class="dark-logo" alt="Metronic dark logo" />
+    <img src="%PUBLIC_URL%/media/logos/logo_siacop.png" class="light-logo" alt="Metronic light logo" />
+    <span>Cargando ...</span>
+  </div>
+  <!--end::Loading markup-->
+
+  <div id="root-modals"></div>
+</body>
+
 </html>

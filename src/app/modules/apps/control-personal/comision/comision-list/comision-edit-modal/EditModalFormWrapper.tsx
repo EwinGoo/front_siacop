@@ -4,6 +4,9 @@ import {isNotEmpty, QUERIES} from '../../../../../../../_metronic/helpers'
 import {useListView} from '../core/ListViewProvider'
 import {getComisionById} from '../core/_requests'
 import Spinner from 'react-bootstrap/Spinner'
+import {toast} from 'react-toastify'
+import { initialComision } from '../core/_models'
+
 
 const EditModalFormWrapper = ({onClose, initialType}) => {
   const {itemIdForUpdate, setItemIdForUpdate} = useListView()
@@ -21,9 +24,22 @@ const EditModalFormWrapper = ({onClose, initialType}) => {
     {
       cacheTime: 0,
       enabled: enabledQuery,
+      retry: 1,
       onError: (err) => {
         setItemIdForUpdate(undefined)
-        console.error(err)
+        onClose()
+        console.error(err);
+
+        // Mostrar toast de error
+        toast.error('Error al cargar la comisión. Intente nuevamente.', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        })
       },
       // Optional: Add metadata for the query
       meta: {
@@ -37,8 +53,9 @@ const EditModalFormWrapper = ({onClose, initialType}) => {
     return (
       <EditModalForm
         onClose={onClose}
-        isComisionLoading={isLoading}
+        isLoading={isLoading}
         comision={{
+          ...initialComision,
           id_comision: undefined,
           tipo_comision: initialType, // Pasar el tipo seleccionado
         }}
@@ -52,7 +69,7 @@ const EditModalFormWrapper = ({onClose, initialType}) => {
         {/* <Loading />
         <span className='text-muted mt-5'>Cargando datos de la comisión...</span> */}
         <Spinner animation='border' role='status'>
-          <span className='visually-hidden'>Loading...</span>
+          <span className='visually-hidden'>Cargando...</span>
         </Spinner>
       </div>
     )
@@ -65,7 +82,7 @@ const EditModalFormWrapper = ({onClose, initialType}) => {
   }
 
   if (!isLoading && !error && comision) {
-    return <EditModalForm onClose={onClose} isComisionLoading={isLoading} comision={comision} />
+    return <EditModalForm onClose={onClose} isLoading={isLoading} comision={comision} />
   }
 
   return null

@@ -30,11 +30,20 @@ const ListSearchComponent = () => {
         <input
           type='text'
           data-kt-user-table-filter='search'
-          className='form-control form-control-solid w-250px ps-14'
+          className='form-control form-control-solid w-250px ps-14 pe-14'
           placeholder='Buscar ...'
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+        {searchTerm && (
+          <span
+            className='position-absolute end-0 me-5 cursor-pointer text-muted'
+            style={{fontSize: '1.2rem'}}
+            onClick={() => setSearchTerm('')}
+          >
+            &times;
+          </span>
+        )}
       </div>
       {/* end::Search */}
     </div>

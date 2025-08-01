@@ -1,14 +1,16 @@
 import axios from 'axios'
-import {AuthModel, UserModel} from './_models'
+import {AuthModel, UserModel, UserCheckRequest} from './_models'
 
 const API_URL = process.env.REACT_APP_API_URL
 
+export const GET_USER_BY_SESSION_URL = `${API_URL}/api/auth/check`
 export const GET_USER_BY_ACCESSTOKEN_URL = `${API_URL}/verify_token`
 export const LOGIN_URL = `${API_URL}/login`
-// export const LOGIN_URL = `${API_URL}/auth/token`
 export const REGISTER_URL = `${API_URL}/register`
 export const REQUEST_PASSWORD_URL = `${API_URL}/forgot_password`
 
+// Configura axios para enviar credenciales (cookies)
+axios.defaults.withCredentials = true
 // Server should return AuthModel
 export function login(email: string, password: string) {
   // return axios.post<{data: AuthModel}>(LOGIN_URL, {
@@ -47,4 +49,8 @@ export function getUserByToken(token: string) {
   return axios.post<UserModel>(GET_USER_BY_ACCESSTOKEN_URL, {
     api_token: token,
   })
+}
+
+export function getUserBySession() {
+  return axios.get<UserCheckRequest>(GET_USER_BY_SESSION_URL)
 }
