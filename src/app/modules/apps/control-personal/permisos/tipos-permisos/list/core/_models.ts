@@ -5,9 +5,9 @@ export type TipoPermiso = {
   nombre: string;
   descripcion?: string | null;
   tipo_permiso?: 'COMISION' | 'PERMISO';  // Nuevo campo enum
-  requiere_hoja_ruta?: boolean | '0' | '1';  // Nuevo campo (puede ser boolean o string)
+  // requiere_hoja_ruta?: boolean | '0' | '1';  // Nuevo campo (puede ser boolean o string)
   instruccion?: string | null;  // Nuevo campo
-  limite_dias?: number | '';  // Nuevo campo
+  limite_dias: number | null;  // Nuevo campo
   created_at?: string | null;
   updated_at?: string | null;
   deleted_at?: string | null;
@@ -54,9 +54,9 @@ export const initialTipoPermiso: TipoPermiso = {
   nombre: '',
   descripcion: '',
   tipo_permiso: 'PERMISO', // Valor por defecto
-  requiere_hoja_ruta: false, // O '1' si prefieres mantener el formato string
+  // requiere_hoja_ruta: false, // O '1' si prefieres mantener el formato string
   instruccion: '',
-  limite_dias: '',
+  limite_dias: null,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
   deleted_at: null,

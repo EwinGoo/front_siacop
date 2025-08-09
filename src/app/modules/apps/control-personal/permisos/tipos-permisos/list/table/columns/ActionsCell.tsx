@@ -8,6 +8,7 @@ import {useQueryResponse} from '../../core/QueryResponseProvider'
 import {deleteTipoPermiso, toggleTipoPermisoStatus} from '../../core/_requests'
 import {toast} from 'react-toastify'
 import Swal from 'sweetalert2'
+import { showConfirmDialog } from 'src/app/utils/swalHelpers.ts'
 
 type Props = {
   id: ID
@@ -107,26 +108,43 @@ const ActionsCell: FC<Props> = ({id, isActive}) => {
     }
   }
 
-  const handleDelete = async () => {
-    try {
-      const result = await Swal.fire({
-        title: '¿Estás seguro?',
-        text: "¡No podrás revertir esta acción!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-      })
+  // const handleDelete = async () => {
+  //   try {
+  //     const result = await Swal.fire({
+  //       title: '¿Estás seguro?',
+  //       text: "¡No podrás revertir esta acción!",
+  //       icon: 'warning',
+  //       showCancelButton: true,
+  //       confirmButtonColor: '#3085d6',
+  //       cancelButtonColor: '#d33',
+  //       confirmButtonText: 'Sí, eliminar',
+  //       cancelButtonText: 'Cancelar'
+  //     })
 
-      if (result.isConfirmed) {
-        await deleteItem.mutateAsync()
+  //     if (result.isConfirmed) {
+  //       await deleteItem.mutateAsync()
+  //     }
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
+
+    const handleDelete = async () => {
+      try {
+        const result = await showConfirmDialog({
+          title: '¿Estás seguro?',
+          text: '¡No podrás revertir esta acción!',
+          icon: 'warning',
+          confirmButtonText: '<i class="bi bi-check me-2"></i>Sí, eliminar',
+        })
+  
+        if (result.isConfirmed) {
+          await deleteItem.mutateAsync()
+        }
+      } catch (error) {
+        // Error is already handled in onError
       }
-    } catch (error) {
-      console.error(error)
     }
-  }
 
   return (
     <>

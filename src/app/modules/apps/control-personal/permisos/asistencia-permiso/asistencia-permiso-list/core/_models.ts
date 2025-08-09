@@ -5,7 +5,8 @@ export type EstadoType = 'GENERADO' | 'ENVIADO' | 'RECEPCIONADO' | 'APROBADO' | 
 
 export type AsistenciaPermiso = {
   id_asistencia_permiso: ID
-  // id_persona_administrativo?: number
+  id_asignacion_administrativo?: number | null
+  // id_asignacion_administrativo?: number 
   id_tipo_permiso: number | null
   id_usuario_generador?: number | null
   id_usuario_aprobador?: number | null
@@ -100,7 +101,7 @@ export type AsistenciaTipoPermisoQueryResponseData = {
 // Valores iniciales para un formulario de AsistenciaPermiso
 export const initialAsistenciaPermiso: AsistenciaPermiso = {
   id_asistencia_permiso: undefined,
-  // id_persona_administrativo: 0,
+  id_asignacion_administrativo: null,
   id_tipo_permiso: null,
   id_usuario_generador: null,
   id_usuario_aprobador: null,

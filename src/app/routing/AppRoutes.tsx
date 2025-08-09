@@ -36,9 +36,12 @@ const AppRoutes: FC = () => {
             </>
           ) : (
             <>
-              {/* <Route path='*' element={<ExternalRedirect url={`${API_URL}/login`} />} /> */}
-              <Route path='auth/*' element={<AuthPage />} />
-              <Route path='*' element={<Navigate to='/auth' />} />
+              <Route path='*' element={<ExternalRedirect url={`${API_URL}/login`} />} />
+              <Route path='auth/*' element={<ExternalRedirect  url={`${API_URL}/login`} />} />
+              {/* <Route path='auth/*' element={<AuthPage />} />
+              {/* <Route path='auth/*' element={<AuthPage />} />
+              {/* <Route path='auth/*' element={<AuthPage />} />
+              <Route path='*' element={<Navigate to='/auth' />} /> */}
             </>
           )}
         </Route>

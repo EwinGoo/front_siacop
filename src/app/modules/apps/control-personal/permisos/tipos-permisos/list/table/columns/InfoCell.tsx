@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import clsx from 'clsx'
 import {FC} from 'react'
 import {KTIcon} from '../../../../../../../../../_metronic/helpers'
 import {TipoPermiso} from '../../core/_models'

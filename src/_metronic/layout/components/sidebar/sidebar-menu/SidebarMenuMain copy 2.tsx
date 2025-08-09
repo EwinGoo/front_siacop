@@ -15,7 +15,8 @@ const SidebarMenuMain = () => {
         <SidebaExternalLink
           href={item.url}
           title={item.label}
-          fontIcon={fontIcon}
+          // icon={item.icon || icon}
+          // fontIcon={fontIcon}
           hasBullet={hasBullet}
         />
       )
@@ -26,6 +27,7 @@ const SidebarMenuMain = () => {
         to={item.url}
         title={item.label}
         icon={isSimple ? item.icon || icon : undefined}
+        // icon={item.icon || icon}
         fontIcon={fontIcon}
         hasBullet={hasBullet}
       />

@@ -12,6 +12,7 @@
 }
 
 .ck-content {
+  background-color: var(--bs-gray-100) !important;
   min-height: 200px;
   @include border-radius($border-radius !important);
 
@@ -49,5 +50,33 @@
     .ck-toolbar {
       @include border-radius($border-radius !important);
     }
+  }
+}
+
+@include color-mode(dark) {
+  .ck-editor {
+    .ck-toolbar {
+      background-color: var(--bs-gray-100) !important;
+      .ck-button {
+        color: #fff;
+      }
+    }
+    // .ck-content {
+    //   @include border-bottom-radius($border-radius !important);
+    //   @include border-top-radius(0 !important);
+    // }
+  }
+
+  .ck.ck-button:not(.ck-disabled):hover,
+  a.ck.ck-button:not(.ck-disabled):hover {
+    background: #273141;
+  }
+  .ck.ck-button:not(.ck-disabled):active,
+  a.ck.ck-button:not(.ck-disabled):active {
+    background: #273141 !important;
+  }
+
+  [dir='ltr'] .ck.ck-list__item > .ck-button {
+    background-color: var(--bs-gray-100) !important;
   }
 }

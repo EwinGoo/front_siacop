@@ -54,13 +54,13 @@ export const getColumns = ({isAdmin}: GetColumnsProps): ReadonlyArray<Column<Asi
       id: 'fechas_comision',
       Cell: ({row}) => <DateCell row={row} />,
     },
-    {
-      Header: (props) => (
-        <CustomHeader tableProps={props} title='Detalles' className='min-w-250px' />
-      ),
-      id: 'detalles',
-      Cell: ({row}) => <DetallesCell asistenciaComision={row.original} />,
-    },
+    // {
+    //   Header: (props) => (
+    //     <CustomHeader tableProps={props} title='Detalles' className='min-w-250px' />
+    //   ),
+    //   id: 'detalles',
+    //   Cell: ({row}) => <DetallesCell asistenciaComision={row.original} />,
+    // },
     {
       Header: (props) => <CustomHeader tableProps={props} title='Estado' className='min-w-100px' />,
       accessor: 'estado_permiso',

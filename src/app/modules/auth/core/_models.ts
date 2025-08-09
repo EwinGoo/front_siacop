@@ -44,13 +44,27 @@ export interface UserSocialNetworksModel {
   twitter: string
   instagram: string
 }
-export interface UserMenuLink {
+export interface UserMenuItem {
+  type: string // 'mvc' | 'react' u otros
   url: string
   label: string
+  icon?: string
+}
+
+export interface UserMenuGroup {
+  subMenuTitle: string
+  icon?: string
+  items: UserMenuItem[]
+}
+
+export interface UserMenuSection {
+  menuSectionTitle: string
+  menus?: UserMenuGroup[] // submenús colapsables
+  items?: UserMenuItem[] // enlaces directos
 }
 
 export type UserMenu = {
-  [key: string]: UserMenuLink[] // Clave dinámica con arreglo de enlaces
+  [key: string]: UserMenuSection
 }
 
 export interface UserModel {

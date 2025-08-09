@@ -44,7 +44,7 @@ export const showConfirmDialog = async ({
   html,
   icon = 'question',
   confirmButtonText = 'Sí',
-  cancelButtonText = 'Cancelar',
+  cancelButtonText = '<i class="bi bi-x me-2"></i>Cancelar',
   confirmButtonColor = '#3085d6',
   cancelButtonColor = '#d33',
 }: SwalConfirmOptions) => {
@@ -54,7 +54,7 @@ export const showConfirmDialog = async ({
     html,
     icon,
     showCancelButton: true,
-    confirmButtonText,
+    confirmButtonText: '<i class="bi bi-check me-2"></i>' + confirmButtonText,
     cancelButtonText,
     confirmButtonColor,
     cancelButtonColor,

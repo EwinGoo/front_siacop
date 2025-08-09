@@ -19,7 +19,7 @@ import {format} from 'date-fns'
 import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
 import {FormActions} from 'src/app/modules/components/FormActions'
 import AsyncSelectField from './components/AsyncSelectField'
-import { useApiFieldErrors } from 'src/app/hooks/useApiFieldErrors'
+import {useApiFieldErrors} from 'src/app/hooks/useApiFieldErrors'
 
 type Props = {
   isLoading: boolean
@@ -114,13 +114,14 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
     return response.sugerencias.map((item) => ({
       value: item.id,
       label: item.texto,
+      id_asignacion_administrativo: item.id_asignacion_administrativo,
     }))
   }
 
-   const handleChange = (fieldName: keyof Comision) => (value: any) => {
-      formik.setFieldValue(fieldName, value)
-      clearFieldError(fieldName)
-    }
+  const handleChange = (fieldName: keyof Comision) => (value: any) => {
+    formik.setFieldValue(fieldName, value)
+    clearFieldError(fieldName)
+  }
   // const debouncedFetcher = useCallback(
   //   debounce(async (inputValue: string, callback: (options: OptionType[]) => void) => {
   //     try {
@@ -166,17 +167,20 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
                   value={selectedOption}
                   onChange={(selected) => {
                     setSelectedOption(selected)
-                    formik.setFieldValue('id_usuario_generador', selected?.value ?? '')
-                    formik.setFieldValue('id_asignacion_administrativo', selected?.id_asignacion_administrativo ?? '')
+                    // formik.setFieldValue('id_usuario_generador', selected?.value ?? '')
+                    formik.setFieldValue(
+                      'id_asignacion_administrativo',
+                      selected?.id_asignacion_administrativo ?? ''
+                    )
                   }}
-                  onBlur={() => formik.setFieldTouched('id_usuario_generador', true)}
+                  onBlur={() => formik.setFieldTouched('id_asignacion_administrativo', true)}
                   fetchOptions={fetchPersonaOptions}
-                  isInvalid={!isFieldValid('id_usuario_generador')}
+                  isInvalid={!isFieldValid('id_asignacion_administrativo')}
                 />
               )}
-              {!isFieldValid('id_usuario_generador') && (
+              {!isFieldValid('id_asignacion_administrativo') && (
                 <div className='fv-plugins-message-container'>
-                  <span role='alert'>{getFieldError('id_usuario_generador')}</span>
+                  <span role='alert'>{getFieldError('id_asignacion_administrativo')}</span>
                 </div>
               )}
             </div>
@@ -215,7 +219,6 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
                 // onChange={handleChange('fecha_fin_permiso')}
                 // onChange={([date]) => handleChange('fecha_comision')(date)}
                 onChange={handleChange('fecha_comision')}
-               
               />
             ) : (
               <SelectPickerField

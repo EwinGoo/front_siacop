@@ -4,6 +4,14 @@ import {validarDuracion} from '../../../helpers/validations'
 export const editComisionSchema = ({isAdmin}: {isAdmin: boolean}) =>
   Yup.object().shape({
     // id_usuario_generador: Yup.string().required('El solicitante es requerido'),
+    id_asignacion_administrativo: Yup.string()
+      .required('El solicitante es requerido')
+      .test('is-required-if-not-admin', 'El solicitante es requerido', function (value) {
+        if (isAdmin) {
+          return value !== null && value !== undefined
+        }
+        return true
+      }),
     fecha_comision: Yup.date().required('Fecha es requerida'),
     hora_salida: Yup.string().required('Hora de salida es requerida'),
     hora_retorno: Yup.string()
@@ -31,12 +39,4 @@ export const editComisionSchema = ({isAdmin}: {isAdmin: boolean}) =>
       .min(3, 'Mínimo 3 caracteres')
       .max(55, 'Máximo 55 caracteres')
       .required('El destino final es requerido'),
-    id_usuario_generador: Yup.number()
-      .nullable()
-      .test('is-required-if-not-admin', 'El solicitante es requerido', function (value) {
-        if (isAdmin) {
-          return value !== null && value !== undefined
-        }
-        return true
-      }),
   })

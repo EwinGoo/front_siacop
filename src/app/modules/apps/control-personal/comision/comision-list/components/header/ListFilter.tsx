@@ -3,12 +3,26 @@ import {MenuComponent} from '../../../../../../../../_metronic/assets/ts/compone
 import {initialQueryState, KTIcon} from '../../../../../../../../_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
+import {SelectField} from 'src/app/modules/components/SelectField'
+import { useFormik } from 'formik'
+import { estadoOptions } from '../../core/_models'
+
+
+
+
 
 const ListFilter = () => {
   const {updateState} = useQueryRequest()
   const {isLoading} = useQueryResponse()
   const [estado, setEstado] = useState<string | undefined>()
   const [lastLogin, setLastLogin] = useState<string | undefined>()
+
+  const formik = useFormik({
+    initialValues: {
+      estado: '',
+    },
+    onSubmit: () => {},
+  })
 
   useEffect(() => {
     MenuComponent.reinitialization()
@@ -23,6 +37,10 @@ const ListFilter = () => {
       filter: {estado, last_login: lastLogin},
       ...initialQueryState,
     })
+  }
+
+  const isFieldValid = (fieldName: string) => {
+    return true;
   }
 
   return (
@@ -68,10 +86,19 @@ const ListFilter = () => {
             >
               <option value=''></option>
               <option value='GENERADO'>Generado</option>
+              <option value='ENVIADO'>Enviado</option>
               <option value='RECEPCIONADO'>Recepcionado</option>
               <option value='APROBADO'>Aprobado</option>
               <option value='OBSERVADO'>Observado</option>
             </select>
+            {/* <SelectField
+              field={formik.getFieldProps('estado')}
+              form={formik}
+              isFieldValid={isFieldValid('estado')}
+              isSubmitting={formik.isSubmitting}
+              options={estadoOptions}
+              placeholder='Seleccione estado'
+            /> */}
           </div>
           {/* end::Input group */}
 

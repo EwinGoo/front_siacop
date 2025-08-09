@@ -1,9 +1,10 @@
-import {FC, useState, useRef, useEffect} from 'react'
+import {FC, useState, useRef} from 'react'
 import {useFormik} from 'formik'
 import clsx from 'clsx'
 import {toast} from 'react-toastify'
 
 import {isNotEmpty, KTIcon} from '../../../../../../../../_metronic/helpers'
+import {useAuth} from '../../../../../../auth'
 
 import {useListView} from '../core/ListViewProvider'
 import {useQueryResponse} from '../core/QueryResponseProvider'
@@ -11,7 +12,11 @@ import {useQueryResponse} from '../core/QueryResponseProvider'
 import {initialAsistenciaPermiso, AsistenciaPermiso} from '../core/_models'
 import {TipoPermiso} from '../../../tipos-permisos/list/core/_models'
 
-import {createAsistenciaPermiso, updateAsistenciaPermiso} from '../core/_requests'
+import {
+  createAsistenciaPermiso,
+  updateAsistenciaPermiso,
+  uploadFile,
+} from '../core/_requests'
 
 import {asistenciaPermisoSchema} from '../../schemas/asistenciaPermisoSchema'
 
@@ -47,7 +52,7 @@ const EditModalForm: FC<Props> = ({
   const {refetch} = useQueryResponse()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const {isAdminComision} = usePermissions()
-  const {setApiErrors, getFieldError, clearFieldError} = useApiFieldErrors()
+  const {apiErrors, setApiErrors, getFieldError, clearFieldError} = useApiFieldErrors()
 
   const [asistenciaPermisoForEdit] = useState<AsistenciaPermiso>({
     ...asistenciaPermiso,
@@ -77,6 +82,67 @@ const EditModalForm: FC<Props> = ({
     setItemIdForUpdate(undefined)
   }
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // Validar tamaño del archivo (máximo 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('El archivo no puede ser mayor a 10MB')
+        return
+      }
+
+      // Validar tipo de archivo
+      const allowedTypes = [
+        'application/pdf',
+        'image/jpeg',
+        'image/png',
+        'image/jpg',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      ]
+
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Tipo de archivo no permitido. Solo se permiten: PDF, DOC, DOCX, JPG, PNG')
+        return
+      }
+
+      setSelectedFile(file)
+    }
+  }
+
+  const uploadFileToServer = async (file: File): Promise<number | null> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    // formData.append('id_usuario', currentUser!.id.toString())
+
+    try {
+      setIsUploading(true)
+      setUploadProgress(0)
+
+      const response = await uploadFile(formData, (progressEvent) => {
+        // Manejo seguro de progressEvent.total
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / (progressEvent.total || 1)
+        )
+        setUploadProgress(percentCompleted)
+      })
+
+      // Verificación en cascada para response.data.data
+      if (!response?.data?.data?.id_multimedia) {
+        throw new Error('No se recibió un ID multimedia válido del servidor')
+      }
+
+      return response.data.data.id_multimedia
+    } catch (error) {
+      console.error('Error al subir archivo:', error)
+      toast.error('Error al subir el archivo')
+      return null
+    } finally {
+      setIsUploading(false)
+      setUploadProgress(0)
+    }
+  }
+
   const formik = useFormik({
     initialValues: asistenciaPermisoForEdit,
     validationSchema: asistenciaPermisoSchema({isAdmin: isAdminComision}),
@@ -85,16 +151,32 @@ const EditModalForm: FC<Props> = ({
     // validateOnChange: false,
     onSubmit: async (values, {setSubmitting}) => {
       setSubmitting(true)
-      setApiErrors({})
+      setBackendErrors({})
+
       try {
+        let multimediaId = values.id_multimedia
+
+        // Si hay un archivo seleccionado, subirlo primero
+        if (selectedFile) {
+          multimediaId = await uploadFileToServer(selectedFile)
+          if (!multimediaId) {
+            throw new Error('Error al subir el archivo')
+          }
+        }
+
+        const finalValues = {
+          ...values,
+          id_multimedia: multimediaId,
+        }
+
         if (isNotEmpty(values.id_asistencia_permiso)) {
-          await updateAsistenciaPermiso(values)
+          await updateAsistenciaPermiso(finalValues)
           toast.success('Permiso actualizado correctamente', {
             position: 'top-right',
             autoClose: 5000,
           })
         } else {
-          await createAsistenciaPermiso(values)
+          await createAsistenciaPermiso(finalValues)
           toast.success('Permiso creado correctamente', {
             position: 'top-right',
             autoClose: 5000,
@@ -115,11 +197,9 @@ const EditModalForm: FC<Props> = ({
     },
   })
 
-  // useEffect(() => {
-  //   console.log('Formik errors:', formik.errors)
-  //   console.log(isAdminComision);
-
-  // }, [formik.errors])
+  // const getFieldError = (fieldName: string) => {
+  //   return formik.errors[fieldName] || apiErrors[fieldName]
+  // }
 
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null)
 
@@ -129,7 +209,6 @@ const EditModalForm: FC<Props> = ({
     return response.sugerencias.map((item) => ({
       value: item.id,
       label: item.texto,
-      id_asignacion_administrativo: item.id_asignacion_administrativo,
     }))
   }
 
@@ -149,7 +228,7 @@ const EditModalForm: FC<Props> = ({
         className='form'
         onSubmit={formik.handleSubmit}
       >
-        <div className='me-n7 pe-7 pt-5'>
+        <div className='d-flex flex-column scroll-y me-n7 pe-7 pt-5'>
           {isAdminComision && (
             <div className='fv-row mb-7 px-1'>
               <label className='required fw-bold fs-6 mb-2'>Solicitante:</label>
@@ -168,18 +247,16 @@ const EditModalForm: FC<Props> = ({
                   value={selectedOption}
                   onChange={(selected) => {
                     setSelectedOption(selected)
-                    formik.setFieldValue('id_asignacion_administrativo',selected?.id_asignacion_administrativo ?? '')
+                    formik.setFieldValue('id_usuario_generador', selected?.value ?? '')
                   }}
-                  onBlur={() => formik.setFieldTouched('id_asignacion_administrativo', true)}
+                  onBlur={() => formik.setFieldTouched('id_usuario_generador', true)}
                   fetchOptions={fetchPersonaOptions}
-                  isInvalid={!isFieldValid('id_asignacion_administrativo')}
+                  isInvalid={!isFieldValid('id_usuario_generador')}
                 />
               )}
-              {!isFieldValid('id_asignacion_administrativo') && (
+              {!isFieldValid('id_usuario_generador') && (
                 <div className='fv-plugins-message-container'>
-                  <span role='alert'>
-                    {getFieldError(formik.errors, 'id_asignacion_administrativo')}
-                  </span>
+                  <span role='alert'>{getFieldError(formik.errors, 'id_usuario_generador')}</span>
                 </div>
               )}
             </div>
@@ -237,6 +314,91 @@ const EditModalForm: FC<Props> = ({
                   <span role='alert'>{getFieldError(formik.errors, 'fecha_fin_permiso')}</span>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Detalle del Permiso */}
+          <div className='fv-row mb-7 px-1'>
+            <label className='required fw-bold fs-6 mb-2'>Motivo</label>
+            <textarea
+              {...formik.getFieldProps('detalle_permiso')}
+              className={clsx('form-control form-control-solid', {
+                'is-invalid': !isFieldValid('detalle_permiso'),
+                'is-valid': formik.touched.detalle_permiso && isFieldValid('detalle_permiso'),
+              })}
+              rows={3}
+              // onChange={() => handleChange('detalle_permiso')}
+              onChange={(e) => {
+                formik.setFieldValue('detalle_permiso', e.target.value)
+                clearFieldError('detalle_permiso') // limpia error backend cuando el usuario edita
+              }}
+              disabled={formik.isSubmitting}
+              placeholder='Describa los detalles del permiso'
+            />
+            {!isFieldValid('detalle_permiso') && (
+              <div className='fv-plugins-message-container'>
+                <span role='alert'>{getFieldError(formik.errors, 'detalle_permiso')}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Hoja de Ruta */}
+          <div className='fv-row mb-7 px-1'>
+            <label className='fw-bold fs-6 mb-2'>Hoja de Ruta (Opcional)</label>
+            <input
+              {...formik.getFieldProps('hoja_ruta')}
+              className='form-control form-control-solid'
+              disabled={formik.isSubmitting}
+              placeholder='Número de hoja de ruta'
+            />
+          </div>
+
+          {/* Upload de Archivo */}
+          <div className='fv-row mb-7 px-1'>
+            <label className='fw-bold fs-6 mb-2'>Documento de Respaldo (Opcional)</label>
+            <div className='d-flex align-items-center gap-3'>
+              <input
+                ref={fileInputRef}
+                type='file'
+                onChange={handleFileSelect}
+                className='form-control form-control-solid'
+                accept='.pdf,.doc,.docx,.jpg,.jpeg,.png'
+                disabled={formik.isSubmitting || isUploading}
+              />
+              {selectedFile && (
+                <div className='d-flex align-items-center gap-2'>
+                  <KTIcon iconName='document' className='fs-3 text-success' />
+                  <span className='text-muted fs-7'>{selectedFile.name}</span>
+                  <button
+                    type='button'
+                    className='btn btn-sm btn-icon btn-light-danger'
+                    onClick={() => {
+                      setSelectedFile(null)
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = ''
+                      }
+                    }}
+                    disabled={formik.isSubmitting || isUploading}
+                  >
+                    <KTIcon iconName='cross' className='fs-4' />
+                  </button>
+                </div>
+              )}
+            </div>
+            {isUploading && (
+              <div className='mt-3'>
+                <div className='progress mb-2' style={{height: '6px'}}>
+                  <div
+                    className='progress-bar bg-primary'
+                    role='progressbar'
+                    style={{width: `${uploadProgress}%`}}
+                  ></div>
+                </div>
+                <small className='text-muted'>Subiendo archivo... {uploadProgress}%</small>
+              </div>
+            )}
+            <div className='form-text'>
+              Formatos permitidos: PDF, DOC, DOCX, JPG, PNG. Tamaño máximo: 10MB
             </div>
           </div>
         </div>

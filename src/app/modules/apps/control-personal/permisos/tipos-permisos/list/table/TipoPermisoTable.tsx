@@ -5,9 +5,9 @@ import { CustomRow } from './columns/CustomRow';
 import { useQueryResponseData, useQueryResponseLoading } from '../core/QueryResponseProvider';
 import { Columns } from './columns/_columns'; // Asegúrate de tener las columnas adecuadas para TipoPermiso
 import { TipoPermiso } from '../core/_models';
-import { ListLoading } from '../components/loading/ListLoading';
 import { ListPagination } from '../components/pagination/ListPagination';
 import { KTCardBody } from '../../../../../../../../_metronic/helpers';
+import { ListLoading } from 'src/app/modules/components/loading/ListLoading';
 
 const TipoPermisoTable = () => {
   const tiposPermiso = useQueryResponseData();

@@ -93,6 +93,7 @@ const ListToolbar = () => {
         cancelButtonColor: '#d33',
         confirmButtonText: '<i class="bi bi-check me-2"></i>Sí, aprobar',
         cancelButtonText: '<i class="bi bi-x me-2"></i>Cancelar',
+        reverseButtons: true,
         customClass: {
           confirmButton: 'btn btn-primary',
           cancelButton: 'btn btn-danger',

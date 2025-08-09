@@ -163,7 +163,7 @@ const PrivateRoutes = () => {
 
 const SuspensedView: FC<WithChildren> = ({children}) => {
   // const baseColor = getCSSVariableValue('--bs-primary')
-  const baseColor = getCSSVariableValue('--bs-primary')
+  const baseColor = getCSSVariableValue('--bs-primary') || '#0d6efd'
   TopBarProgress.config({
     barColors: {
       '0': baseColor,

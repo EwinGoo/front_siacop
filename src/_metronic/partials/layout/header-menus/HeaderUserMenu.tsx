@@ -59,8 +59,11 @@ const HeaderUserMenu: FC = () => {
       </div>
 
       <div className='menu-item px-5'>
-        <a onClick={logout} className='menu-link px-5'>
-          Cerra Sesión
+        {/* <a href='' onClick={logout} className='menu-link px-5'>
+          Cerrar Sesión
+        </a> */}
+        <a href={API_URL + '/logout'} onClick={logout} className='menu-link px-5'>
+          Cerrar Sesión
         </a>
       </div>
     </div>

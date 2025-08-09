@@ -74,7 +74,7 @@ const SidebarLogo = (props: PropsType) => {
         <img
           alt='Logo'
           src={toAbsoluteUrl('/media/logos/logo_siacop_small.png')}
-          className='h-20px app-sidebar-logo-minimize'
+          className='h-30px app-sidebar-logo-minimize'
         />
       </Link>
 

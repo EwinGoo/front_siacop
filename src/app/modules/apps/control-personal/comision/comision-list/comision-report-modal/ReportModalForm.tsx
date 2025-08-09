@@ -3,14 +3,8 @@ import Flatpickr from 'react-flatpickr'
 import Select from 'react-select'
 import {Spanish} from 'flatpickr/dist/l10n/es'
 import {SelectField} from 'src/app/modules/components/SelectField'
-
-const estadoOptions = [
-  {value: 'TODO', label: 'Todo'},
-  {value: 'GENERADO', label: 'Generado'},
-  {value: 'RECEPCIONADO', label: 'Recepcionado'},
-  {value: 'APROBADO', label: 'Aprobado'},
-  {value: 'OBSERVADO', label: 'Observado'},
-]
+import {estadoOptions} from '../core/_models'
+import {DatePickerField} from 'src/app/modules/components/DatePickerField'
 
 const tipoComisionOptions = [
   {value: 'TODO', label: 'Todo'},
@@ -32,37 +26,38 @@ export const ReportModalForm = ({
   const isFieldValid = (fieldName: string) => {
     return !(formik.touched[fieldName] && getFieldError(fieldName))
   }
+
+  const handleChange = (fieldName: string) => (value: any) => {
+    formik.setFieldValue(fieldName, value)
+  }
   return (
     <form onSubmit={formik.handleSubmit}>
-      <div className='modal-body'>
+      <div className='modal-body py-0'>
         <div className='row mb-4'>
+          <p className='text-muted mb-4'>
+            Seleccione el rango de fechas para generar el reporte de boletas recepcionadas.
+          </p>
           <div className='col-md-6'>
             <label className='form-label fw-semibold'>📅 Fecha de inicio</label>
-            <Flatpickr
-              className='form-control form-control-sm'
-              value={formik.values.fechaInicio}
-              onChange={(date) => formik.setFieldValue('fechaInicio', date)}
-              options={{
-                dateFormat: 'Y-m-d',
-                locale: Spanish,
-                monthSelectorType: 'static',
-              }}
+            <DatePickerField
+              field={formik.getFieldProps('fechaInicio')}
+              form={formik}
+              isFieldValid={isFieldValid('fechaInicio')}
+              isSubmitting={formik.isSubmitting}
+              onChange={handleChange('fechaInicio')}
             />
           </div>
           <div className='col-md-6'>
             <label className='form-label fw-semibold'>📅 Fecha de fin</label>
-            <Flatpickr
-              className='form-control form-control-sm'
-              value={formik.values.fechaFin}
-              onChange={(date) => formik.setFieldValue('fechaFin', date)}
-              options={{
-                dateFormat: 'Y-m-d',
-                locale: Spanish,
-                monthSelectorType: 'static',
-              }}
+            <DatePickerField
+              field={formik.getFieldProps('fechaFin')}
+              form={formik}
+              isFieldValid={isFieldValid('fechaInicio')}
+              isSubmitting={formik.isSubmitting}
+              onChange={handleChange('fechaFin')}
             />
           </div>
-          <div className='col-md-6 mb-4 mt-4'>
+          {/* <div className='col-md-6 mb-4 mt-4'>
             <label className='form-label fw-semibold'>📝 Estado</label>
             <SelectField
               field={formik.getFieldProps('estado')}
@@ -84,7 +79,7 @@ export const ReportModalForm = ({
               options={tipoComisionOptions}
               placeholder='Seleccione tipo'
             />
-          </div>
+          </div> */}
         </div>
       </div>
 

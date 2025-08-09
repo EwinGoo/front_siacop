@@ -23,8 +23,8 @@ const usersBreadcrumbs: Array<PageLink> = [
 
 const gestionQRBreadcrumbs: Array<PageLink> = [
   {
-    title: 'Gestión de Permisos',
-    path: '/apps/comisiones/gestion-qr',  // Cambia la ruta
+    title: 'Control Personal',
+    path: '/apps/comisiones/gestion-qr',
     isSeparator: false,
     isActive: false,
   },

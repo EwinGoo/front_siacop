@@ -5,7 +5,7 @@ export type EstadoType = 'GENERADO' | 'ENVIADO' | 'RECEPCIONADO' | 'APROBADO' | 
 
 export type Comision = {
   id_comision?: ID | undefined
-  id_asignacion_administrativo?: number
+  id_asignacion_administrativo?: number | null
   id_usuario_generador?: number | null
   id_usuario_aprobador?: number | null
   fecha_comision: string
@@ -86,8 +86,7 @@ export type ComisionQueryResponse = {
 
 // Valores iniciales para un formulario de Comisión
 export const initialComision: Comision = {
-  id_asignacion_administrativo: 0,
-  // id_usuario_generador: null,
+  id_asignacion_administrativo: null,
   id_usuario_generador: null,
   id_usuario_aprobador: null,
   fecha_comision: new Date().toISOString().split('T')[0], // Fecha actual (YYYY-MM-DD)
@@ -148,3 +147,12 @@ export const initialListView: ListViewContextProps = {
   accion: undefined,
   setAccion: () => {},
 }
+
+export const estadoOptions = [
+  {value: 'TODO', label: 'Todo'},
+  {value: 'GENERADO', label: 'Generado'},
+  {value: 'ENVIADO', label: 'Enviado'},
+  {value: 'RECEPCIONADO', label: 'Recepcionado'},
+  {value: 'APROBADO', label: 'Aprobado'},
+  {value: 'OBSERVADO', label: 'Observado'},
+]

@@ -1,6 +1,7 @@
-import {useMemo} from 'react'
-import {format} from 'date-fns'
-import {es} from 'date-fns/locale'
+import { useMemo } from 'react'
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
+
 interface DateFormatterOptions {
   timeZone?: string
   locale?: string
@@ -34,6 +35,11 @@ const useDateFormatter = () => {
     locale: 'es-BO',
   }
 
+  // Función auxiliar para ajustar desfase de zona horaria local
+  const adjustToLocalTimezone = (dateObj: Date) => {
+    return new Date(dateObj.getTime() + dateObj.getTimezoneOffset() * 60000)
+  }
+
   /**
    * Formatea una fecha según las opciones
    * @param date Fecha en string (ISO) o Date
@@ -42,9 +48,8 @@ const useDateFormatter = () => {
    */
   const formatToBolivianDate = (date: string | Date, options?: DateFormatterOptions): string => {
     const dateObj = typeof date === 'string' ? new Date(date) : date
-    const adjustedDate = new Date(dateObj.getTime() + dateObj.getTimezoneOffset() * 60000)
+    const adjustedDate = adjustToLocalTimezone(dateObj)
 
-    // Formato corto personalizado (dd/mm/yyyy) cuando no hay dateStyle
     if (!options?.dateStyle) {
       const day = adjustedDate.getDate().toString().padStart(2, '0')
       const month = (adjustedDate.getMonth() + 1).toString().padStart(2, '0')
@@ -52,26 +57,28 @@ const useDateFormatter = () => {
       return `${day}/${month}/${year}`
     }
 
-    // Formato completo/largo cuando se especifica dateStyle
     return adjustedDate.toLocaleDateString(options?.locale || defaultOptions.locale, {
       timeZone: options?.timeZone || defaultOptions.timeZone,
       dateStyle: options.dateStyle,
       ...options,
     })
   }
+
   const formatLongDate = (date: string | Date) => {
     const dateObj = typeof date === 'string' ? new Date(date) : date
-    return format(dateObj, "d 'de' MMMM 'de' yyyy", {locale: es})
+    const adjustedDate = adjustToLocalTimezone(dateObj)
+    return format(adjustedDate, "d 'de' MMMM 'de' yyyy", { locale: es })
   }
+
   const formatTime = (date: string | Date, withSeconds = false): string => {
     const dateObj = typeof date === 'string' ? new Date(date) : date
+    const adjustedDate = adjustToLocalTimezone(dateObj)
     const formatStr = withSeconds ? 'HH:mm:ss' : 'HH:mm'
-    return format(dateObj, formatStr, {locale: es})
+    return format(adjustedDate, formatStr, { locale: es })
   }
 
   const formatTimeFromString = (timeStr: string): string => {
     if (!timeStr) return ''
-    // Validar con regex que tenga formato válido hh:mm(:ss)?
     const match = timeStr.match(/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/)
     if (!match) {
       console.error('Hora inválida:', timeStr)
@@ -81,7 +88,7 @@ const useDateFormatter = () => {
   }
 
   return useMemo(
-    () => ({formatToBolivianDate, formatLongDate, formatTime, formatTimeFromString}),
+    () => ({ formatToBolivianDate, formatLongDate, formatTime, formatTimeFromString }),
     []
   )
 }

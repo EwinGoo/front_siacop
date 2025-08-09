@@ -1,7 +1,7 @@
-import { getLocalDate } from 'src/app/hooks/useDateFormatter'
-import { COMISION_URL } from '../core/_requests'
+import {getLocalDate} from 'src/app/hooks/useDateFormatter'
 import {ReportModalForm} from './ReportModalForm'
 import {useFormik} from 'formik'
+import {API_ROUTES} from 'src/app/config/apiRoutes'
 
 export const ReportModalFormWrapper = ({onClose}) => {
   const formik = useFormik({
@@ -15,7 +15,7 @@ export const ReportModalFormWrapper = ({onClose}) => {
       // Crear formulario dinámico
       const form = document.createElement('form')
       form.method = 'POST'
-      form.action = COMISION_URL+'/reporte-general'
+      form.action = API_ROUTES.REPORTES.COMISION.GENERAL
       form.target = '_blank' // Muy importante para que se abra en nueva pestaña
 
       // Agregar campos como inputs ocultos

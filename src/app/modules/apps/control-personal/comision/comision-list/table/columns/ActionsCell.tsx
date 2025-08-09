@@ -11,6 +11,7 @@ import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
 import {showToast} from 'src/app/utils/toastHelper'
 import {showConfirmDialog} from 'src/app/utils/swalHelpers.ts'
 import {getPermisosComision} from 'src/app/modules/auth/core/permissions'
+import {API_ROUTES} from 'src/app/config/apiRoutes'
 
 type Props = {
   id: ID
@@ -18,7 +19,7 @@ type Props = {
   hash?: string
 }
 
-const ActionsCell: FC<Props> = ({id, estado, hash = null}) => {
+const ActionsCell: FC<Props> = ({id, estado, hash}) => {
   const {setAccion, setItemIdForUpdate, setIsShow} = useListView()
   const {canManageComisiones} = usePermissions()
   const {query} = useQueryResponse()
@@ -94,7 +95,7 @@ const ActionsCell: FC<Props> = ({id, estado, hash = null}) => {
   const handlePrintConfirm = async () => {
     try {
       if (estado !== 'GENERADO') {
-        window.open(COMISION_URL + '/reporte/' + hash, '_blank')
+        window.open(API_ROUTES.REPORTES.COMISION.FORMULARIO(hash!), '_blank')
         return
       }
 
@@ -108,7 +109,7 @@ const ActionsCell: FC<Props> = ({id, estado, hash = null}) => {
 
       if (result.isConfirmed) {
         await sendItem.mutateAsync()
-        window.open(COMISION_URL + '/reporte/' + hash, '_blank')
+        window.open(API_ROUTES.REPORTES.COMISION.FORMULARIO(hash!), '_blank')
       }
     } catch (error) {
       showToast({message: 'Error al procesar la impresión', type: 'error'})
