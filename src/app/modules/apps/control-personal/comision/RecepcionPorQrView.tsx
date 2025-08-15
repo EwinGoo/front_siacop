@@ -108,6 +108,7 @@ const RecepcionPorQrView: React.FC = () => {
       html: getComisionHtmlContent(comisionData),
       icon: 'info',
       width: '600px',
+      showCloseButton: true,
       customClass: {
         popup: 'animated fadeInDown',
       },
@@ -199,7 +200,7 @@ const RecepcionPorQrView: React.FC = () => {
 
   const handleRecepcionadoState = (config: any, comisionData: Comision) => {
     Object.assign(config, {
-      showCancelButton: true,
+      showCancelButton: false,
       showDenyButton: true,
       confirmButtonText: '<i class="bi bi-check-circle me-2"></i> Aprobar',
       denyButtonText: '<i class="bi bi-exclamation-triangle me-2"></i> Observar',
@@ -345,16 +346,16 @@ const RecepcionPorQrView: React.FC = () => {
         <i class="bi bi-person-badge me-2"></i>Información del Empleado
       </h6>
       <div class="row mb-2 text-start">
-        <div class="col-sm-3 fw-bold">Nombre:</div>
-        <div class="col-sm-9">${comisionData.nombre_generador}</div>
+        <div class="col-3 col-sm-3 fw-bold">Nombre:</div>
+        <div class="col-9 col-sm-9">${comisionData.nombre_generador}</div>
       </div>
       <div class="row mb-2 text-start">
-        <div class="col-sm-3 fw-bold">Cargo:</div>
-        <div class="col-sm-9">${comisionData.nombre_cargo}</div>
+        <div class="col-3 col-sm-3 fw-bold">Cargo:</div>
+        <div class="col-9 col-sm-9">${comisionData.nombre_cargo}</div>
       </div>
       <div class="row mb-2 text-start">
-        <div class="col-sm-3 fw-bold">Unidad:</div>
-        <div class="col-sm-9">${comisionData.unidad}</div>
+        <div class="col-3 col-sm-3 fw-bold">Unidad:</div>
+        <div class="col-9 col-sm-9">${comisionData.unidad}</div>
       </div>
     </div>
 
@@ -363,26 +364,26 @@ const RecepcionPorQrView: React.FC = () => {
         <i class="bi bi-geo-alt me-2"></i>Detalles de la Comisión
       </h6>
       <div class="row mb-2 text-start">
-        <div class="col-sm-3 fw-bold">Código:</div>
-        <div class="col-sm-9">${comisionData.id_comision}</div>
+        <div class="col-3 col-sm-3 fw-bold">Código:</div>
+        <div class="col-9 col-sm-9">${comisionData.id_comision}</div>
       </div>
       <div class="row mb-2 text-start">
-        <div class="col-sm-3 fw-bold">Fecha:</div>
-        <div class="col-sm-9">${formatToBolivianDate(comisionData.fecha_comision, {
+        <div class="col-3 col-sm-3 fw-bold">Fecha:</div>
+        <div class="col-9 col-sm-9">${formatToBolivianDate(comisionData.fecha_comision, {
           dateStyle: 'full',
         })}</div>
       </div>
       <div class="row mb-2 text-start">
-        <div class="col-sm-3 fw-bold">De:</div>
-        <div class="col-sm-9">${comisionData.recorrido_de}</div>
+        <div class="col-3 col-sm-3 fw-bold">De:</div>
+        <div class="col-9 col-sm-9">${comisionData.recorrido_de}</div>
       </div>
       <div class="row mb-2 text-start">
-        <div class="col-sm-3 fw-bold">A:</div>
-        <div class="col-sm-9">${comisionData.recorrido_a}</div>
+        <div class="col-3 col-sm-3 fw-bold">A:</div>
+        <div class="col-9 col-sm-9">${comisionData.recorrido_a}</div>
       </div>
       <div class="row mb-2 text-start">
-        <div class="col-sm-3 fw-bold">Motivo:</div>
-        <div class="col-sm-9">${comisionData.descripcion_comision}</div>
+        <div class="col-3 col-sm-3 fw-bold">Motivo:</div>
+        <div class="col-9 col-sm-9">${comisionData.descripcion_comision}</div>
       </div>
     </div>
 
@@ -391,8 +392,8 @@ const RecepcionPorQrView: React.FC = () => {
         <i class="bi bi-info-circle me-2"></i>Estado Comisión
       </h6>
       <div class="row mb-2 text-start">
-        <div class="col-sm-3 fw-bold">Estado:</div>
-        <div class="col-sm-9">
+        <div class="col-3 col-sm-3 fw-bold">Estado:</div>
+        <div class="col-9 col-sm-9">
           <span class="badge" style="background: ${
             getStatusColor(comisionData.estado_boleta_comision).background
           }; 

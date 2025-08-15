@@ -33,14 +33,15 @@ const AppRoutes: FC = () => {
             <>
               <Route path='/*' element={<PrivateRoutes />} />
               <Route index element={<Navigate to='/dashboard' />} />
+              {/* <Route index element={<Navigate to='/principal' />} /> */}
             </>
           ) : (
             <>
               <Route path='*' element={<ExternalRedirect url={`${API_URL}/login`} />} />
               <Route path='auth/*' element={<ExternalRedirect  url={`${API_URL}/login`} />} />
               {/* <Route path='auth/*' element={<AuthPage />} />
-              {/* <Route path='auth/*' element={<AuthPage />} />
-              {/* <Route path='auth/*' element={<AuthPage />} />
+              <Route path='auth/*' element={<AuthPage />} />
+              <Route path='auth/*' element={<AuthPage />} />
               <Route path='*' element={<Navigate to='/auth' />} /> */}
             </>
           )}

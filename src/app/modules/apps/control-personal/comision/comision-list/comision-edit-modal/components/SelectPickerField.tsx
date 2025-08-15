@@ -3,8 +3,9 @@ import {generateDateOptions, getDateOption} from '../utils/dateUtils'
 import {useThemeMode} from 'src/_metronic/partials/layout/theme-mode/ThemeModeProvider'
 
 export const SelectPickerField = ({field, form, isFieldValid, isSubmitting}) => {
+  // console.log(field);
   const dateOptions = generateDateOptions()
-  const isDateActive = !!dateOptions.find((option) => option.value === field.value)
+  const isDateActive = dateOptions.some((option) => option.value === field.value)
   const selectedDate = dateOptions.find((option) => option.value === field.value) || null
   const {mode} = useThemeMode()
 

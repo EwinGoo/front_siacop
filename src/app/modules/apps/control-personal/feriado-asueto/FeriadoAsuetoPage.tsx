@@ -4,8 +4,8 @@ import {FeriadoAsuetoListWrapper} from './list/FeriadoAsuetoList'
 
 const usersBreadcrumbs: Array<PageLink> = [
   {
-    title: 'Gestión de registros',
-    path: '',
+    title: 'Control Personal',
+    path: '#',
     isSeparator: false,
     isActive: false,
   },

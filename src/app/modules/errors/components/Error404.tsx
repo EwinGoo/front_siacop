@@ -6,11 +6,13 @@ const Error404: FC = () => {
   return (
     <>
       {/* begin::Title */}
-      <h1 className='fw-bolder fs-2hx text-gray-900 mb-4'>Oops!</h1>
+      <h1 className='fw-bolder fs-2hx text-gray-900 mb-4'>¡Vaya!</h1>
       {/* end::Title */}
 
       {/* begin::Text */}
-      <div className='fw-semibold fs-6 text-gray-500 mb-7'>We can't find that page.</div>
+      <div className='fw-semibold fs-6 text-gray-500 mb-7'>
+        No pudimos encontrar la página que buscas.
+      </div>
       {/* end::Text */}
 
       {/* begin::Illustration */}
@@ -18,20 +20,20 @@ const Error404: FC = () => {
         <img
           src={toAbsoluteUrl('/media/auth/404-error.png')}
           className='mw-100 mh-300px theme-light-show'
-          alt=''
+          alt='Error 404 - Página no encontrada'
         />
         <img
           src={toAbsoluteUrl('/media/auth/404-error-dark.png')}
           className='mw-100 mh-300px theme-dark-show'
-          alt=''
+          alt='Error 404 - Página no encontrada'
         />
       </div>
       {/* end::Illustration */}
 
       {/* begin::Link */}
       <div className='mb-0'>
-        <Link to='/dashboard' className='btn btn-sm btn-primary'>
-          Return Home
+        <Link to='/' className='btn btn-sm btn-primary'>
+          Volver al Inicio
         </Link>
       </div>
       {/* end::Link */}

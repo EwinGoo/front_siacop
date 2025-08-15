@@ -2,6 +2,8 @@ import axios, { AxiosResponse } from 'axios';
 import { ID, Response } from '../../../../../../../../_metronic/helpers';
 import { TipoPermiso, TipoPermisoQueryResponse, BackendResponse, TipoPermisoBackendData } from './_models';
 import { API_ROUTES } from 'src/app/config/apiRoutes';
+import axiosClient from 'src/app/services/axiosClient';
+import { ValidationError } from 'src/app/utils/httpErrors';
 
 export const TIPO_PERMISO_URL = API_ROUTES.CONTROL_PERSONAL + '/tipos-permiso'
 
@@ -35,26 +37,52 @@ const getTiposPermiso = (query: string): Promise<TipoPermisoQueryResponse> => {
     });
 };
 
-const getTipoPermisoById = (id: ID): Promise<TipoPermiso | undefined> => {
-  return axios
-    .get(`${TIPO_PERMISO_URL}/${id}`)
-    .then((response: AxiosResponse<Response<TipoPermiso>>) => response.data)
-    .then((response: Response<TipoPermiso>) => response.data);
-};
+const getTipoPermisoById = async (id: ID): Promise<TipoPermiso> => {
+  const response = await axiosClient.get<BackendResponse<TipoPermiso>>(`${TIPO_PERMISO_URL}/${id}`)
+  const data = response.data
 
-const createTipoPermiso = (tipoPermiso: TipoPermiso): Promise<TipoPermiso | undefined> => {
-  return axios
-    .post(TIPO_PERMISO_URL, tipoPermiso)
-    .then((response: AxiosResponse<Response<TipoPermiso>>) => response.data)
-    .then((response: Response<TipoPermiso>) => response.data);
-};
+  if (data.error) {
+    throw new Error(data.message || 'Error desconocido al obtener la comisión')
+  }
 
-const updateTipoPermiso = (tipoPermiso: TipoPermiso): Promise<TipoPermiso | undefined> => {
-  return axios
-    .put(`${TIPO_PERMISO_URL}/${tipoPermiso.id_tipo_permiso}`, tipoPermiso)
-    .then((response: AxiosResponse<Response<TipoPermiso>>) => response.data)
-    .then((response: Response<TipoPermiso>) => response.data);
-};
+  if (!data.data) {
+    throw new Error('Comisión no encontrada')
+  }
+
+  return data.data
+}
+
+const createTipoPermiso = async (comision: TipoPermiso): Promise<TipoPermiso> => {
+  try {
+    const response = await axiosClient.post(TIPO_PERMISO_URL, comision)
+    return response.data.data
+  } catch (error: any) {
+    const status = error?.response?.status
+    const validationErrors = error?.response?.data?.validation_errors
+    const message = error?.response?.data?.message || 'Ocurrió un error'
+
+    if (status === 400 || status === 422) {
+      throw new ValidationError(validationErrors || {}, message)
+    }
+
+    throw new Error(message)  
+  }
+}
+
+const updateTipoPermiso = async (tipoPermiso: TipoPermiso): Promise<TipoPermiso> => {
+  try {
+    const response = await axiosClient.put(`${TIPO_PERMISO_URL}/${tipoPermiso.id_tipo_permiso}`, tipoPermiso)
+    return response.data.data
+  } catch (error: any) {
+    if (error.response?.status === 422 || error.response?.status === 400) {
+      throw new ValidationError(
+        error.response.data.validation_errors || {},
+        error.response.data.message
+      )
+    }
+    throw error 
+  }
+}
 
 const deleteTipoPermiso = (tipoPermisoId: ID): Promise<void> => {
   return axios.delete(`${TIPO_PERMISO_URL}/${tipoPermisoId}`).then(() => {});

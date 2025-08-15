@@ -2,10 +2,14 @@ import {useThemeMode} from 'src/_metronic/partials/layout/theme-mode/ThemeModePr
 import Flatpickr from 'react-flatpickr'
 import {Spanish} from 'flatpickr/dist/l10n/es'
 import clsx from 'clsx'
-import { formatDate } from 'date-fns'
+import {formatDate} from 'date-fns'
 
-export const DatePickerField = ({field, form, isFieldValid, onChange, isSubmitting}) => {
+export const DatePickerField = ({field, form, isFieldValid, onChange, isSubmitting, onBlur}) => {
   const {mode} = useThemeMode()
+
+  const handleClose = () => {
+    form.setFieldTouched(field.name, true)
+  }
   return (
     <>
       <Flatpickr
@@ -19,9 +23,8 @@ export const DatePickerField = ({field, form, isFieldValid, onChange, isSubmitti
           mode === 'dark' && 'flatpickr-dark'
         )}
         value={field.value}
-        // onChange={([date]) => form.setFieldValue(field.name, date)}
-        onChange={([date]) => onChange(formatDate(date,'yyyy-MM-dd'))}
-        // onChange={([date]) => form.setFieldValue(field.name, date)}
+        onChange={([date]) => onChange(formatDate(date, 'yyyy-MM-dd'))}
+        // onChange={([date]) => onChange(date)}
         options={{
           dateFormat: 'Y-m-d',
           locale: Spanish,
@@ -36,7 +39,10 @@ export const DatePickerField = ({field, form, isFieldValid, onChange, isSubmitti
               }, 0)
             }
           },
+          onClose: handleClose,
         }}
+        // onBlur={() => form.setFieldTouched(field.name, true)}
+        // onBlur={onBlur}
       />
     </>
   )

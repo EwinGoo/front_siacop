@@ -41,19 +41,33 @@ const EditModal = () => {
   }
 
   const options = [
-    {id: 'COMISION', title: 'PERSONAL', icon: 'briefcase'},
+    {id: 'PERSONAL', title: 'PERSONAL', icon: 'briefcase'},
     {id: 'TRANSPORTE', title: 'AUTO TRANSPORTE', icon: 'truck'},
+    {id: 'CAJA SALUD', title: 'CAJA DE SALUD'},
   ]
+
+  const titleModal = () => {
+    const selectedOption = options.find((opt) => opt.id === selectedType)
+
+    if (!selectedOption) return ''
+
+    if (selectedType === 'PERSONAL' || selectedType === 'TRANSPORTE') {
+      return `BOLETA DE COMISIÓN ${selectedOption.title}`
+    }
+
+    if (selectedType === 'CAJA SALUD') {
+      return `PERMISO ${selectedOption.title}`
+    }
+
+    return selectedOption.title // fallback
+  }
 
   return (
     <Modal show={isShow} onHide={handleClose} centered size='lg' backdrop='static' keyboard={false}>
       <Modal.Header>
         {showForm ? (
           <>
-            <Modal.Title className='fw-black fs-2'>
-              BOLETA DE COMISIÓN
-              {selectedType && ` ${selectedType === 'COMISION' ? 'PERSONAL' : 'AUTO-TRANSPORTE'}`}
-            </Modal.Title>
+            <Modal.Title className='fw-black fs-2'>{titleModal()}</Modal.Title>
             <div
               className='btn btn-icon btn-sm btn-active-icon-primary'
               onClick={handleClose}
@@ -65,7 +79,7 @@ const EditModal = () => {
         ) : (
           <>
             <Modal.Title className='fw-bold fs-2 text-center m-auto'>
-              Tipos de Comisiones
+              Tipos de Comisiones y Permisos
             </Modal.Title>
             <div
               className='btn btn-icon btn-sm btn-active-icon-primary'
@@ -81,7 +95,7 @@ const EditModal = () => {
       <Modal.Body className={`py-0 px-5 px-xl-15 ${!showForm ? 'py-10' : ''}`}>
         {!showForm ? (
           // Vista de selección de tipo
-          <div className='row g-10'>
+          <div className='row g-10 justify-content-center'>
             {options.map((option) => (
               <div key={option.id} className='col-md-6'>
                 <div
@@ -89,10 +103,18 @@ const EditModal = () => {
                   onClick={() => handleTypeSelect(option.id)}
                 >
                   <div className='card-body d-flex flex-column justify-content-between'>
-                    <KTIcon
+                    {/* <KTIcon
                       iconName={option.icon}
                       className='fs-6hx mx-auto text-primary hover-rotate'
-                    />
+                    /> */}
+                    {option.icon ? (
+                      <KTIcon
+                        iconName={option.icon}
+                        className='fs-6hx mx-auto text-primary hover-rotate'
+                      />
+                    ) : (
+                      <i className='fas fa-hospital fs-4hx mx-auto text-primary mb-4 hover-rotate'></i>
+                    )}
                     <h4 className='text-center fw-black'>{option.title}</h4>
                   </div>
                 </div>

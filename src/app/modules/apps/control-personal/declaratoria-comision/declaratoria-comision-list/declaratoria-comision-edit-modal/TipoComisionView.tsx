@@ -5,13 +5,13 @@ import Modal from 'react-bootstrap/Modal'
 
 type Props = {
   onClose: () => void
-  onTipoSeleccionado: (tipo: 'TRANSPORTE' | 'COMISION') => void
+  onTipoSeleccionado: (tipo: 'TRANSPORTE' | 'PERSONAL') => void
 }
 
 const TipoComisionView: FC<Props> = ({ onClose, onTipoSeleccionado }) => {
   const options = [
     { id: 1, title: 'Transporte', icon: 'truck', tipo: 'TRANSPORTE' },
-    { id: 2, title: 'Comisión', icon: 'briefcase', tipo: 'COMISION' },
+    { id: 2, title: 'Comisión', icon: 'briefcase', tipo: 'PERSONAL' },
   ]
 
   return (
@@ -33,7 +33,7 @@ const TipoComisionView: FC<Props> = ({ onClose, onTipoSeleccionado }) => {
             <div key={option.id} className='col-md-6'>
               <div
                 className='card card-flush h-md-100 cursor-pointer bg-light-hover'
-                onClick={() => onTipoSeleccionado(option.tipo as 'TRANSPORTE' | 'COMISION')}
+                onClick={() => onTipoSeleccionado(option.tipo as 'TRANSPORTE' | 'PERSONAL')}
               >
                 <div className='card-body d-flex flex-column justify-content-between'>
                   <KTIcon

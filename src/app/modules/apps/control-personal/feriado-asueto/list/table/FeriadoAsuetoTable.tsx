@@ -5,9 +5,9 @@ import { CustomRow } from './columns/CustomRow'
 import { useQueryResponseData, useQueryResponseLoading } from '../core/QueryResponseProvider'
 import { Columns } from './columns/_columns'
 import { FeriadoAsueto } from '../core/_models'
-import { ListLoading } from '../components/loading/ListLoading'
 import { ListPagination } from '../components/pagination/ListPagination'
 import { KTCardBody } from '../../../../../../../_metronic/helpers'
+import { ListLoading } from 'src/app/modules/components/loading/ListLoading'
 
 const FeriadoAsuetoTable = () => {
   const feriadosAsuetos = useQueryResponseData()
@@ -30,7 +30,7 @@ const FeriadoAsuetoTable = () => {
     <KTCardBody className='py-4'>
       <div className='table-responsive'>
         <table
-          id='kt_table_feriados_asuetos'
+          id='kt_table_hover'
           className='table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer'
           {...getTableProps()}
         >

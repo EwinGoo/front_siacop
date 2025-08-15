@@ -1,12 +1,34 @@
-// @ts-nocheck
 import {Column} from 'react-table'
 import {ActionsCell} from './ActionsCell'
 import {CustomHeader} from './CustomHeader'
 import {DeclaratoriaComision} from '../../core/_models'
+import {DateCell} from './DateCell'
+import ElaboracionCell from './ElaboracionCell'
+import { EstadoBadge } from '../../components/EstadoBadge'
 
-const Columns: ReadonlyArray<Column<DeclaratoriaComision>> = [
+// Interfaces para tipado
+interface PDFData {
+  base64: string;
+  filename: string;
+  declaratoria: any;
+}
+
+interface ModalHandlers {
+  onShowPDF: (pdfData: PDFData) => void;
+  onShowData: (declaratoria: any) => void;
+  onSetLoading: (declaratoriaId: string, isLoading: boolean) => void;
+  getLoadingState: (declaratoriaId: string) => boolean;
+}
+
+// Función que retorna las columnas con los handlers necesarios
+const getColumns = ({
+  onShowPDF,
+  onShowData,
+  onSetLoading,
+  getLoadingState
+}: ModalHandlers): ReadonlyArray<Column<DeclaratoriaComision>> => [
   {
-    Header: (props) => <CustomHeader tableProps={props} title='Nro' className='min-w-50px' />,
+    Header: (props) => <CustomHeader tableProps={props} title='N°' className='min-w-50px' />,
     id: 'rowNumber',
     Cell: ({row}) => <span>{row.index + 1}</span>,
   },
@@ -17,44 +39,20 @@ const Columns: ReadonlyArray<Column<DeclaratoriaComision>> = [
     accessor: 'nombre_generador',
   },
   {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='CI' className='min-w-100px' />
-    ),
-    accessor: 'id_de',
-  },
-  {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='CI' className='min-w-100px' />
-    ),
+    Header: (props) => <CustomHeader tableProps={props} title='CI' className='min-w-100px' />,
     accessor: 'ci',
   },
   {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='Periodo' className='min-w-200px' />
-    ),
+    Header: (props) => <CustomHeader tableProps={props} title='Periodo' className='min-w-120px' />,
     id: 'periodo',
-    Cell: ({row}) => {
-      const formatDate = (dateString: string) => {
-        const [year, month, day] = dateString.split('-')
-        return `${day}/${month}/${year}`
-      }
-      return (
-        <span className='fw-bold'>
-          {formatDate(row.original.fecha_inicio)} - {formatDate(row.original.fecha_fin)}
-        </span>
-      )
-    },
+    Cell: ({row}) => <DateCell declaratoria={row.original} />,
   },
   {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='Destino' className='min-w-150px' />
-    ),
+    Header: (props) => <CustomHeader tableProps={props} title='Destino' className='min-w-150px' />,
     accessor: 'destino',
   },
   {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='Viático' className='min-w-100px' />
-    ),
+    Header: (props) => <CustomHeader tableProps={props} title='Viático' className='min-w-100px' />,
     accessor: 'tipo_viatico',
     Cell: ({value}) => (
       <span className={`badge badge-light-${value === 'con_viatico' ? 'success' : 'primary'}`}>
@@ -63,43 +61,38 @@ const Columns: ReadonlyArray<Column<DeclaratoriaComision>> = [
     ),
   },
   {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='HR N°' className='min-w-100px' />
-    ),
+    Header: (props) => <CustomHeader tableProps={props} title='HR N°' className='min-w-100px' />,
     accessor: 'rrhh_hoja_ruta_numero',
-  },
-  {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='Motivo' className='min-w-250px' />
-    ),
-    accessor: 'motivo',
-    Cell: ({value}) => (
-      <div className='text-truncate' style={{maxWidth: '250px'}} title={value}>
-        {value}
-      </div>
-    ),
   },
   {
     Header: (props) => (
       <CustomHeader tableProps={props} title='Elaboración' className='min-w-120px' />
     ),
-    accessor: 'fecha_elaboracion',
-    Cell: ({value}) => {
-      const [year, month, day] = value.split('-')
-      return `${day}/${month}/${year}`
-    },
+    id: 'fecha_elaboracion',
+    Cell: ({row}) => <ElaboracionCell declaratoria={row.original} />,
+  },
+  {
+    Header: (props) => <CustomHeader tableProps={props} title='Estado' className='min-w-100px' />,
+    accessor: 'estado',
+    Cell: ({value}) => <EstadoBadge estado={value} />,
   },
   {
     Header: (props) => (
       <CustomHeader tableProps={props} title='Acciones' className='text-end min-w-150px' />
     ),
     id: 'actions',
-    Cell: ({...props}) => (
-      <ActionsCell
-        id={props.data[props.row.index].id_declaratoria_comision}
+    Cell: ({row}) => (
+      <ActionsCell 
+        declaratoria={row.original}
+        onShowPDF={onShowPDF}
+        onShowData={onShowData}
+        onSetLoading={onSetLoading}
+        isLoading={getLoadingState(row.original.id_declaratoria_comision?.toString() || '')}
       />
     ),
   },
 ]
 
-export {Columns}
+// Exportar la función en lugar de las columnas directamente
+export {getColumns}
+export type {ModalHandlers, PDFData}

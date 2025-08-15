@@ -5,16 +5,38 @@ import {ListHeader} from './components/header/ListHeader'
 import {DeclaratoriaComisionTable} from './table/DeclaratoriaComisionTable'
 import {EditModal} from './declaratoria-comision-edit-modal/EditModal'
 import {KTCard} from 'src/_metronic/helpers'
+import {useModalManager} from './hooks/useModalManager'
+import PDFModal from './pdf-modal/PDFModal'
+import DataViewModal from './data-view-modal/DataViewModal'
 
 const DeclaratoriaComisionList = () => {
+  const {
+    handleShowPDF,
+    handleShowData,
+    handleSetLoading,
+    getLoadingState,
+    pdfModalProps,
+    dataModalProps
+  } = useModalManager()
 
   return (
     <>
       <KTCard>
         <ListHeader />
-        <DeclaratoriaComisionTable />
+        <DeclaratoriaComisionTable 
+          onShowPDF={handleShowPDF}
+          onShowData={handleShowData}
+          onSetLoading={handleSetLoading}
+          getLoadingState={getLoadingState}
+        />
       </KTCard>
+      
+      {/* Modal de edición existente */}
       <EditModal />
+      
+      {/* Modales globales optimizados - Solo UNA instancia */}
+      <PDFModal {...pdfModalProps} />
+      <DataViewModal {...dataModalProps} />
     </>
   )
 }

@@ -1,9 +1,8 @@
 import {FC, useState, useRef, useEffect} from 'react'
 import {useFormik} from 'formik'
-import clsx from 'clsx'
 import {toast} from 'react-toastify'
 
-import {isNotEmpty, KTIcon} from '../../../../../../../../_metronic/helpers'
+import {isNotEmpty} from '../../../../../../../../_metronic/helpers'
 
 import {useListView} from '../core/ListViewProvider'
 import {useQueryResponse} from '../core/QueryResponseProvider'
@@ -48,6 +47,7 @@ const EditModalForm: FC<Props> = ({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const {isAdminComision} = usePermissions()
   const {setApiErrors, getFieldError, clearFieldError} = useApiFieldErrors()
+  const [limiteDias, setLimiteDias] = useState<number | null>(null)
 
   const [asistenciaPermisoForEdit] = useState<AsistenciaPermiso>({
     ...asistenciaPermiso,
@@ -65,10 +65,10 @@ const EditModalForm: FC<Props> = ({
     // id_usuario_generador: currentUser?.id || null,
   })
 
-  const [backendErrors, setBackendErrors] = useState<Record<string, string>>({})
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [uploadProgress, setUploadProgress] = useState<number>(0)
-  const [isUploading, setIsUploading] = useState<boolean>(false)
+  // const [backendErrors, setBackendErrors] = useState<Record<string, string>>({})
+  // const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  // const [uploadProgress, setUploadProgress] = useState<number>(0)
+  // const [isUploading, setIsUploading] = useState<boolean>(false)
 
   const cancel = (withRefresh?: boolean) => {
     if (withRefresh) {
@@ -79,7 +79,10 @@ const EditModalForm: FC<Props> = ({
 
   const formik = useFormik({
     initialValues: asistenciaPermisoForEdit,
-    validationSchema: asistenciaPermisoSchema({isAdmin: isAdminComision}),
+    validationSchema: asistenciaPermisoSchema({
+      isAdmin: isAdminComision,
+      limiteDias,
+    }),
     // validationSchema: null,
     // validateOnBlur: false,
     // validateOnChange: false,
@@ -115,10 +118,19 @@ const EditModalForm: FC<Props> = ({
     },
   })
 
+  useEffect(() => {
+    const permiso = tiposPermisos.find(
+      (tipo) => tipo.id_tipo_permiso?.toString() === formik.values.id_tipo_permiso?.toString()
+    )
+    if (permiso) {
+      setLimiteDias(permiso.limite_dias ?? null)
+    } else {
+      setLimiteDias(null)
+    }
+  }, [formik.values.id_tipo_permiso, tiposPermisos])
+
   // useEffect(() => {
   //   console.log('Formik errors:', formik.errors)
-  //   console.log(isAdminComision);
-
   // }, [formik.errors])
 
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null)
@@ -168,7 +180,10 @@ const EditModalForm: FC<Props> = ({
                   value={selectedOption}
                   onChange={(selected) => {
                     setSelectedOption(selected)
-                    formik.setFieldValue('id_asignacion_administrativo',selected?.id_asignacion_administrativo ?? '')
+                    formik.setFieldValue(
+                      'id_asignacion_administrativo',
+                      selected?.id_asignacion_administrativo ?? ''
+                    )
                   }}
                   onBlur={() => formik.setFieldTouched('id_asignacion_administrativo', true)}
                   fetchOptions={fetchPersonaOptions}
@@ -216,6 +231,7 @@ const EditModalForm: FC<Props> = ({
                 isFieldValid={isFieldValid('fecha_inicio_permiso')}
                 isSubmitting={formik.isSubmitting}
                 onChange={handleChange('fecha_inicio_permiso')}
+                onBlur={() => formik.setFieldTouched('fecha_inicio_permiso', true)}
               />
               {!isFieldValid('fecha_inicio_permiso') && (
                 <div className='fv-plugins-message-container'>
@@ -231,6 +247,7 @@ const EditModalForm: FC<Props> = ({
                 isFieldValid={isFieldValid('fecha_fin_permiso')}
                 isSubmitting={formik.isSubmitting}
                 onChange={handleChange('fecha_fin_permiso')}
+                onBlur={() => formik.setFieldTouched('fecha_fin_permiso', true)}
               />
               {!isFieldValid('fecha_fin_permiso') && (
                 <div className='fv-plugins-message-container'>
@@ -245,12 +262,13 @@ const EditModalForm: FC<Props> = ({
         <FormActions
           onClose={onClose}
           isSubmitting={formik.isSubmitting}
-          isUploading={isUploading}
+          // isUploading={isUploading}
           isValid={formik.isValid}
           isEdit={!!asistenciaPermiso.id_asistencia_permiso}
         />
       </form>
-      {(formik.isSubmitting || isAsistenciaPermisoLoading || isUploading) && <ListLoading />}
+      {/* {(formik.isSubmitting || isAsistenciaPermisoLoading || isUploading) && <ListLoading />} */}
+      {(formik.isSubmitting || isAsistenciaPermisoLoading) && <ListLoading />}
     </>
   )
 }

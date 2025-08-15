@@ -1,7 +1,8 @@
 import {useQueryClient, useMutation} from 'react-query'
-import {QUERIES} from 'src/_metronic/helpers'
+import {initialQueryState, QUERIES} from 'src/_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
+import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {aprobarSelectedComisiones} from '../../core/_requests'
 import {toast} from 'react-toastify'
 import {showAxiosError} from 'src/app/utils/showAxiosErrorToast'
@@ -9,6 +10,7 @@ import Tooltip from '@mui/material/Tooltip'
 
 const ListGrouping = () => {
   const {selected, clearSelected} = useListView()
+  const {updateState} = useQueryRequest()
   const queryClient = useQueryClient()
   const {query, refetch} = useQueryResponse()
 
@@ -22,13 +24,10 @@ const ListGrouping = () => {
     },
     {
       onMutate: async () => {
-        // 1. Cancelar queries pendientes
         await queryClient.cancelQueries([QUERIES.COMISIONES_LIST, query])
 
-        // 2. Snapshot del estado anterior para rollback
         const previousData = queryClient.getQueryData([QUERIES.COMISIONES_LIST, query])
 
-        // 3. Actualización optimista
         queryClient.setQueryData([QUERIES.COMISIONES_LIST, query], (old: any) => {
           if (!old?.data) return old
           return {
@@ -63,7 +62,7 @@ const ListGrouping = () => {
           ])
 
           toast.success(`${selected.length} comisiones aprobadas correctamente`)
-
+          updateState({filter: undefined, ...initialQueryState})
           // Limpiar selección solo cuando es éxito
           clearSelected()
         } catch (error) {

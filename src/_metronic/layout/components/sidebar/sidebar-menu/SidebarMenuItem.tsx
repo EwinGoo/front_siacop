@@ -26,6 +26,8 @@ const SidebarMenuItem: FC<Props & WithChildren> = ({
   const {config} = useLayout()
   const {app} = config
 
+  // console.log(isActive)
+
   return (
     <div className='menu-item'>
       <Link className={clsx('menu-link without-sub', {active: isActive})} to={to}>

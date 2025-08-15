@@ -4,6 +4,7 @@ import {isNotEmpty, QUERIES} from '../../../../../../../../_metronic/helpers'
 import {useListView} from '../core/ListViewProvider'
 import {getTipoPermisoById} from '../core/_requests'
 import {initialTipoPermiso} from '../core/_models'
+import {Spinner} from 'react-bootstrap'
 
 const EditModalFormWrapper = ({onClose}) => {
   const {itemIdForUpdate, setItemIdForUpdate} = useListView()
@@ -41,9 +42,15 @@ const EditModalFormWrapper = ({onClose}) => {
       />
     )
   }
-
+  
   if (isLoading) {
-    return <div className='text-center p-10'>Cargando tipo de permiso...</div>
+    return (
+      <div className='d-flex flex-column align-items-center justify-content-center py-10 px-5'>
+        <Spinner animation='border' role='status'>
+          <span className='visually-hidden'>Cargando...</span>
+        </Spinner>
+      </div>
+    )
   }
 
   if (error) {

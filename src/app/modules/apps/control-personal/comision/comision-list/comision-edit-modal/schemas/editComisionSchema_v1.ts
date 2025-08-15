@@ -16,12 +16,12 @@ export const editComisionSchema = Yup.object().shape({
       return true
     }),
   tipo_comision: Yup.string()
-    .oneOf(['COMISION', 'TRANSPORTE'], 'Tipo inválido')
+    .oneOf(['PERSONAL', 'TRANSPORTE'], 'Tipo inválido')
     .required('Tipo es requerido'),
   descripcion_comision: Yup.string().when(
     'tipo_comision',
     (tipo_comision: string[], schema: Yup.StringSchema) => {
-      return tipo_comision[0] === 'COMISION'
+      return tipo_comision[0] === 'PERSONAL'
         ? schema
             .min(10, 'Mínimo 10 caracteres')
             .max(255, 'Máximo 255 caracteres')

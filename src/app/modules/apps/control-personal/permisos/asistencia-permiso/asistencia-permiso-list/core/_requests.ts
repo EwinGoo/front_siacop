@@ -149,6 +149,21 @@ const procesarEstadoComision = (
   return axiosClient.post(`${ASISTENCIA_PERMISO_URL}/procesar-estado`, requestData)
 }
 
+
+const aprobarSelectedPermisos= async (
+  comisionIds: ID[]
+): Promise<{success: boolean; message: string}> => {
+  try {
+    const response = await axiosClient.post(`${ASISTENCIA_PERMISO_URL}/aprobar-seleccionados`, {
+      ids: comisionIds,
+    })
+    return response.data
+  } catch (error) {
+    // console.error('Error al aprobar comisiones:', error.response?.data)
+    throw error
+  }
+}
+
 export {
   getAsistenciasPermiso,
   deleteAsistenciaPermiso,
@@ -161,5 +176,6 @@ export {
   getTiposPermiso,
   uploadFile,
   procesarEstadoComision,
-  aprobarComisiones
+  aprobarComisiones,
+  aprobarSelectedPermisos
 }

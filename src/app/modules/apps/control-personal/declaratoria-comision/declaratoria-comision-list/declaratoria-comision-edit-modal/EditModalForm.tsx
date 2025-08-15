@@ -1,4 +1,4 @@
-import {FC, useState} from 'react'
+import {FC, useEffect, useState} from 'react'
 import * as Yup from 'yup'
 import {useFormik} from 'formik'
 import {isNotEmpty} from 'src/_metronic/helpers'
@@ -10,7 +10,6 @@ import {
 import clsx from 'clsx'
 import {useListView} from '../core/ListViewProvider'
 import {useAuth} from 'src/app/modules/auth'
-import {ListLoading} from '../components/loading/ListLoading'
 import {createDeclaratoriaComision, updateDeclaratoriaComision} from '../core/_requests'
 import {useQueryResponse} from '../core/QueryResponseProvider'
 import {toast} from 'react-toastify'
@@ -22,6 +21,7 @@ import {parseTipoViaticoFromApi, parseTipoViaticoToApi} from '../helpers/viatico
 import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
 import AsyncSelectField from '../../../comision/comision-list/comision-edit-modal/components/AsyncSelectField'
 import {getPersonaAutocomplete} from '../../../comision/comision-list/core/_requests'
+import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
 
 type Props = {
   isDeclaratoriaLoading: boolean
@@ -36,18 +36,26 @@ interface OptionType {
 }
 
 const declaratoriaComisionSchema = Yup.object().shape({
-  id_asignacion_administrativo: Yup.number().required('Asignación administrativa es requerida'),
+  id_asignacion_administrativo: Yup.number().required('Solicitante es requerido'),
   fecha_elaboracion: Yup.date().required('Fecha de elaboración es requerida'),
-  rrhh_hoja_ruta_numero: Yup.string()
+  rrhh_hoja_ruta_numero: Yup.number()
+    .typeError('Número de hoja de ruta debe ser numérico')
     .required('Número de hoja de ruta es requerido')
-    .min(3, 'Mínimo 3 caracteres'),
+    .min(1, 'Número de hoja de ruta debe tener al menos 1 dígito'),
   rrhh_hoja_ruta_fecha: Yup.date().required('Fecha de hoja de ruta es requerida'),
-  // tipo_viatico: Yup.string()
-  //   .oneOf(['con_viatico', 'sin_viatico'], 'Tipo de viático inválido')
-  //   .required('Tipo de viático es requerido'),
   fecha_inicio: Yup.date()
     .required('Fecha de inicio es requerida')
-    .min(Yup.ref('fecha_elaboracion')), // Fecha inicio no puede ser anterior a elaboración
+    .test(
+      'fecha-no-anterior',
+      'Fecha inicio no puede ser anterior a la fecha de elaboración',
+      function (value) {
+        const {fecha_elaboracion} = this.parent
+        if (!value || !fecha_elaboracion) return true
+        const inicio = new Date(value).setHours(0, 0, 0, 0)
+        const elaboracion = new Date(fecha_elaboracion).setHours(0, 0, 0, 0)
+        return inicio >= elaboracion
+      }
+    ),
   fecha_fin: Yup.date()
     .required('Fecha de fin es requerida')
     .min(Yup.ref('fecha_inicio'), 'Fecha fin no puede ser anterior a fecha inicio'),
@@ -59,6 +67,10 @@ const declaratoriaComisionSchema = Yup.object().shape({
     .required('Motivo es requerido')
     .min(10, 'Mínimo 10 caracteres')
     .max(555, 'Máximo 555 caracteres'),
+  nota_interna: Yup.number()
+    .typeError('Nota interna debe ser numérico')
+    .min(1, 'Nota interna debe tener al menos 1 dígito')
+    .notRequired(), // Opcional
 })
 
 const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}) => {
@@ -71,7 +83,6 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
     ...declaratoria,
     id_asignacion_administrativo:
       declaratoria.id_asignacion_administrativo || initialData.id_asignacion_administrativo,
-    id_usuario: currentUser?.id || initialData.id_usuario,
     fecha_elaboracion: declaratoria.fecha_elaboracion || initialData.fecha_elaboracion,
     rrhh_hoja_ruta_numero: declaratoria.rrhh_hoja_ruta_numero || initialData.rrhh_hoja_ruta_numero,
     rrhh_hoja_ruta_fecha: declaratoria.rrhh_hoja_ruta_fecha || initialData.rrhh_hoja_ruta_fecha,
@@ -92,11 +103,16 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
   const formik = useFormik({
     initialValues: declaratoriaForEdit,
     validationSchema: declaratoriaComisionSchema,
+    // validationSchema: null,
+    // validateOnBlur: false,
+    // validateOnChange: false,
     onSubmit: async (values, {setSubmitting}) => {
       setSubmitting(true)
       setApiErrors({})
 
       try {
+        // console.log(values.tipo_viatico);
+
         const preparePayload = (values: DeclaratoriaComision) => {
           const tipoViaticoBool =
             typeof values.tipo_viatico === 'string'
@@ -154,9 +170,17 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
     return response.sugerencias.map((item) => ({
       value: item.id,
       label: item.texto,
-      id_asignacion_administrativo: item.id_asignacion_administrativo
+      id_asignacion_administrativo: item.id_asignacion_administrativo,
     }))
   }
+
+  useEffect(() => {
+    if (Object.keys(formik.errors).length > 0) {
+      console.log(formik.values)
+
+      console.log('Errores en el formulario:', formik.errors)
+    }
+  }, [formik.errors])
 
   return (
     <>
@@ -178,24 +202,29 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
                   value={selectedOption}
                   onChange={(selected) => {
                     setSelectedOption(selected)
-                    formik.setFieldValue('id_usuario_generador', selected?.value ?? '')
-                    formik.setFieldValue('id_asignacion_administrativo', selected?.id_asignacion_administrativo ?? '')
+                    formik.setFieldValue(
+                      'id_asignacion_administrativo',
+                      selected?.id_asignacion_administrativo ?? ''
+                    )
+                    clearFieldError('id_asignacion_administrativo')
                   }}
-                  onBlur={() => formik.setFieldTouched('id_usuario_generador', true)}
+                  onBlur={() => formik.setFieldTouched('id_asignacion_administrativo', true)}
                   fetchOptions={fetchPersonaOptions}
-                  isInvalid={!isFieldValid('id_usuario_generador')}
+                  isInvalid={!isFieldValid('id_asignacion_administrativo')}
                 />
               )}
-              {!isFieldValid('id_usuario_generador') && (
+              {!isFieldValid('id_asignacion_administrativo') && (
                 <div className='fv-plugins-message-container'>
-                  <span role='alert'>{getFieldError(formik.errors, 'id_usuario_generador')}</span>
+                  <span role='alert'>
+                    {getFieldError(formik.errors, 'id_asignacion_administrativo')}
+                  </span>
                 </div>
               )}
             </div>
           )}
           {/* Fechas importantes */}
           <div className='row mb-7'>
-            <div className='col-md-4 fv-row'>
+            <div className='col-md-4 fv-row mb-7 mb-md-0'>
               <label className='required fw-bold fs-6 mb-2'>Fecha Elaboración</label>
               <DatePickerField
                 field={formik.getFieldProps('fecha_elaboracion')}
@@ -203,6 +232,7 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
                 isFieldValid={isFieldValid('fecha_elaboracion')}
                 isSubmitting={formik.isSubmitting}
                 onChange={handleChange('fecha_elaboracion')}
+                onBlur={() => formik.setFieldTouched('fecha_elaboracion', true)}
               />
 
               {!isFieldValid('fecha_elaboracion') && (
@@ -212,9 +242,10 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
               )}
             </div>
 
-            <div className='col-md-4 fv-row'>
+            <div className='col-md-4 fv-row  mb-7 mb-md-0'>
               <label className='required fw-bold fs-6 mb-2'>Fecha Inicio</label>
               <DatePickerField
+                onBlur={() => formik.setFieldTouched('fecha_inicio', true)}
                 field={formik.getFieldProps('fecha_inicio')}
                 form={formik}
                 isFieldValid={isFieldValid('fecha_inicio')}
@@ -228,9 +259,10 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
               )}
             </div>
 
-            <div className='col-md-4 fv-row'>
+            <div className='col-md-4 fv-row  mb-1 mb-md-0'>
               <label className='required fw-bold fs-6 mb-2'>Fecha Fin</label>
               <DatePickerField
+                onBlur={() => formik.setFieldTouched('fecha_fin', true)}
                 field={formik.getFieldProps('fecha_fin')}
                 form={formik}
                 isFieldValid={isFieldValid('fecha_fin')}
@@ -246,12 +278,16 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
           </div>
 
           {/* Hoja de ruta */}
-          <div className='row mb-7'>
-            <div className='col-md-6 fv-row'>
+          <div className='row'>
+            <div className='col-md-6 fv-row mb-7 mb-md-0'>
               <label className='required fw-bold fs-6 mb-2'>N° Hoja de Ruta</label>
               <input
                 type='text'
                 {...formik.getFieldProps('rrhh_hoja_ruta_numero')}
+                onChange={(e) => {
+                  clearFieldError('rrhh_hoja_ruta_numero')
+                  formik.handleChange(e)
+                }}
                 className={clsx('form-control form-control-solid', {
                   'is-invalid': !isFieldValid('rrhh_hoja_ruta_numero'),
                   'is-valid':
@@ -266,9 +302,10 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
               )}
             </div>
 
-            <div className='col-md-6 fv-row'>
+            <div className='col-md-6 fv-row mb-7 mb-md-0'>
               <label className='required fw-bold fs-6 mb-2'>Fecha Hoja de Ruta</label>
               <DatePickerField
+                onBlur={() => formik.setFieldTouched('rrhh_hoja_ruta_fecha', true)}
                 field={formik.getFieldProps('rrhh_hoja_ruta_fecha')}
                 form={formik}
                 isFieldValid={isFieldValid('rrhh_hoja_ruta_fecha')}
@@ -289,6 +326,10 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
             <input
               type='text'
               {...formik.getFieldProps('destino')}
+              onChange={(e) => {
+                clearFieldError('destino')
+                formik.handleChange(e)
+              }}
               className={clsx('form-control form-control-solid', {
                 'is-invalid': !isFieldValid('destino'),
                 'is-valid': formik.touched.destino && isFieldValid('destino'),
@@ -307,6 +348,10 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
             <label className='required fw-bold fs-6 mb-2'>Motivo</label>
             <textarea
               {...formik.getFieldProps('motivo')}
+              onChange={(e) => {
+                clearFieldError('motivo')
+                formik.handleChange(e)
+              }}
               className={clsx('form-control form-control-solid', {
                 'is-invalid': !isFieldValid('motivo'),
                 'is-valid': formik.touched.motivo && isFieldValid('motivo'),
@@ -327,6 +372,10 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
             <input
               type='text'
               {...formik.getFieldProps('nota_interna')}
+              onChange={(e) => {
+                clearFieldError('nota_interna')
+                formik.handleChange(e)
+              }}
               className={clsx('form-control form-control-solid', {
                 'is-invalid': !isFieldValid('nota_interna'),
                 'is-valid': formik.touched.nota_interna && isFieldValid('nota_interna'),
@@ -369,7 +418,8 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
         <FormActions
           onClose={onClose}
           isSubmitting={formik.isSubmitting}
-          isValid={formik.isValid}
+          isValid={true}
+          // isValid={formik.isValid}
           isEdit={!!declaratoria.id_declaratoria_comision}
         />
       </form>

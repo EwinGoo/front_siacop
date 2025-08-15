@@ -15,7 +15,7 @@ export const ReportModalFormWrapper = ({onClose}) => {
       // Crear formulario dinámico
       const form = document.createElement('form')
       form.method = 'POST'
-      form.action = API_ROUTES.REPORTES.COMISION.GENERAL
+      form.action = API_ROUTES.REPORTES.PERSONAL.GENERAL
       form.target = '_blank' // Muy importante para que se abra en nueva pestaña
 
       // Agregar campos como inputs ocultos

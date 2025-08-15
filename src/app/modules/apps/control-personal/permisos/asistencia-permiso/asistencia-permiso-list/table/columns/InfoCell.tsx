@@ -10,19 +10,6 @@ type Props = {
 }
 
 const InfoCell: FC<Props> = ({asistenciaPermiso}) => {
-  // Format dates
-  const formatDate = (dateString: string | null | undefined): string => {
-    if (!dateString) return 'Sin fecha'
-    try {
-      return new Date(dateString).toLocaleDateString()
-    } catch {
-      return 'Fecha inválida'
-    }
-  }
-
-  const fechaInicio = formatDate(asistenciaPermiso.fecha_inicio_permiso)
-  const fechaFin = formatDate(asistenciaPermiso.fecha_fin_permiso)
-
   // Status badge classes
   const statusClass = asistenciaPermiso.estado_permiso === 'APROBADO' 
     ? 'badge-light-success' 

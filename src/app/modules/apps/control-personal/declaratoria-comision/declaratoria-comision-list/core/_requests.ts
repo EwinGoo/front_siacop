@@ -5,13 +5,13 @@ import {
   DeclaratoriaComisionQueryResponse,
   BackendResponse,
   DeclaratoriasComisionBackendData,
+  PDFResponse,
 } from './_models'
 import axiosClient from 'src/app/services/axiosClient'
-import { ValidationError } from 'src/app/utils/httpErrors'
-import { API_ROUTES } from 'src/app/config/apiRoutes'
+import {ValidationError} from 'src/app/utils/httpErrors'
+import {API_ROUTES} from 'src/app/config/apiRoutes'
 
 export const DECLARATORIA_URL = API_ROUTES.CONTROL_PERSONAL + '/declaratoria-comision'
-
 
 const getDeclaratoriasComision = (query: string): Promise<DeclaratoriaComisionQueryResponse> => {
   return axios
@@ -67,13 +67,19 @@ const createDeclaratoriaComision = async (
   }
 }
 
-const updateDeclaratoriaComision = (
-  declaratoria: DeclaratoriaComision
-): Promise<DeclaratoriaComision | undefined> => {
-  return axios
-    .put(`${DECLARATORIA_URL}/${declaratoria.id_declaratoria_comision}`, declaratoria)
-    .then((response: AxiosResponse<Response<DeclaratoriaComision>>) => response.data)
-    .then((response: Response<DeclaratoriaComision>) => response.data)
+const updateDeclaratoriaComision = async (declaratoria: DeclaratoriaComision): Promise<DeclaratoriaComision> => {
+  try {
+    const response = await axiosClient.put(`${DECLARATORIA_URL}/${declaratoria.id_declaratoria_comision}`, declaratoria)
+    return response.data.data
+  } catch (error: any) {
+    if (error.response?.status === 422 || error.response?.status === 400) {
+      throw new ValidationError(
+        error.response.data.validation_errors || {},
+        error.response.data.message
+      )
+    }
+    throw error
+  }
 }
 
 const deleteDeclaratoriaComision = (declaratoriaId: ID): Promise<void> => {
@@ -85,11 +91,23 @@ const deleteSelectedDeclaratorias = (declaratoriaIds: Array<ID>): Promise<void> 
   return axios.all(requests).then(() => {})
 }
 
-const imprimirDeclaratoriaComision = (id: ID): Promise<Blob> => {
-  return axios
-    .get(`${DECLARATORIA_URL}/imprimir/${id}`, {responseType: 'blob'})
-    .then((response) => response.data)
-}
+// const imprimirDeclaratoriaComision = (id: ID): Promise<Blob> => {
+//   return axios
+//     .get(`${DECLARATORIA_URL}/imprimir/${id}`, {responseType: 'blob'})
+//     .then((response) => response.data)
+// }
+
+const imprimirDeclaratoriaComision = async (id: ID): Promise<PDFResponse> => {
+  try {
+    const response = await axios.get<BackendResponse<PDFResponse>>(
+      `${DECLARATORIA_URL}/reporte/${id}`
+    );
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Error al imprimir declaratoria:', error);
+    throw error;
+  }
+};
 
 export {
   getDeclaratoriasComision,

@@ -29,8 +29,6 @@ const CustomHeader: FC<Props> = ({ className, title, tableProps }) => {
 
     if (!isSelectedForSorting) {
       // Habilitar orden ascendente
-      console.log(initialQueryState);
-      
       updateState({ sort: id, order: 'asc', ...initialQueryState });
       return;
     }

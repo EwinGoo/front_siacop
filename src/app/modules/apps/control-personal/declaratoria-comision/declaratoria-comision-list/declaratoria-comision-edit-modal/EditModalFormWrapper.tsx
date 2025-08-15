@@ -50,8 +50,6 @@ const EditModalFormWrapper = ({onClose}) => {
   if (isLoading) {
     return (
       <div className='d-flex flex-column align-items-center justify-content-center py-10 px-5'>
-        {/* <Loading />
-        <span className='text-muted mt-5'>Cargando datos de la comisión...</span> */}
         <Spinner animation='border' role='status'>
           <span className='visually-hidden'>Loading...</span>
         </Spinner>

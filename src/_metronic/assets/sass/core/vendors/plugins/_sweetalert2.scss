@@ -116,3 +116,9 @@ body.swal2-height-auto {
 .swal2-container .swal2-html-container {
     max-height: none;
 }
+
+@media (max-width: 600px) {
+  .swal2-popup .swal2-actions {
+    margin: 0;
+  }
+}

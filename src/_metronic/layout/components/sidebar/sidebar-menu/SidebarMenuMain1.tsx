@@ -30,13 +30,13 @@ const SidebarMenuMain = () => {
       <SidebarMenuItem
         to='/apps/comisiones/listar'
         title='Permisos por Hora'
-        icon='time'
+        icon='two-credit-cart'
         fontIcon='bi-person'
       />  
       <SidebarMenuItem
         to='/apps/asistencias-permisos/listar'
         title='Permisos por Día'
-        icon='calendar-search'
+        icon='calendar-8'
         fontIcon='bi-person'
       />  
       <SidebarMenuItem

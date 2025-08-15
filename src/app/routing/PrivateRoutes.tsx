@@ -7,6 +7,8 @@ import {MenuTestPage} from '../pages/MenuTestPage'
 import {getCSSVariableValue} from '../../_metronic/assets/ts/_utils'
 import {WithChildren} from '../../_metronic/helpers'
 import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
+import {ProtectedRoute} from '../modules/auth/core/ProtectedRoute'
+import AccessDeniedPage from '../pages/AccessDeniedPage'
 // import AsistenciaPermisoPage from '../modules/apps/control-personal/permisos/asistencia-permisos/AsistenciaPermisoPage'
 
 const PrivateRoutes = () => {
@@ -19,10 +21,19 @@ const PrivateRoutes = () => {
 
   const PersonPage = lazy(() => import('../modules/apps/person-management/PersonPage'))
   const ComisionPage = lazy(() => import('../modules/apps/control-personal/comision/ComisionPage'))
-  const AsistenciaPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/asistencia-permiso/AsistenciaPermisoPage'))
-  const DeclaratoriaComisionPage = lazy(() => import('../modules/apps/control-personal/declaratoria-comision/DeclaratoriaComisionPage'))
-  const TipoPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/tipos-permisos/TipoPermisoPage'))
-  const FeriadoAsuetoPage = lazy(() => import('../modules/apps/control-personal/feriado-asueto/FeriadoAsuetoPage'))
+  const AsistenciaPermisoPage = lazy(
+    () =>
+      import('../modules/apps/control-personal/permisos/asistencia-permiso/AsistenciaPermisoPage')
+  )
+  const DeclaratoriaComisionPage = lazy(
+    () => import('../modules/apps/control-personal/declaratoria-comision/DeclaratoriaComisionPage')
+  )
+  const TipoPermisoPage = lazy(
+    () => import('../modules/apps/control-personal/permisos/tipos-permisos/TipoPermisoPage')
+  )
+  const FeriadoAsuetoPage = lazy(
+    () => import('../modules/apps/control-personal/feriado-asueto/FeriadoAsuetoPage')
+  )
 
   return (
     <Routes>
@@ -86,7 +97,9 @@ const PrivateRoutes = () => {
           path='apps/gestion-persona/*'
           element={
             <SuspensedView>
-              <PersonPage />
+              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
+                <PersonPage />
+              </ProtectedRoute>
             </SuspensedView>
           }
         />
@@ -102,7 +115,9 @@ const PrivateRoutes = () => {
           path='apps/feriados-asuetos/*'
           element={
             <SuspensedView>
-              <FeriadoAsuetoPage />
+              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
+                <FeriadoAsuetoPage />
+              </ProtectedRoute>
             </SuspensedView>
           }
         />
@@ -118,7 +133,9 @@ const PrivateRoutes = () => {
           path='apps/tipos-permisos/*'
           element={
             <SuspensedView>
-              <TipoPermisoPage />
+              <ProtectedRoute requiredPermissions={['COMISION_MANAGEMENT']}>
+                <TipoPermisoPage />
+              </ProtectedRoute>
             </SuspensedView>
           }
         />
@@ -126,15 +143,19 @@ const PrivateRoutes = () => {
           path='apps/comisiones/*'
           element={
             <SuspensedView>
-              <ComisionPage />
+              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
+                <ComisionPage />
+              </ProtectedRoute>
             </SuspensedView>
           }
         />
         <Route
-          path='apps/declaratoria-comision/*' 
+          path='apps/declaratoria-comision/*'
           element={
             <SuspensedView>
-              <DeclaratoriaComisionPage />
+              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
+                <DeclaratoriaComisionPage />
+              </ProtectedRoute>
             </SuspensedView>
           }
         />
@@ -156,6 +177,7 @@ const PrivateRoutes = () => {
         />
         {/* Page Not Found */}
         <Route path='*' element={<Navigate to='/error/404' />} />
+        <Route path='/acceso-denegado' element={<AccessDeniedPage />} />
       </Route>
     </Routes>
   )

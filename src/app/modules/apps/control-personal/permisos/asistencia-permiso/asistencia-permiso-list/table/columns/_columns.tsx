@@ -40,7 +40,7 @@ export const getColumns = ({isAdmin}: GetColumnsProps): ReadonlyArray<Column<Asi
       Cell: ({row}) => <InfoCell asistenciaPermiso={row.original} />,
     },
     {
-      Header: (props) => <CustomHeader tableProps={props} title='Codigo' className='min-w-100px' />,
+      Header: (props) => <CustomHeader tableProps={props} title='Código' className='min-w-100px' />,
       accessor: 'id_asistencia_permiso',
     },
     {

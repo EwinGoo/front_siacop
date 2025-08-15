@@ -11,7 +11,7 @@ const ErrorsLayout = () => {
     document.body.style.backgroundImage =
       mode === 'dark'
         ? `url(${toAbsoluteUrl('/media/auth/bg7-dark.jpg')})`
-        : `url(${toAbsoluteUrl('/media/auth/bg7.jpg')})`
+        : `url(${toAbsoluteUrl('/media/auth/bg13.jpg')})`
 
     return () => {
       BODY_CLASSES.forEach((c) => document.body.classList.remove(c))

@@ -4,7 +4,7 @@ import {DeclaratoriaComisionListWrapper} from './declaratoria-comision-list/Decl
 
 const usersBreadcrumbs: Array<PageLink> = [
   {
-    title: 'Gestión de Declaratorias Comisión',
+    title: 'Control Personal',
     path: '/apps/declaratoria-comision/listar',
     isSeparator: false,
     isActive: false,

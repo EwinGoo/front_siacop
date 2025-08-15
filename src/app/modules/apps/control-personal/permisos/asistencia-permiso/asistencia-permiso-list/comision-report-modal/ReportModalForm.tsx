@@ -44,8 +44,11 @@ export const ReportModalForm = ({
 
   return (
     <form onSubmit={formik.handleSubmit}>
-      <div className='modal-body'>
+      <div className='modal-body py-0'>
         <div className='row mb-4'>
+          <p className='text-muted mb-4'>
+            Seleccione el rango de fechas para generar el reporte de boletas recepcionadas.
+          </p>
           <div className='col-md-6'>
             <label className='form-label fw-semibold'>📅 Fecha de inicio</label>
             <DatePickerField
@@ -54,19 +57,21 @@ export const ReportModalForm = ({
               isFieldValid={isFieldValid('fechaInicio')}
               isSubmitting={formik.isSubmitting}
               onChange={handleChange('fechaInicio')}
+              onBlur={() => formik.setFieldTouched('fechaInicio', true)}
             />
           </div>
           <div className='col-md-6'>
             <label className='form-label fw-semibold'>📅 Fecha de fin</label>
-             <DatePickerField
+            <DatePickerField
               field={formik.getFieldProps('fechaFin')}
               form={formik}
               isFieldValid={isFieldValid('fechaFin')}
               isSubmitting={formik.isSubmitting}
               onChange={handleChange('fechaFin')}
+              onBlur={() => formik.setFieldTouched('fechaFin', true)}
             />
           </div>
-          <div className='col-md-6 mb-4 mt-4'>
+          {/* <div className='col-md-6 mb-4 mt-4'>
             <label className='form-label fw-semibold'>📝 Estado</label>
             <SelectField
               field={formik.getFieldProps('estado')}
@@ -88,7 +93,7 @@ export const ReportModalForm = ({
               options={tipoOptions}
               placeholder='Seleccione tipo'
             />
-          </div>
+          </div> */}
         </div>
       </div>
 

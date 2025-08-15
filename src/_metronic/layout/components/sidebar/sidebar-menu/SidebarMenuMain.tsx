@@ -2,25 +2,25 @@
 import React from 'react'
 import {SidebarMenuItemWithSub} from './SidebarMenuItemWithSub'
 import {SidebarMenuItem} from './SidebarMenuItem'
-import {SidebaExternalLink} from './SidebaExternalLink' // Nuevo componente para MVC
+import {SidebaExternalLink} from './SidebaExternalLink'
 import {useAuth} from '../../../../../app/modules/auth'
 
 const SidebarMenuMain = () => {
   const {currentUser} = useAuth()
   const menu = currentUser?.menu || {}
 
-  const renderMenuItem = (item, icon, hasBullet = false, fontIcon?: string, isSimple?) => {
+  const renderMenuItem = (item, icon, hasBullet = false, fontIcon?: string, isSimple?: boolean) => {
     if (item.type === 'mvc') {
       return (
         <SidebaExternalLink
           href={item.url}
           title={item.label}
           fontIcon={fontIcon}
+          icon={isSimple ? item.icon || icon : undefined}
           hasBullet={hasBullet}
         />
       )
     }
-    // default: react
     return (
       <SidebarMenuItem
         to={item.url}
@@ -45,31 +45,35 @@ const SidebarMenuMain = () => {
             </div>
           </div>
 
-          {/* Submenús colapsables */}
-          {section.menus &&
-            section.menus.map((submenu, subIndex) => (
-              <SidebarMenuItemWithSub
-                key={subIndex}
-                to='#'
-                title={submenu.subMenuTitle}
-                icon={submenu.icon}
-                fontIcon='bi-list'
-              >
-                {submenu.items.map((item, itemIndex) => (
-                  <React.Fragment key={itemIndex}>
-                    {renderMenuItem(item, submenu.icon, true)}
-                  </React.Fragment>
-                ))}
-              </SidebarMenuItemWithSub>
-            ))}
-
-          {/* Enlaces simples */}
-          {section.items &&
-            section.items.map((item, itemIndex) => (
-              <React.Fragment key={itemIndex}>
-                {renderMenuItem(item, item.icon, false, 'bi-link', true)}
-              </React.Fragment>
-            ))}
+          {/* Renderizamos elementos en el orden que manda el backend */}
+          {section.elements?.map((element, index) => {
+            if (element.items) {
+              // Submenú
+              return (
+                <SidebarMenuItemWithSub
+                  key={index}
+                  // to={element.items[0]?.url || '#'}
+                  to='#'
+                  title={element.subMenuTitle}
+                  icon={element.icon}
+                  fontIcon='bi-person'
+                >
+                  {element.items.map((item, itemIndex) => (
+                    <React.Fragment key={itemIndex}>
+                      {renderMenuItem(item, element.icon, true)}
+                    </React.Fragment>
+                  ))}
+                </SidebarMenuItemWithSub>
+              )
+            } else {
+              // Enlace simple
+              return (
+                <React.Fragment key={index}>
+                  {renderMenuItem(element, element.icon, false, 'bi-person', true)}
+                </React.Fragment>
+              )
+            }
+          })}
         </React.Fragment>
       ))}
     </>

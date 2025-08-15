@@ -14,6 +14,8 @@ import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
 import {CKEditor} from '@ckeditor/ckeditor5-react'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import {FormActions} from 'src/app/modules/components/FormActions'
+import {ValidationError} from 'src/app/utils/httpErrors'
+import {useApiFieldErrors} from 'src/app/hooks/useApiFieldErrors'
 
 type Props = {
   isLoading: boolean
@@ -36,6 +38,7 @@ const editTipoPermisoSchema = Yup.object().shape({
 const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
+  const {apiErrors, setApiErrors, getFieldError, clearFieldError} = useApiFieldErrors()
 
   const [tipoPermisoForEdit] = useState<TipoPermiso>({
     ...tipoPermiso,
@@ -49,8 +52,6 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
     limite_dias: tipoPermiso.limite_dias || initialTipoPermiso.limite_dias,
   })
 
-  const [backendErrors, setBackendErrors] = useState<Record<string, string>>({})
-
   const cancel = (withRefresh?: boolean) => {
     if (withRefresh) {
       refetch()
@@ -61,9 +62,12 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
   const formik = useFormik({
     initialValues: tipoPermisoForEdit,
     validationSchema: editTipoPermisoSchema,
+    // validationSchema: null, 
+    // validateOnBlur: false, 
+    // validateOnChange: false,
     onSubmit: async (values, {setSubmitting}) => {
       setSubmitting(true)
-      setBackendErrors({})
+      setApiErrors({})
 
       try {
         // const preparePayload = (values: TipoPermiso): TipoPermisoPayload => ({
@@ -88,22 +92,12 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
         cancel(true)
         onClose()
       } catch (error: any) {
-        console.error(error)
-        if (error.response?.status === 422 && error.response.data?.validation_errors) {
-          setBackendErrors(error.response.data.validation_errors)
-          await Swal.fire({
-            icon: 'error',
-            title: 'Error de validación',
-            html: Object.entries(error.response.data.validation_errors)
-              .map(([field, message]) => `<li>${message}</li>`)
-              .join(''),
-          })
+        if (error instanceof ValidationError) {
+          setApiErrors(error.validationErrors)
+          toast.error(error.message)
         } else {
-          await Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: error.response?.data?.message || 'Error al procesar la solicitud',
-          })
+          console.log(error)
+          toast.error('Error inesperado: ' + error.message)
         }
       } finally {
         setSubmitting(false)
@@ -111,17 +105,9 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
     },
   })
 
-  const getFieldError = (fieldName: string) => {
-    return formik.errors[fieldName as keyof typeof formik.errors] || backendErrors[fieldName]
-  }
-
   const isFieldValid = (fieldName: string) => {
-    return !(formik.touched[fieldName as keyof typeof formik.touched] && getFieldError(fieldName))
+    return !(formik.touched[fieldName] && getFieldError(formik.errors, fieldName))
   }
-
-  // const toggleRequiereHojaRuta = () => {
-  //   formik.setFieldValue('requiere_hoja_ruta', !formik.values.requiere_hoja_ruta)
-  // }
 
   return (
     <>
@@ -132,6 +118,10 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
             <label className='required fw-bold fs-6 mb-2'>Nombre</label>
             <input
               {...formik.getFieldProps('nombre')}
+              onChange={(value)=>{
+                clearFieldError('nombre')
+                formik.handleChange(value)
+              }}
               className={clsx('form-control form-control-solid', {
                 'is-invalid': !isFieldValid('nombre'),
                 'is-valid': formik.touched.nombre && isFieldValid('nombre'),
@@ -140,7 +130,7 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
             />
             {!isFieldValid('nombre') && (
               <div className='fv-plugins-message-container'>
-                <span role='alert'>{getFieldError('nombre')}</span>
+                <span role='alert'>{getFieldError(formik.errors, 'nombre')}</span>
               </div>
             )}
           </div>
@@ -150,6 +140,10 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
             <label className='fw-bold fs-6 mb-2'>Descripción</label>
             <textarea
               {...formik.getFieldProps('descripcion')}
+              onChange={(value)=>{
+                clearFieldError('descripcion')
+                formik.handleChange(value)
+              }}
               className={clsx('form-control form-control-solid', {
                 'is-invalid': !isFieldValid('descripcion'),
                 'is-valid': formik.touched.descripcion && isFieldValid('descripcion'),
@@ -159,7 +153,7 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
             />
             {!isFieldValid('descripcion') && (
               <div className='fv-plugins-message-container'>
-                <span role='alert'>{getFieldError('descripcion')}</span>
+                <span role='alert'>{getFieldError(formik.errors, 'descripcion')}</span>
               </div>
             )}
           </div>
@@ -179,23 +173,18 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
                 onChange={(_, editor) => {
                   const data = editor.getData()
                   formik.setFieldValue('instruccion', data)
+                  clearFieldError('instruccion')
                 }}
                 onBlur={() => formik.setFieldTouched('instruccion', true)}
                 config={{
                   placeholder: 'Escriba los requisitos aquí...',
-                  toolbar: [
-                    'undo',
-                    'redo',
-                    'bold',
-                    'numberedList',
-                    'bulletedList',
-                  ],
+                  toolbar: ['undo', 'redo', 'bold', 'numberedList', 'bulletedList'],
                 }}
               />
             </div>
             {!isFieldValid('instruccion') && (
               <div className='fv-plugins-message-container'>
-                <span role='alert'>{getFieldError('instruccion')}</span>
+                <span role='alert'>{getFieldError(formik.errors, 'instruccion')}</span>
               </div>
             )}
           </div>
@@ -216,7 +205,7 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
             />
             {!isFieldValid('limite_dias') && (
               <div className='fv-plugins-message-container'>
-                <span role='alert'>{getFieldError('limite_dias')}</span>
+                <span role='alert'>{getFieldError(formik.errors, 'limite_dias')}</span>
               </div>
             )}
           </div>

@@ -95,7 +95,7 @@ const ActionsCell: FC<Props> = ({id, estado, hash}) => {
   const handlePrintConfirm = async () => {
     try {
       if (estado !== 'GENERADO') {
-        window.open(API_ROUTES.REPORTES.COMISION.FORMULARIO(hash!), '_blank')
+        window.open(API_ROUTES.REPORTES.PERSONAL.FORMULARIO(hash!), '_blank')
         return
       }
 
@@ -109,7 +109,7 @@ const ActionsCell: FC<Props> = ({id, estado, hash}) => {
 
       if (result.isConfirmed) {
         await sendItem.mutateAsync()
-        window.open(API_ROUTES.REPORTES.COMISION.FORMULARIO(hash!), '_blank')
+        window.open(API_ROUTES.REPORTES.PERSONAL.FORMULARIO(hash!), '_blank')
       }
     } catch (error) {
       showToast({message: 'Error al procesar la impresión', type: 'error'})

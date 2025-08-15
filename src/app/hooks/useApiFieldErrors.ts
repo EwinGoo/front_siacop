@@ -11,6 +11,9 @@ export const useApiFieldErrors = () => {
   )
 
   const clearFieldError = (fieldName: string) => {
+    if (!(fieldName in apiErrors)) {
+      return 
+    }
     setApiErrors((prev) => {
       const copy = {...prev}
       delete copy[fieldName]

@@ -287,13 +287,13 @@ const EditModalForm: FC<Props> = ({
           <div className='row mb-7'>
             <div className='col-md-6 fv-row'>
               <label className='required fw-bold fs-6 mb-2'>Fecha Inicio</label>
-              <DatePickerField
+              {/* <DatePickerField
                 field={formik.getFieldProps('fecha_inicio_permiso')}
                 form={formik}
                 isFieldValid={isFieldValid('fecha_inicio_permiso')}
                 isSubmitting={formik.isSubmitting}
                 onChange={handleChange('fecha_inicio_permiso')}
-              />
+              /> */}
               {!isFieldValid('fecha_inicio_permiso') && (
                 <div className='fv-plugins-message-container'>
                   <span role='alert'>{getFieldError(formik.errors, 'fecha_inicio_permiso')}</span>
@@ -302,13 +302,13 @@ const EditModalForm: FC<Props> = ({
             </div>
             <div className='col-md-6 fv-row'>
               <label className='required fw-bold fs-6 mb-2'>Fecha Fin</label>
-              <DatePickerField
+              {/* <DatePickerField
                 field={formik.getFieldProps('fecha_fin_permiso')}
                 form={formik}
                 isFieldValid={isFieldValid('fecha_fin_permiso')}
                 isSubmitting={formik.isSubmitting}
                 onChange={handleChange('fecha_fin_permiso')}
-              />
+              /> */}
               {!isFieldValid('fecha_fin_permiso') && (
                 <div className='fv-plugins-message-container'>
                   <span role='alert'>{getFieldError(formik.errors, 'fecha_fin_permiso')}</span>

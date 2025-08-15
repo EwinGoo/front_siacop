@@ -59,8 +59,8 @@ export interface UserMenuGroup {
 
 export interface UserMenuSection {
   menuSectionTitle: string
-  menus?: UserMenuGroup[] // submenús colapsables
-  items?: UserMenuItem[] // enlaces directos
+  // menus?: UserMenuGroup[] // submenús colapsables
+  elements?: UserMenuGroup[] // enlaces directos
 }
 
 export type UserMenu = {

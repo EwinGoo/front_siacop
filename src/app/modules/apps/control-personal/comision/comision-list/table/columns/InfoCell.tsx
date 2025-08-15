@@ -22,7 +22,7 @@ const InfoCell: FC<Props> = ({comision}) => {
     <div className='d-flex align-items-center'>
       {/* Icon based on commission type */}
       <Tooltip
-        title={comision.tipo_comision === 'COMISION' ? 'Comisión' : 'Transporte'}
+        title={comision.tipo_comision === 'PERSONAL' ? 'Comisión' : 'Transporte'}
         arrow
         slotProps={{
           tooltip: {
@@ -35,12 +35,12 @@ const InfoCell: FC<Props> = ({comision}) => {
         <div className='symbol symbol-50px me-5'>
           <span
             className={`symbol-label bg-light-${
-              comision.tipo_comision === 'COMISION' ? 'info' : 'primary'
+              comision.tipo_comision === 'PERSONAL' ? 'info' : 'primary'
             }`}
           >
             <KTIcon
-              iconName={comision.tipo_comision === 'COMISION' ? 'briefcase' : 'truck'}
-              className={`fs-2 text-${comision.tipo_comision === 'COMISION' ? 'info' : 'primary'}`}
+              iconName={comision.tipo_comision === 'PERSONAL' ? 'briefcase' : 'truck'}
+              className={`fs-2 text-${comision.tipo_comision === 'PERSONAL' ? 'info' : 'primary'}`}
             />
           </span>
         </div>

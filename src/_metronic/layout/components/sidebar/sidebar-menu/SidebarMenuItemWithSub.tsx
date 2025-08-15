@@ -27,7 +27,7 @@ const SidebarMenuItemWithSub: React.FC<Props & WithChildren> = ({
 
   return (
     <div
-      className={clsx('menu-item', {'here show': isActive}, 'menu-accordion')}
+      className={clsx('menu-item', 'menu-accordion', {'here show': isActive})}
       data-kt-menu-trigger='click'
     >
       <span className='menu-link'>

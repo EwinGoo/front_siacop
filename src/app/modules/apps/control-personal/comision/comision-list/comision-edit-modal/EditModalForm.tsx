@@ -2,7 +2,6 @@ import {FC, useState, useCallback, useEffect} from 'react'
 import clsx from 'clsx'
 import {useFormik} from 'formik'
 import {toast} from 'react-toastify'
-import {Button} from 'react-bootstrap'
 import {isNotEmpty, KTIcon} from 'src/_metronic/helpers'
 import {initialComision, Comision} from '../core/_models'
 import {useListView} from '../core/ListViewProvider'
@@ -12,10 +11,7 @@ import {editComisionSchema} from './schemas/editComisionSchema'
 import {SelectPickerField} from './components/SelectPickerField'
 import {DatePickerField} from 'src/app/modules/components/DatePickerField'
 import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
-import AsyncSelect from 'react-select/async'
-import {debounce} from 'lodash'
 import {ValidationError} from 'src/app/utils/httpErrors'
-import {format} from 'date-fns'
 import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
 import {FormActions} from 'src/app/modules/components/FormActions'
 import AsyncSelectField from './components/AsyncSelectField'
@@ -46,8 +42,6 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
     estado_boleta_comision:
       comision.estado_boleta_comision || initialComision.estado_boleta_comision,
   })
-
-  // const [apiErrors, setApiErrors] = useState<Record<string, string>>({})
 
   const cancel = (withRefresh?: boolean) => {
     if (withRefresh) {
@@ -90,10 +84,10 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
     },
   })
 
-  // useEffect(() => {
-  //   console.log('Formik errors:', formik.errors)
-  //   console.log('Initial values:', comisionForEdit)
-  // }, [formik.errors])
+  useEffect(() => {
+    console.log('Formik values:', formik.values)
+    
+  }, [formik.values])
 
   const getFieldError = (fieldName: string) => {
     return formik.errors[fieldName] || apiErrors[fieldName]
@@ -122,30 +116,6 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
     formik.setFieldValue(fieldName, value)
     clearFieldError(fieldName)
   }
-  // const debouncedFetcher = useCallback(
-  //   debounce(async (inputValue: string, callback: (options: OptionType[]) => void) => {
-  //     try {
-  //       const data = await getPersonaAutocomplete(inputValue)
-  //       const options = data.sugerencias.map((item) => ({
-  //         label: item.texto,
-  //         value: item.id,
-  //       }))
-  //       callback(options)
-  //     } catch (error) {
-  //       console.error('Error en autocomplete:', error)
-  //       callback([])
-  //     }
-  //   }, 200), // espera 500ms después de que el usuario deje de escribir
-  //   []
-  // )
-
-  // const loadOptions = (inputValue: string, callback: (options: OptionType[]) => void) => {
-  //   if (inputValue.length < 2) {
-  //     callback([]) // importante: evita que se quede "buscando..." para siempre
-  //     return
-  //   }
-  //   debouncedFetcher(inputValue, callback)
-  // }
 
   return (
     <>
@@ -197,8 +167,9 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
               })}
               // disabled={formik.isSubmitting}
             >
-              <option value='COMISION'>Comisión</option>
+              <option value='PERSONAL'>Comisión</option>
               <option value='TRANSPORTE'>Transporte</option>
+              <option value='CAJA SALUD'>Caja de Salud</option>
             </select>
             {!isFieldValid('tipo_comision') && (
               <div className='fv-plugins-message-container'>
@@ -219,6 +190,7 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
                 // onChange={handleChange('fecha_fin_permiso')}
                 // onChange={([date]) => handleChange('fecha_comision')(date)}
                 onChange={handleChange('fecha_comision')}
+                onBlur={() => formik.setFieldTouched('fecha_comision', true)}
               />
             ) : (
               <SelectPickerField
@@ -311,7 +283,6 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
           {/* )} */}
 
           {/* Descripción */}
-          {/* {formik.values.tipo_comision === 'COMISION' && ( */}
           <div className='fv-row mb-7 px-1'>
             <label className='required fw-bold fs-6 mb-2'>Motivo de la comisión</label>
             <textarea

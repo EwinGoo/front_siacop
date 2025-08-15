@@ -15,7 +15,7 @@ export type Comision = {
   recorrido_de?: string
   recorrido_a?: string
   estado_boleta_comision: EstadoType
-  tipo_comision?: 'COMISION' | 'TRANSPORTE'
+  tipo_comision?: 'PERSONAL' | 'TRANSPORTE'
   created_at?: string
   updated_at?: string
   deleted_at?: string | null
@@ -92,13 +92,13 @@ export const initialComision: Comision = {
   fecha_comision: new Date().toISOString().split('T')[0], // Fecha actual (YYYY-MM-DD)
   hora_salida: '08:30',
   hora_retorno: '12:30',
-  descripcion_comision: 'descripcion',
+  descripcion_comision: '',
   // descripcion_comision: '',
   recorrido_de: 'CASA MATRIZ UPEA',
   // recorrido_a: '',
-  recorrido_a: 'umsa',
+  recorrido_a: '',
   estado_boleta_comision: 'GENERADO',
-  tipo_comision: 'COMISION',
+  tipo_comision: 'PERSONAL',
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
   deleted_at: null,
@@ -107,6 +107,27 @@ export const initialComision: Comision = {
   unidad: null,
   hash: undefined,
 }
+// export const initialComision: Comision = {
+//   id_asignacion_administrativo: null,
+//   id_usuario_generador: null,
+//   id_usuario_aprobador: null,
+//   fecha_comision: new Date().toISOString().split('T')[0], // Fecha actual (YYYY-MM-DD)
+//   hora_salida: '08:30',
+//   hora_retorno: '12:30',
+//   descripcion_comision: 'descripcion',
+//   // descripcion_comision: '',
+//   recorrido_de: 'CASA MATRIZ UPEA',
+//   // recorrido_a: '',
+//   recorrido_a: 'umsa',
+//   estado_boleta_comision: 'GENERADO',
+//   created_at: new Date().toISOString(),
+//   updated_at: new Date().toISOString(),
+//   deleted_at: null,
+//   id_historico: null,
+//   observacion: null,
+//   unidad: null,
+//   hash: undefined,
+// }
 
 export interface ProcesarComisionParams {
   code: ID

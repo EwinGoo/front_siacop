@@ -29,7 +29,6 @@ const EditModal = () => {
         <Modal.Body className='py-0 px-5 px-xl-15'>
           <EditModalFormWrapper  onClose={handleClose} />
         </Modal.Body>
-        <Modal.Footer style={{borderTop: 'none'}}></Modal.Footer>
       </Modal>
     </>
   )

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import {FC, useContext, useState, useEffect, useMemo} from 'react'
 import {useQuery} from 'react-query'
 import {
@@ -32,7 +31,7 @@ const QueryResponseProvider: FC<WithChildren> = ({children}) => {
     refetch,
     data: response,
   } = useQuery(
-    `${QUERIES.COMISIONES_LIST}-${query}`,
+    `${QUERIES.DECLARATORIA_COMISION_LIST}-${query}`,
     () => {
       return getDeclaratoriasComision(query)
     },

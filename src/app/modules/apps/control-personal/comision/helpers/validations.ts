@@ -16,7 +16,7 @@ export const validarDuracion = (
 
   if (diffHrs < 0) return 'La hora de retorno debe ser posterior a la salida'
   // if (tipo_comision === 'TRANSPORTE' && diffHrs > 8) return 'Máximo 8 horas para transporte'
-  if (tipo_comision === 'COMISION' && diffHrs > 4) return 'Máximo 4 horas para comisión'
+  if (tipo_comision === 'PERSONAL' && diffHrs > 4) return 'Máximo 4 horas para comisión'
 
   return true
 }

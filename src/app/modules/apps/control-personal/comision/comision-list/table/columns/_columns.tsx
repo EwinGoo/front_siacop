@@ -39,7 +39,7 @@ export const getColumns = ({isAdmin}: GetColumnsProps): ReadonlyArray<Column<Com
       Cell: ({...props}) => <InfoCell comision={props.data[props.row.index]} />,
     },
     {
-      Header: (props) => <CustomHeader tableProps={props} title='Codigo' className='min-w-100px' />,
+      Header: (props) => <CustomHeader tableProps={props} title='Código' className='min-w-100px' />,
       accessor: 'id_comision',
     },
     {

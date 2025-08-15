@@ -6,6 +6,8 @@ import {CustomHeader} from './CustomHeader'
 import {SelectionCell} from './SelectionCell'
 import {SelectionHeader} from './SelectionHeader'
 import {FeriadoAsueto} from '../../core/_models' // Usamos el tipo FeriadoAsueto que definimos antes
+import {DateCell} from './DateCell'
+import HorarioCell from './HorarioCell'
 
 const Columns: ReadonlyArray<Column<FeriadoAsueto>> = [
   {
@@ -16,7 +18,7 @@ const Columns: ReadonlyArray<Column<FeriadoAsueto>> = [
   {
     Header: (props) => <CustomHeader tableProps={props} title='Evento' className='min-w-200px' />,
     id: 'evento',
-    Cell: ({...props}) => <InfoCell feriadoAsueto={props.data[props.row.index]} />,
+    Cell: ({row}) => <InfoCell feriadoAsueto={row.original} />,
   },
   {
     Header: (props) => <CustomHeader tableProps={props} title='Tipo' className='min-w-100px' />,
@@ -28,34 +30,16 @@ const Columns: ReadonlyArray<Column<FeriadoAsueto>> = [
     ),
   },
   {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='Fecha Evento' className='min-w-120px' />
-    ),
-    accessor: 'fecha_evento',
-    Cell: ({value}) => (value ? new Date(value).toLocaleDateString() : 'N/A'),
+    Header: (props) => <CustomHeader tableProps={props} title='Fecha' className='min-w-120px' />,
+    id: 'fecha',
+    Cell: ({row}) => <DateCell feriadoAsueto={row.original} />,
   },
   {
     Header: (props) => (
-      <CustomHeader tableProps={props} title='Rango Fechas' className='min-w-200px' />
+      <CustomHeader tableProps={props} title='Horario' className='min-w-150px text-center' />
     ),
-    id: 'rango_fechas',
-    Cell: ({row}) => (
-      <span>
-        {row.original.fecha_inicio
-          ? new Date(row.original.fecha_inicio).toLocaleDateString()
-          : 'N/A'}{' '}
-        -{row.original.fecha_fin ? new Date(row.original.fecha_fin).toLocaleDateString() : 'N/A'}
-      </span>
-    ),
-  },
-  {
-    Header: (props) => <CustomHeader tableProps={props} title='Horario' className='min-w-150px' />,
     id: 'horario',
-    Cell: ({row}) => (
-      <span>
-        {row.original.hora_inicio || 'N/A'} - {row.original.hora_fin || 'N/A'}
-      </span>
-    ),
+    Cell: ({row}) => <HorarioCell feriadoAsueto={row.original} />,
   },
   {
     Header: (props) => (

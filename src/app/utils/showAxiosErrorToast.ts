@@ -36,9 +36,10 @@ export const showAxiosError = (
       icon: 'error',
       title,
       html: message.includes('\n') ? message.split('\n').map(msg => `<p>${msg}</p>`).join('') : message,
-      confirmButtonText: 'Cerrar',
+      confirmButtonText: 'Entendido',
       customClass: {
-        popup: 'swal2-border-radius'
+        popup: 'swal2-border-radius',
+        confirmButton : 'btn btn-danger'
       }
     })
   } else {

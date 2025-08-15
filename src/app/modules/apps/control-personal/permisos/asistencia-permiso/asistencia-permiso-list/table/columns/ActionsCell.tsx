@@ -5,13 +5,18 @@ import {MenuComponent} from 'src/_metronic/assets/ts/components'
 import {ID, KTIcon, QUERIES} from 'src/_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
-import {ASISTENCIA_PERMISO_URL, deleteAsistenciaPermiso, procesarEstadoComision} from '../../core/_requests'
+import {
+  ASISTENCIA_PERMISO_URL,
+  deleteAsistenciaPermiso,
+  procesarEstadoComision,
+} from '../../core/_requests'
 import {toast} from 'react-toastify'
 import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
 import {showToast} from 'src/app/utils/toastHelper'
 import {showConfirmDialog} from 'src/app/utils/swalHelpers.ts'
 import {getPermisosComision} from 'src/app/modules/auth/core/permissions'
-import { EstadoType } from '../../core/_models'
+import {EstadoType} from '../../core/_models'
+import {API_ROUTES} from 'src/app/config/apiRoutes'
 
 type Props = {
   id: ID
@@ -95,7 +100,7 @@ const ActionsCell: FC<Props> = ({id, estado, hash = null}) => {
   const handlePrintConfirm = async () => {
     try {
       if (estado !== 'GENERADO') {
-        window.open(ASISTENCIA_PERMISO_URL + '/reporte/' + hash, '_blank')
+        window.open(API_ROUTES.REPORTES.PERMISO.FORMULARIO(hash!), '_blank')
         return
       }
 
@@ -109,7 +114,7 @@ const ActionsCell: FC<Props> = ({id, estado, hash = null}) => {
 
       if (result.isConfirmed) {
         await sendItem.mutateAsync()
-        window.open(ASISTENCIA_PERMISO_URL + '/reporte/' + hash, '_blank')
+        window.open(API_ROUTES.REPORTES.PERMISO.FORMULARIO(hash!), '_blank')
       }
     } catch (error) {
       showToast({message: 'Error al procesar la impresión', type: 'error'})

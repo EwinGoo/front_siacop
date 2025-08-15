@@ -8,10 +8,17 @@ export const API_ROUTES = {
   PERSONA: `${API_BASE_URL}/api/persona`,
   USUARIOS: `${API_BASE_URL}/api/usuarios`,
   REPORTES: {
-    COMISION: {
+    PERSONAL: {
       FORMULARIO: (hash: string) => `${API_BASE_URL}/reporte/comision/${hash}`,
       GENERAL: `${API_BASE_URL}/reporte/comision/reporte-general`,
       // Agrega más rutas aquí si es necesario
+    },
+    PERMISO: {
+      FORMULARIO: (hash: string) => `${API_BASE_URL}/reporte/permiso/${hash}`,
+      GENERAL: `${API_BASE_URL}/reporte/permiso/reporte-general`,
+    },
+    DECLARATORIA_COMISION: {
+      FORMULARIO: (hash: string) => `${API_BASE_URL}/reporte/declaratoria-comision/${hash}`,
     },
     // Otros grupos de reportes si tienes más
   },

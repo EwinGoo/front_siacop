@@ -8,7 +8,7 @@ import {DatePickerField} from 'src/app/modules/components/DatePickerField'
 
 const tipoComisionOptions = [
   {value: 'TODO', label: 'Todo'},
-  {value: 'COMISION', label: 'Personal'},
+  {value: 'PERSONAL', label: 'Personal'},
   {value: 'TRANSPORTE', label: 'Transporte'},
 ]
 
@@ -45,6 +45,7 @@ export const ReportModalForm = ({
               isFieldValid={isFieldValid('fechaInicio')}
               isSubmitting={formik.isSubmitting}
               onChange={handleChange('fechaInicio')}
+              onBlur={() => formik.setFieldTouched('fechaInicio', true)}
             />
           </div>
           <div className='col-md-6'>
@@ -52,9 +53,11 @@ export const ReportModalForm = ({
             <DatePickerField
               field={formik.getFieldProps('fechaFin')}
               form={formik}
-              isFieldValid={isFieldValid('fechaInicio')}
+              isFieldValid={isFieldValid('fechaFin')}
               isSubmitting={formik.isSubmitting}
               onChange={handleChange('fechaFin')}
+              onBlur={() => formik.setFieldTouched('fechaFin', true)}
+
             />
           </div>
           {/* <div className='col-md-6 mb-4 mt-4'>

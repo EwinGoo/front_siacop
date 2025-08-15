@@ -135,7 +135,7 @@ const ActionsCell: FC<Props> = ({id, isActive}) => {
           title: '¿Estás seguro?',
           text: '¡No podrás revertir esta acción!',
           icon: 'warning',
-          confirmButtonText: '<i class="bi bi-check me-2"></i>Sí, eliminar',
+          confirmButtonText: 'Sí, eliminar',
         })
   
         if (result.isConfirmed) {
