@@ -3,13 +3,14 @@ import Select from 'react-select'
 import clsx from 'clsx'
 import {useThemeMode} from 'src/_metronic/partials/layout/theme-mode/ThemeModeProvider'
 import {getSelectStyles} from './selectStyles'
+import { ID } from 'src/_metronic/helpers'
 
 interface SelectFieldProps {
   field: any
   form: any
   isFieldValid?: boolean
   isSubmitting?: boolean
-  options: Array<{value: string | number; label: string}>
+  options: Array<{value: string | number | ID; label: string}>
   placeholder?: string
   className?: string
   clearFieldError?: (fieldName: string) => void

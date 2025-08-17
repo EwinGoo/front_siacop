@@ -22,7 +22,7 @@ const InfoCell: FC<Props> = ({comision}) => {
     <div className='d-flex align-items-center'>
       {/* Icon based on commission type */}
       <Tooltip
-        title={comision.tipo_comision === 'PERSONAL' ? 'Comisión' : 'Transporte'}
+        title={comision.tipo_comision}
         arrow
         slotProps={{
           tooltip: {
@@ -35,13 +35,20 @@ const InfoCell: FC<Props> = ({comision}) => {
         <div className='symbol symbol-50px me-5'>
           <span
             className={`symbol-label bg-light-${
-              comision.tipo_comision === 'PERSONAL' ? 'info' : 'primary'
+              comision.tipo_comision === 'PERSONAL'
+                ? 'info'
+                : comision.tipo_comision === 'TRANSPORTE'
+                ? 'primary'
+                : 'secondary' // Para CAJA SALUD
             }`}
           >
-            <KTIcon
-              iconName={comision.tipo_comision === 'PERSONAL' ? 'briefcase' : 'truck'}
-              className={`fs-2 text-${comision.tipo_comision === 'PERSONAL' ? 'info' : 'primary'}`}
-            />
+            {comision.tipo_comision === 'PERSONAL' ? (
+              <KTIcon iconName='briefcase' className='fs-2 text-info' />
+            ) : comision.tipo_comision === 'TRANSPORTE' ? (
+              <KTIcon iconName='truck' className='fs-2 text-primary' />
+            ) : (
+              <i className='fas fa-hospital fs-2'  style={{ color: '#f3779eff' }}></i> // CAJA SALUD
+            )}
           </span>
         </div>
       </Tooltip>

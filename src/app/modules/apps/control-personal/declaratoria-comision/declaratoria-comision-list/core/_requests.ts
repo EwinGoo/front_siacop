@@ -1,20 +1,21 @@
-import axios, {AxiosResponse} from 'axios'
-import {ID, Response} from '../../../../../../../_metronic/helpers'
+import {ApiResponse, ID, Response} from 'src/_metronic/helpers'
 import {
   DeclaratoriaComision,
   DeclaratoriaComisionQueryResponse,
   BackendResponse,
   DeclaratoriasComisionBackendData,
   PDFResponse,
+  Unidad,
 } from './_models'
 import axiosClient from 'src/app/services/axiosClient'
 import {ValidationError} from 'src/app/utils/httpErrors'
 import {API_ROUTES} from 'src/app/config/apiRoutes'
+import { AxiosResponse } from 'axios'
 
 export const DECLARATORIA_URL = API_ROUTES.CONTROL_PERSONAL + '/declaratoria-comision'
 
 const getDeclaratoriasComision = (query: string): Promise<DeclaratoriaComisionQueryResponse> => {
-  return axios
+  return axiosClient
     .get<BackendResponse<DeclaratoriasComisionBackendData>>(`${DECLARATORIA_URL}?${query}`)
     .then((response) => {
       const backendData = response.data.data
@@ -44,7 +45,7 @@ const getDeclaratoriasComision = (query: string): Promise<DeclaratoriaComisionQu
 }
 
 const getDeclaratoriaComisionById = (id: ID): Promise<DeclaratoriaComision | undefined> => {
-  return axios
+  return axiosClient
     .get(`${DECLARATORIA_URL}/${id}`)
     .then((response: AxiosResponse<Response<DeclaratoriaComision>>) => response.data)
     .then((response: Response<DeclaratoriaComision>) => response.data)
@@ -67,9 +68,14 @@ const createDeclaratoriaComision = async (
   }
 }
 
-const updateDeclaratoriaComision = async (declaratoria: DeclaratoriaComision): Promise<DeclaratoriaComision> => {
+const updateDeclaratoriaComision = async (
+  declaratoria: DeclaratoriaComision
+): Promise<DeclaratoriaComision> => {
   try {
-    const response = await axiosClient.put(`${DECLARATORIA_URL}/${declaratoria.id_declaratoria_comision}`, declaratoria)
+    const response = await axiosClient.put(
+      `${DECLARATORIA_URL}/${declaratoria.id_declaratoria_comision}`,
+      declaratoria
+    )
     return response.data.data
   } catch (error: any) {
     if (error.response?.status === 422 || error.response?.status === 400) {
@@ -83,38 +89,50 @@ const updateDeclaratoriaComision = async (declaratoria: DeclaratoriaComision): P
 }
 
 const deleteDeclaratoriaComision = (declaratoriaId: ID): Promise<void> => {
-  return axios.delete(`${DECLARATORIA_URL}/${declaratoriaId}`).then(() => {})
+  return axiosClient.delete(`${DECLARATORIA_URL}/${declaratoriaId}`).then(() => {})
 }
 
-const deleteSelectedDeclaratorias = (declaratoriaIds: Array<ID>): Promise<void> => {
-  const requests = declaratoriaIds.map((id) => axios.delete(`${DECLARATORIA_URL}/${id}`))
-  return axios.all(requests).then(() => {})
+const getUnidades = async (): Promise<Unidad[]> => {
+  try {
+    const response: AxiosResponse<ApiResponse<Unidad[]>> = await axiosClient.get(
+      `${DECLARATORIA_URL}/unidades`
+    )
+    return response.data.data
+  } catch (error) {
+    console.error('Error fetching tipos permiso:', error)
+    return []
+  }
 }
+
+// const deleteSelectedDeclaratorias = (declaratoriaIds: Array<ID>): Promise<void> => {
+//   const requests = declaratoriaIds.map((id) => axiosClient.delete(`${DECLARATORIA_URL}/${id}`))
+//   return axiosClient.all(requests).then(() => {})
+//}
 
 // const imprimirDeclaratoriaComision = (id: ID): Promise<Blob> => {
-//   return axios
+//   return axiosClient
 //     .get(`${DECLARATORIA_URL}/imprimir/${id}`, {responseType: 'blob'})
 //     .then((response) => response.data)
 // }
 
 const imprimirDeclaratoriaComision = async (id: ID): Promise<PDFResponse> => {
   try {
-    const response = await axios.get<BackendResponse<PDFResponse>>(
+    const response = await axiosClient.get<BackendResponse<PDFResponse>>(
       `${DECLARATORIA_URL}/reporte/${id}`
-    );
-    return response.data.data;
+    )
+    return response.data.data
   } catch (error: any) {
-    console.error('Error al imprimir declaratoria:', error);
-    throw error;
+    console.error('Error al imprimir declaratoria:', error)
+    throw error
   }
-};
+}
 
 export {
   getDeclaratoriasComision,
   deleteDeclaratoriaComision,
-  deleteSelectedDeclaratorias,
   getDeclaratoriaComisionById,
   createDeclaratoriaComision,
   updateDeclaratoriaComision,
   imprimirDeclaratoriaComision,
+  getUnidades,
 }

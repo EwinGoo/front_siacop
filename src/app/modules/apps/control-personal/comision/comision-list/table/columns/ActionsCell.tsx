@@ -16,10 +16,11 @@ import {API_ROUTES} from 'src/app/config/apiRoutes'
 type Props = {
   id: ID
   estado?: 'GENERADO' | 'ENVIADO' | 'RECEPCIONADO' | 'APROBADO' | 'OBSERVADO' // Add estado prop for comision-specific actions
-  hash?: string
+  hash?: string,
+  tipo?: string,
 }
 
-const ActionsCell: FC<Props> = ({id, estado, hash}) => {
+const ActionsCell: FC<Props> = ({id, estado, hash, tipo}) => {
   const {setAccion, setItemIdForUpdate, setIsShow} = useListView()
   const {canManageComisiones} = usePermissions()
   const {query} = useQueryResponse()
@@ -51,7 +52,8 @@ const ActionsCell: FC<Props> = ({id, estado, hash}) => {
     onSuccess: () => {
       queryClient.invalidateQueries([`${QUERIES.COMISIONES_LIST}-${query}`])
       showToast({
-        message: 'Comisión recepcionada correctamente',
+        // message: 'Comisión recepcionada correctamente',
+        message: 'Registro recepcionado correctamente',
         type: 'success',
       })
     },
@@ -61,7 +63,8 @@ const ActionsCell: FC<Props> = ({id, estado, hash}) => {
     onSuccess: () => {
       queryClient.invalidateQueries([`${QUERIES.COMISIONES_LIST}-${query}`])
       showToast({
-        message: 'Comisión aprobada correctamente',
+        // message: 'Comisión aprobada correctamente',
+        message: 'Registro aprobado correctamente',
         type: 'success',
       })
     },
@@ -71,7 +74,8 @@ const ActionsCell: FC<Props> = ({id, estado, hash}) => {
     onSuccess: () => {
       queryClient.invalidateQueries([`${QUERIES.COMISIONES_LIST}-${query}`])
       showToast({
-        message: 'Comisión eliminada correctamente',
+        // message: 'Comisión eliminada correctamente',
+        message: 'Registro eliminado correctamente',
         type: 'success',
       })
     },
@@ -86,7 +90,8 @@ const ActionsCell: FC<Props> = ({id, estado, hash}) => {
   const sendItem = useMutation(() => procesarEstadoComision({code: id, action: 'send'}), {
     onSuccess: () => {
       queryClient.invalidateQueries([`${QUERIES.COMISIONES_LIST}-${query}`])
-      showToast({message: 'Comisión enviada correctamente', type: 'success'})
+      // showToast({message: 'Comisión enviada correctamente', type: 'success'})
+      showToast({message: 'Registro enviado correctamente', type: 'success'})
     },
     onError: () => {
       showToast({message: 'Error al enviar la comisión', type: 'error'})
@@ -102,7 +107,7 @@ const ActionsCell: FC<Props> = ({id, estado, hash}) => {
       // Si está en GENERADO, mostrar confirmación
       const result = await showConfirmDialog({
         title: '¿Está seguro?',
-        html: '<div>Una vez que imprima, la comisión <strong>no podrá ser modificada</strong> y se marcará como </div><span class="badge badge-light-warning fs-5 mt-3">ENVIADO</span>',
+        html: `<div>Una vez que imprima, ${tipo =='CAJA SALUD' ? 'el permiso': 'la comisión'} <strong>no podrá ser modificado</strong> y se marcará como </div><span class="badge badge-light-warning fs-5 mt-3">ENVIADO</span>`,
         icon: 'warning',
         confirmButtonText: 'Sí, imprimir',
       })
@@ -136,7 +141,7 @@ const ActionsCell: FC<Props> = ({id, estado, hash}) => {
   const handleApprove = async () => {
     try {
       const result = await showConfirmDialog({
-        title: '¿Aprobar comisión?',
+        title: `¿Aprobar ${tipo === 'CAJA SALUD'?'el permiso':'la comisión'}?`,
         html: 'Esta acción cambiará el estado a <span class="badge badge-light-success">APROBADO</span>',
         icon: 'question',
         confirmButtonText: 'Sí, aprobar',

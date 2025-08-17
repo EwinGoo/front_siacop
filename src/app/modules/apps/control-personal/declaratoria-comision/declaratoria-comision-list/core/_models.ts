@@ -5,6 +5,7 @@ export type DeclaratoriaComision = {
   id_declaratoria_comision?: ID
   id_asignacion_administrativo: number | null
   id_usuario: number | null
+  id_unidad_sede: number | null
   fecha_elaboracion?: string
   nota_interna: string | null
   rrhh_hoja_ruta_numero?: string
@@ -18,6 +19,9 @@ export type DeclaratoriaComision = {
   nombre_generador?: string | null
   ci?: string | null
   hash?: string
+  correlativo?: string
+  created_at?: string
+  updated_at?: string | null;
 }
 
 export type DataPayload = Omit<DeclaratoriaComision, 'tipo_viatico'> & {
@@ -61,32 +65,39 @@ export interface PDFResponse {
   mime_type: string;
 }
 
-export const initialDeclaratoriaComision: DeclaratoriaComision = {
-  id_asignacion_administrativo: null,
-  id_usuario: null,
-  fecha_elaboracion: new Date().toISOString().split('T')[0], // Fecha actual (YYYY-MM-DD)
-  nota_interna: '',
-  rrhh_hoja_ruta_numero: '',
-  rrhh_hoja_ruta_fecha: new Date().toISOString().split('T')[0],
-  tipo_viatico: false,
-  fecha_inicio: new Date().toISOString().split('T')[0],
-  fecha_fin: new Date().toISOString().split('T')[0],
-  destino: '',
-  motivo: '',
-  estado: 'GENERADO',
+export type Unidad ={
+  id_tipo_unidad: ID
+  unidad: string
 }
 
 // export const initialDeclaratoriaComision: DeclaratoriaComision = {
-//   id_declaratoria_comision: undefined,
-//   id_asignacion_administrativo: 12068,
-//   id_usuario: 9972,
-//   fecha_elaboracion: new Date().toISOString().split('T')[0],
-//   nota_interna: '1234',
-//   rrhh_hoja_ruta_numero: '1234',
+//   id_asignacion_administrativo: null,
+//   id_usuario: null,
+//   id_unidad_sede: null,
+//   fecha_elaboracion: new Date().toISOString().split('T')[0], // Fecha actual (YYYY-MM-DD)
+//   nota_interna: '',
+//   rrhh_hoja_ruta_numero: '',
 //   rrhh_hoja_ruta_fecha: new Date().toISOString().split('T')[0],
 //   tipo_viatico: false,
 //   fecha_inicio: new Date().toISOString().split('T')[0],
 //   fecha_fin: new Date().toISOString().split('T')[0],
-//   destino: 'UMSA',
-//   motivo: 'Congreso de universidades',
+//   destino: '',
+//   motivo: '',
+//   estado: 'GENERADO',
 // }
+
+export const initialDeclaratoriaComision: DeclaratoriaComision = {
+  id_asignacion_administrativo: 12068,
+  id_usuario: null,
+  estado: 'GENERADO',
+  id_unidad_sede: null,
+  fecha_elaboracion: new Date().toISOString().split('T')[0],
+  nota_interna: '1234',
+  rrhh_hoja_ruta_numero: '1234',
+  rrhh_hoja_ruta_fecha: new Date().toISOString().split('T')[0],
+  tipo_viatico: false,
+  fecha_inicio: new Date().toISOString().split('T')[0],
+  fecha_fin: new Date().toISOString().split('T')[0],
+  destino: 'UMSA',
+  motivo: 'Congreso de universidades',
+}

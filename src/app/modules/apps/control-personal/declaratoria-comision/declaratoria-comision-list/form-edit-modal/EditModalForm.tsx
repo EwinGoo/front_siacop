@@ -6,6 +6,7 @@ import {
   initialDeclaratoriaComision as initialData,
   DeclaratoriaComision,
   TipoViatico,
+  Unidad,
 } from '../core/_models'
 import clsx from 'clsx'
 import {useListView} from '../core/ListViewProvider'
@@ -22,10 +23,13 @@ import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
 import AsyncSelectField from '../../../comision/comision-list/comision-edit-modal/components/AsyncSelectField'
 import {getPersonaAutocomplete} from '../../../comision/comision-list/core/_requests'
 import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
+import { SelectField } from 'src/app/modules/components/SelectField'
+import { formatUtils } from 'src/app/utils/formatUtils'
 
 type Props = {
   isDeclaratoriaLoading: boolean
   declaratoria: DeclaratoriaComision
+  unidades: Unidad[]
   onClose: () => void
 }
 
@@ -73,7 +77,7 @@ const declaratoriaComisionSchema = Yup.object().shape({
     .notRequired(), // Opcional
 })
 
-const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}) => {
+const EditModalForm: FC<Props> = ({declaratoria, unidades, isDeclaratoriaLoading, onClose}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
   const {currentUser} = useAuth()
@@ -81,8 +85,8 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
   const {isAdminComision} = usePermissions()
   const [declaratoriaForEdit] = useState<DeclaratoriaComision>({
     ...declaratoria,
-    id_asignacion_administrativo:
-      declaratoria.id_asignacion_administrativo || initialData.id_asignacion_administrativo,
+    id_asignacion_administrativo: declaratoria.id_asignacion_administrativo || initialData.id_asignacion_administrativo,
+    id_unidad_sede: declaratoria.id_unidad_sede || initialData.id_unidad_sede,
     fecha_elaboracion: declaratoria.fecha_elaboracion || initialData.fecha_elaboracion,
     rrhh_hoja_ruta_numero: declaratoria.rrhh_hoja_ruta_numero || initialData.rrhh_hoja_ruta_numero,
     rrhh_hoja_ruta_fecha: declaratoria.rrhh_hoja_ruta_fecha || initialData.rrhh_hoja_ruta_fecha,
@@ -278,7 +282,7 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
           </div>
 
           {/* Hoja de ruta */}
-          <div className='row'>
+          <div className='row mb-0 mb-md-7'>
             <div className='col-md-6 fv-row mb-7 mb-md-0'>
               <label className='required fw-bold fs-6 mb-2'>N° Hoja de Ruta</label>
               <input
@@ -339,6 +343,29 @@ const EditModalForm: FC<Props> = ({declaratoria, isDeclaratoriaLoading, onClose}
             {!isFieldValid('destino') && (
               <div className='fv-plugins-message-container'>
                 <span role='alert'>{getFieldError(formik.errors, 'destino')}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Tipo de Permiso */}
+          <div className='fv-row mb-7 px-1'>
+            <label className='required fw-bold fs-6 mb-2'>Unidad Solicitante</label>
+            <SelectField
+              field={formik.getFieldProps('id_unidad_sede')}
+              form={formik}
+              isFieldValid={isFieldValid('id_unidad_sede')}
+              clearFieldError={clearFieldError}
+              isSubmitting={formik.isSubmitting}
+              placeholder='Seleccione una unidad'
+              options={formatUtils.unidades(unidades)}
+              // options={unidades.map((tipo) => ({
+              //   label: tipo.unidad,
+              //   value: tipo.id_tipo_unidad,
+              // }))}
+            />
+            {!isFieldValid('id_unidad_sede') && (
+              <div className='fv-plugins-message-container'>
+                <span role='alert'>{getFieldError(formik.errors, 'id_unidad_sede')}</span>
               </div>
             )}
           </div>

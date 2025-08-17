@@ -87,6 +87,7 @@ export const getColumns = ({isAdmin}: GetColumnsProps): ReadonlyArray<Column<Com
           id={props.data[props.row.index].id_comision}
           estado={props.data[props.row.index].estado_boleta_comision}
           hash={props.data[props.row.index].hash}
+          tipo={props.data[props.row.index].tipo_comision}
         />
       ),
     }

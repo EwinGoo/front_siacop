@@ -47,16 +47,17 @@ const EditModal = () => {
   ]
 
   const titleModal = () => {
+    
     const selectedOption = options.find((opt) => opt.id === selectedType)
 
     if (!selectedOption) return ''
 
     if (selectedType === 'PERSONAL' || selectedType === 'TRANSPORTE') {
-      return `BOLETA DE COMISIÓN ${selectedOption.title}`
+      return (itemIdForUpdate ? `EDITAR ` : '') +`BOLETA DE COMISIÓN ${selectedOption.title}`
     }
 
     if (selectedType === 'CAJA SALUD') {
-      return `PERMISO ${selectedOption.title}`
+      return (itemIdForUpdate ? `EDITAR ` : '') + `PERMISO ${selectedOption.title}`
     }
 
     return selectedOption.title // fallback
@@ -135,7 +136,7 @@ const EditModal = () => {
                 </button>
               </div>
             )} */}
-            <EditModalFormWrapper onClose={handleClose} initialType={selectedType} />
+            <EditModalFormWrapper onClose={handleClose} initialType={selectedType} setSelectedType={setSelectedType} />
           </>
         )}
       </Modal.Body>

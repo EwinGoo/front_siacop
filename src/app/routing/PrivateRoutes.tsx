@@ -35,74 +35,82 @@ const PrivateRoutes = () => {
     () => import('../modules/apps/control-personal/feriado-asueto/FeriadoAsuetoPage')
   )
 
+  const enviroment = process.env.REACT_APP_ENVIRONMENT || ''
+
   return (
     <Routes>
       <Route element={<MasterLayout />}>
         {/* Redirect to Dashboard after success login/registartion */}
-        <Route path='auth/*' element={<Navigate to='/dashboard' />} />
-        {/* Pages */}
-        <Route path='dashboard' element={<DashboardWrapper />} />
-        <Route path='builder' element={<BuilderPageWrapper />} />
-        <Route path='menu-test' element={<MenuTestPage />} />
-        {/* Lazy Modules */}
-        <Route
-          path='crafted/pages/profile/*'
-          element={
-            <SuspensedView>
-              <ProfilePage />
-            </SuspensedView>
-          }
-        />
-        <Route
-          path='crafted/pages/wizards/*'
-          element={
-            <SuspensedView>
-              <WizardsPage />
-            </SuspensedView>
-          }
-        />
-        <Route
-          path='crafted/widgets/*'
-          element={
-            <SuspensedView>
-              <WidgetsPage />
-            </SuspensedView>
-          }
-        />
-        <Route
-          path='crafted/account/*'
-          element={
-            <SuspensedView>
-              <AccountPage />
-            </SuspensedView>
-          }
-        />
-        <Route
-          path='apps/chat/*'
-          element={
-            <SuspensedView>
-              <ChatPage />
-            </SuspensedView>
-          }
-        />
-        <Route
-          path='apps/user-management/*'
-          element={
-            <SuspensedView>
-              <UsersPage />
-            </SuspensedView>
-          }
-        />
-        <Route
-          path='apps/gestion-persona/*'
-          element={
-            <SuspensedView>
-              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
-                <PersonPage />
-              </ProtectedRoute>
-            </SuspensedView>
-          }
-        />
+
+        {enviroment === 'development' && (
+          <>
+            <Route path='auth/*' element={<Navigate to='/dashboard' />} />
+            {/* Pages */}
+            <Route path='dashboard' element={<DashboardWrapper />} />
+            <Route path='builder' element={<BuilderPageWrapper />} />
+            <Route path='menu-test' element={<MenuTestPage />} />
+            {/* Lazy Modules */}
+            <Route
+              path='crafted/pages/profile/*'
+              element={
+                <SuspensedView>
+                  <ProfilePage />
+                </SuspensedView>
+              }
+            />
+            <Route
+              path='crafted/pages/wizards/*'
+              element={
+                <SuspensedView>
+                  <WizardsPage />
+                </SuspensedView>
+              }
+            />
+            <Route
+              path='crafted/widgets/*'
+              element={
+                <SuspensedView>
+                  <WidgetsPage />
+                </SuspensedView>
+              }
+            />
+            <Route
+              path='crafted/account/*'
+              element={
+                <SuspensedView>
+                  <AccountPage />
+                </SuspensedView>
+              }
+            />
+            <Route
+              path='apps/chat/*'
+              element={
+                <SuspensedView>
+                  <ChatPage />
+                </SuspensedView>
+              }
+            />
+            <Route
+              path='apps/user-management/*'
+              element={
+                <SuspensedView>
+                  <UsersPage />
+                </SuspensedView>
+              }
+            />
+            <Route
+              path='apps/gestion-persona/*'
+              element={
+                <SuspensedView>
+                  <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
+                    <PersonPage />
+                  </ProtectedRoute>
+                </SuspensedView>
+              }
+            />
+          </>
+        )}
+
         <Route
           path='apps/control-personal/*'
           element={

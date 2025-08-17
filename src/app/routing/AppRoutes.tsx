@@ -19,7 +19,7 @@ import { API_URL } from '../config/apiRoutes'
  *
  * @see https://facebook.github.io/create-react-app/docs/using-the-public-folder
  */
-// const {PUBLIC_URL} = process.env
+// const {PUBLIC_URL} = process.env.REACT_APP_ENVIRONMENT || ''
 
 const AppRoutes: FC = () => {
   const {currentUser} = useAuth()

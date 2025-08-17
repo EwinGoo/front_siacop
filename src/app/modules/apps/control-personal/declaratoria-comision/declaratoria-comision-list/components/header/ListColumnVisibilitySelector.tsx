@@ -19,7 +19,7 @@ interface ListSearchComponentProps {
   onResetColumns?: () => void
 }
 
-const ListSearchComponent: React.FC<ListSearchComponentProps> = ({
+const ListColumnVisibilitySelector: React.FC<ListSearchComponentProps> = ({
   columnConfig,
   onToggleColumn,
   onShowAllColumns,
@@ -30,37 +30,23 @@ const ListSearchComponent: React.FC<ListSearchComponentProps> = ({
   const [searchTerm, setSearchTerm] = useState<string>('')
   const debouncedSearchTerm = useDebounce(searchTerm, 150)
 
-  // useEffect(() => {
-  //   if (debouncedSearchTerm !== undefined && searchTerm !== undefined) {
-  //     updateState({ search: debouncedSearchTerm, ...initialQueryState })
-  //   }
-  // }, [debouncedSearchTerm])
-
-  const columnVisibilityConfig = (window as any).columnVisibilityConfig
-
   useEffect(() => {
     if (debouncedSearchTerm !== undefined && searchTerm !== undefined) {
       updateState({ search: debouncedSearchTerm, ...initialQueryState })
     }
   }, [debouncedSearchTerm])
 
-setTimeout(()=>{
-console.log(columnVisibilityConfig);
-
-},1000)
-
-
   return (
     <div className='card-title'>
       <div className='d-flex align-items-center gap-3'>
         {/* Selector de columnas */}
-        {columnVisibilityConfig &&  (
+        {columnConfig && onToggleColumn && onShowAllColumns && onHideAllColumns && onResetColumns && (
           <ColumnVisibilitySelector
-            columnConfig={columnVisibilityConfig.columnConfig}
-            onToggleColumn={columnVisibilityConfig.toggleColumn}
-            onShowAll={columnVisibilityConfig.showAllColumns}
-            onHideAll={columnVisibilityConfig.hideAllOptionalColumns}
-            onReset={columnVisibilityConfig.resetToDefaults}
+            columnConfig={columnConfig}
+            onToggleColumn={onToggleColumn}
+            onShowAll={onShowAllColumns}
+            onHideAll={onHideAllColumns}
+            onReset={onResetColumns}
           />
         )}
 
@@ -81,4 +67,4 @@ console.log(columnVisibilityConfig);
   )
 }
 
-export { ListSearchComponent }
+export { ListColumnVisibilitySelector }

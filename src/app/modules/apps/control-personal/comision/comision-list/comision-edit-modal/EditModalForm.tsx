@@ -62,11 +62,15 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
 
       try {
         if (isNotEmpty(values.id_comision)) {
-          await updateComision(values)
-          toast.success('Comisión actualizada correctamente')
+          const res = await updateComision(values)
+          // console.log(res);
+          
+          toast.success('Registro actualizada correctamente')
+          // toast.success('Comisión actualizada correctamente')
         } else {
           await createComision(values)
-          toast.success('Comisión creada correctamente')
+          // toast.success('Comisión creada correctamente')
+          toast.success('Registro creada correctamente')
         }
         cancel(true)
         onClose()
@@ -84,10 +88,9 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
     },
   })
 
-  useEffect(() => {
-    console.log('Formik values:', formik.values)
-    
-  }, [formik.values])
+  // useEffect(() => {
+  //   console.log('Formik values:', formik.values)
+  // }, [formik.values])
 
   const getFieldError = (fieldName: string) => {
     return formik.errors[fieldName] || apiErrors[fieldName]
@@ -180,7 +183,9 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
 
           {/* Fecha */}
           <div className='fv-row mb-7 px-1'>
-            <label className='required fw-bold fs-6 mb-2'>Fecha comisión</label>
+            <label className='required fw-bold fs-6 mb-2'>
+              Fecha {formik.values.tipo_comision === 'CAJA SALUD' ? '' : 'comisión'}
+            </label>
             {isAdminComision ? (
               <DatePickerField
                 field={formik.getFieldProps('fecha_comision')}
@@ -245,46 +250,48 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
             </div>
           </div>
 
-          {/* {formik.values.tipo_comision === 'TRANSPORTE' && ( */}
-          <div className='row mb-7 px-1'>
-            <div className='col-md-6 fv-row'>
-              <label className='required fw-bold fs-6 mb-2'>Punto de partida (Desde)</label>
-              <input
-                {...formik.getFieldProps('recorrido_de')}
-                className={clsx('form-control form-control-solid', {
-                  'is-invalid': !isFieldValid('recorrido_de'),
-                  'is-valid': formik.touched.recorrido_de && isFieldValid('recorrido_de'),
-                })}
-                disabled={formik.isSubmitting}
-              />
-              {!isFieldValid('recorrido_de') && (
-                <div className='fv-plugins-message-container'>
-                  <span role='alert'>{getFieldError('recorrido_de')}</span>
-                </div>
-              )}
+          {formik.values.tipo_comision !== 'CAJA SALUD' && (
+            <div className='row mb-7 px-1'>
+              <div className='col-md-6 fv-row'>
+                <label className='required fw-bold fs-6 mb-2'>Punto de partida (Desde)</label>
+                <input
+                  {...formik.getFieldProps('recorrido_de')}
+                  className={clsx('form-control form-control-solid', {
+                    'is-invalid': !isFieldValid('recorrido_de'),
+                    'is-valid': formik.touched.recorrido_de && isFieldValid('recorrido_de'),
+                  })}
+                  disabled={formik.isSubmitting}
+                />
+                {!isFieldValid('recorrido_de') && (
+                  <div className='fv-plugins-message-container'>
+                    <span role='alert'>{getFieldError('recorrido_de')}</span>
+                  </div>
+                )}
+              </div>
+              <div className='col-md-6 fv-row'>
+                <label className='required fw-bold fs-6 mb-2'>Destino final (Hacia)</label>
+                <input
+                  {...formik.getFieldProps('recorrido_a')}
+                  className={clsx('form-control form-control-solid', {
+                    'is-invalid': !isFieldValid('recorrido_a'),
+                    'is-valid': formik.touched.recorrido_a && isFieldValid('recorrido_a'),
+                  })}
+                  disabled={formik.isSubmitting}
+                />
+                {!isFieldValid('recorrido_a') && (
+                  <div className='fv-plugins-message-container'>
+                    <span role='alert'>{getFieldError('recorrido_a')}</span>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className='col-md-6 fv-row'>
-              <label className='required fw-bold fs-6 mb-2'>Destino final (Hacia)</label>
-              <input
-                {...formik.getFieldProps('recorrido_a')}
-                className={clsx('form-control form-control-solid', {
-                  'is-invalid': !isFieldValid('recorrido_a'),
-                  'is-valid': formik.touched.recorrido_a && isFieldValid('recorrido_a'),
-                })}
-                disabled={formik.isSubmitting}
-              />
-              {!isFieldValid('recorrido_a') && (
-                <div className='fv-plugins-message-container'>
-                  <span role='alert'>{getFieldError('recorrido_a')}</span>
-                </div>
-              )}
-            </div>
-          </div>
-          {/* )} */}
+          )}
 
           {/* Descripción */}
           <div className='fv-row mb-7 px-1'>
-            <label className='required fw-bold fs-6 mb-2'>Motivo de la comisión</label>
+            <label className='required fw-bold fs-6 mb-2'>
+              {formik.values.tipo_comision === 'CAJA SALUD' ? 'Razón de atención' : 'Motivo de la comisión'}
+            </label>
             <textarea
               {...formik.getFieldProps('descripcion_comision')}
               className={clsx('form-control form-control-solid', {

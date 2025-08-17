@@ -2,7 +2,7 @@ import {useQuery} from 'react-query'
 import {EditModalForm} from './EditModalForm'
 import {isNotEmpty, QUERIES} from '../../../../../../../_metronic/helpers'
 import {useListView} from '../core/ListViewProvider'
-import {getDeclaratoriaComisionById} from '../core/_requests'
+import {getDeclaratoriaComisionById, getUnidades} from '../core/_requests'
 import Spinner from 'react-bootstrap/Spinner'
 import {initialDeclaratoriaComision} from '../core/_models'
 import {parseTipoViaticoFromApi, parseTipoViaticoToApi} from '../helpers/viatico'
@@ -16,7 +16,7 @@ const EditModalFormWrapper = ({onClose}) => {
     data: comision,
     error,
   } = useQuery(
-    `${QUERIES.COMISIONES_LIST}-comision-${itemIdForUpdate}`,
+    `${QUERIES.DECLARATORIA_COMISION_LIST}-declaratoria-comision-${itemIdForUpdate}`,
     () => {
       return getDeclaratoriaComisionById(itemIdForUpdate)
     },
@@ -27,11 +27,18 @@ const EditModalFormWrapper = ({onClose}) => {
         setItemIdForUpdate(undefined)
         console.error(err)
       },
-      // Optional: Add metadata for the query
       meta: {
         entity: 'comision',
         action: 'getById',
       },
+    }
+  )
+
+  const {data: unidades =[]} = useQuery(
+    'tipos-permiso',
+    getUnidades,
+    {
+      staleTime: 1000 * 60 * 5, // 5 minutos de cache
     }
   )
 
@@ -40,6 +47,7 @@ const EditModalFormWrapper = ({onClose}) => {
       <EditModalForm
         onClose={onClose}
         isDeclaratoriaLoading={isLoading}
+        unidades={unidades}
         declaratoria={{
           ...initialDeclaratoriaComision,
         }}
@@ -68,6 +76,7 @@ const EditModalFormWrapper = ({onClose}) => {
       <EditModalForm
         onClose={onClose}
         isDeclaratoriaLoading={isLoading}
+        unidades={unidades}
         declaratoria={{
           ...comision,
           tipo_viatico: parseTipoViaticoFromApi(comision.tipo_viatico as string),

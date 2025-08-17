@@ -5,13 +5,12 @@ import {useListView} from '../core/ListViewProvider'
 import {getComisionById} from '../core/_requests'
 import Spinner from 'react-bootstrap/Spinner'
 import {toast} from 'react-toastify'
-import { initialComision } from '../core/_models'
+import {initialComision} from '../core/_models'
+import { useEffect } from 'react'
 
-
-const EditModalFormWrapper = ({onClose, initialType}) => {
+const EditModalFormWrapper = ({onClose, initialType, setSelectedType}) => {
   const {itemIdForUpdate, setItemIdForUpdate} = useListView()
   const enabledQuery: boolean = isNotEmpty(itemIdForUpdate)
-
   const {
     isLoading,
     data: comision,
@@ -28,7 +27,7 @@ const EditModalFormWrapper = ({onClose, initialType}) => {
       onError: (err) => {
         setItemIdForUpdate(undefined)
         onClose()
-        console.error(err);
+        console.error(err)
 
         // Mostrar toast de error
         toast.error('Error al cargar la comisión. Intente nuevamente.', {
@@ -48,6 +47,12 @@ const EditModalFormWrapper = ({onClose, initialType}) => {
       },
     }
   )
+  
+  useEffect(() => {
+    if (comision?.tipo_comision) {
+      setSelectedType(comision.tipo_comision)
+    }
+  }, [comision, setSelectedType])
 
   if (!itemIdForUpdate) {
     return (

@@ -82,6 +82,7 @@ const createComision = async (comision: Comision): Promise<Comision> => {
 const updateComision = async (comision: Comision): Promise<Comision> => {
   try {
     const response = await axiosClient.put(`${COMISION_URL}/${comision.id_comision}`, comision)
+    // return {message: response.data.message, res: response.data.data}
     return response.data.data
   } catch (error: any) {
     if (error.response?.status === 422 || error.response?.status === 400) {

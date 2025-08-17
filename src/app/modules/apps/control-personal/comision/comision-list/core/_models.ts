@@ -15,7 +15,7 @@ export type Comision = {
   recorrido_de?: string
   recorrido_a?: string
   estado_boleta_comision: EstadoType
-  tipo_comision?: 'PERSONAL' | 'TRANSPORTE'
+  tipo_comision?: 'PERSONAL' | 'TRANSPORTE' | 'CAJA SALUD'
   created_at?: string
   updated_at?: string
   deleted_at?: string | null

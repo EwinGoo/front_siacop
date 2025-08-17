@@ -191,8 +191,8 @@ const EditModalForm: FC<Props> = ({feriadoAsueto, isFeriadoAsuetoLoading, onClos
                 )}
               </div>
 
-              <div className='row mb-7 px-1'>
-                <div className='col-md-6 fv-row  mb-7 mt-mb-0 '>
+              <div className='row px-1'>
+                <div className='col-md-6 fv-row mb-7 mt-mb-0'>
                   <label className='required fw-bold fs-6 mb-2'>Hora Inicio</label>
                   <input
                     type='time'
@@ -209,7 +209,7 @@ const EditModalForm: FC<Props> = ({feriadoAsueto, isFeriadoAsuetoLoading, onClos
                     </div>
                   )}
                 </div>
-                <div className='col-md-6fv-row'>
+                <div className='col-md-6 fv-row  mb-7 mt-mb-0'>
                   <label className='required fw-bold fs-6 mb-2'>Hora Fin</label>
                   <input
                     type='time'

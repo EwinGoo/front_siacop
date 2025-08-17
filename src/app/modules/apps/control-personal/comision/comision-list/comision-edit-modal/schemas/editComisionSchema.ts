@@ -19,18 +19,28 @@ export const editComisionSchema = ({isAdmin}: {isAdmin: boolean}) =>
         return true
       }),
     tipo_comision: Yup.string()
-      .oneOf(['PERSONAL', 'TRANSPORTE'], 'Tipo inválido')
+      .oneOf(['PERSONAL', 'TRANSPORTE','CAJA SALUD'], 'Tipo inválido')
       .required('Tipo es requerido'),
     descripcion_comision: Yup.string()
       .min(10, 'Mínimo 10 caracteres')
       .max(255, 'Máximo 255 caracteres')
       .required('El motivo es requerido'),
-    recorrido_de: Yup.string()
-      .min(3, 'Mínimo 3 caracteres')
-      .max(55, 'Máximo 55 caracteres')
-      .required('El punto de partida es requerido'),
-    recorrido_a: Yup.string()
-      .min(3, 'Mínimo 3 caracteres')
-      .max(55, 'Máximo 55 caracteres')
-      .required('El destino final es requerido'),
+    recorrido_de: Yup.string().when('tipo_comision', {
+      is: (val: string) => val !== 'CAJA SALUD',
+      then: (schema) =>
+        schema
+          .min(3, 'Mínimo 3 caracteres')
+          .max(55, 'Máximo 55 caracteres')
+          .required('El punto de partida es requerido'),
+      otherwise: (schema) => schema.nullable().notRequired(),
+    }),
+    recorrido_a: Yup.string().when('tipo_comision', {
+      is: (val: string) => val !== 'CAJA SALUD',
+      then: (schema) =>
+        schema
+          .min(3, 'Mínimo 3 caracteres')
+          .max(55, 'Máximo 55 caracteres')
+          .required('El destino final es requerido'),
+      otherwise: (schema) => schema.nullable().notRequired(),
+    }),
   })

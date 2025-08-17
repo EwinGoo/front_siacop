@@ -1,4 +1,4 @@
-import {useMemo} from 'react'
+import {useEffect, useMemo} from 'react'
 import {useTable, ColumnInstance, Row} from 'react-table'
 import {CustomHeaderColumn} from './columns/CustomHeaderColumn'
 import {CustomRow} from './columns/CustomRow'
@@ -8,7 +8,7 @@ import {DeclaratoriaComision} from '../core/_models'
 import {ListPagination} from '../components/pagination/ListPagination'
 import {KTCardBody} from 'src/_metronic/helpers'
 import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
-
+import {useColumnVisibility} from 'src/app/utils/useColumnVisibility'
 
 interface DeclaratoriaComisionTableProps extends ModalHandlers {} // Usa la interface
 const DeclaratoriaComisionTable: React.FC<DeclaratoriaComisionTableProps> = ({
@@ -19,16 +19,43 @@ const DeclaratoriaComisionTable: React.FC<DeclaratoriaComisionTableProps> = ({
 }) => {
   const declaratoria = useQueryResponseData()
   const isLoading = useQueryResponseLoading()
-  const columns = useMemo(
+  const allColumns = useMemo(
     () => getColumns({onShowPDF, onShowData, onSetLoading, getLoadingState}),
     [onShowPDF, onShowData, onSetLoading, getLoadingState]
   )
+
+  // Hook de visibilidad de columnas
+  const {
+    visibleColumns,
+    columnConfig,
+    toggleColumn,
+    showAllColumns,
+    hideAllOptionalColumns,
+    resetToDefaults,
+  } = useColumnVisibility(allColumns, 'declaratoria_comision')
+  // const memoizedVisibleColumns = useMemo(() => {
+  //   return visibleColumns
+  // }, [visibleColumns])
+
   const data = useMemo(() => declaratoria, [declaratoria])
-  // const columns = useMemo(() => Columns, []) // Cambiar a columnas de Persona
+
+  // Usar las columnas visibles en lugar de todas
   const {getTableProps, getTableBodyProps, headers, rows, prepareRow} = useTable({
-    columns,
+    columns: visibleColumns, // Cambio aquí
     data,
   })
+  // console.log(visibleColumns, data);
+
+  useEffect(() => {
+    // Guardamos las funciones en el window para que ListHeader las use
+    (window as any).columnVisibilityConfig = {
+      columnConfig,
+      toggleColumn,
+      showAllColumns,
+      hideAllOptionalColumns,
+      resetToDefaults
+    }
+  }, [columnConfig, toggleColumn, showAllColumns, hideAllOptionalColumns, resetToDefaults])
 
   return (
     <KTCardBody className='py-4'>
