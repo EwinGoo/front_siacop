@@ -37,9 +37,11 @@ const ListToolbar = () => {
       })
       return
     }
+    const isDocente = currentUser.personal?.tipo_personal === 'DOCENTE'
+    const hasActiveAsignacion = currentUser.active_asignacion?.active
 
-    // 3. Usar optional chaining para propiedades anidadas
-    if (currentUser.active_asignacion?.active) {
+    // Permitir acceso si tiene asignación activa O es docente
+    if (hasActiveAsignacion || isDocente) {
       setItemIdForUpdate(null)
       setAccion('editar')
       setIsShow(true)
@@ -47,7 +49,8 @@ const ListToolbar = () => {
       await showAlert({
         title: 'Sin asignación activa',
         text:
-          currentUser.active_asignacion?.message || 'No cumples con los requisitos para esta acción',
+          currentUser.active_asignacion?.message ||
+          'No cumples con los requisitos para esta acción',
         icon: 'info',
       })
     }

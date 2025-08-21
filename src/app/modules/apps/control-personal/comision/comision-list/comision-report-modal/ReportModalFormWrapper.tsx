@@ -4,9 +4,11 @@ import {useFormik} from 'formik'
 import {API_ROUTES} from 'src/app/config/apiRoutes'
 import {useQuery} from 'react-query'
 import {getTiposPermiso} from '../core/_requests'
+import { reportValidationSchema } from './schema/reportValidationSchema'
 
 export const ReportModalFormWrapper = ({onClose}) => {
   const formik = useFormik({
+    validationSchema: reportValidationSchema,
     initialValues: {
       fechaInicio: getLocalDate(),
       fechaFin: getLocalDate(),
@@ -42,7 +44,7 @@ export const ReportModalFormWrapper = ({onClose}) => {
     },
   })
 
-  const {data: tiposPermiso = []} = useQuery('tipos-permiso', getTiposPermiso, {
+  const {data: tiposPermiso = []} = useQuery('comision-tipos-permiso', getTiposPermiso, {
     staleTime: 1000 * 60 * 5, // 5 minutos de cache
   })
 

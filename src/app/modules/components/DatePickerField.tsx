@@ -3,9 +3,10 @@ import Flatpickr from 'react-flatpickr'
 import {Spanish} from 'flatpickr/dist/l10n/es'
 import clsx from 'clsx'
 import {formatDate} from 'date-fns'
+import { useEffectiveTheme } from 'src/app/hooks/useEffectiveTheme'
 
 export const DatePickerField = ({field, form, isFieldValid, onChange, isSubmitting, onBlur}) => {
-  const {mode} = useThemeMode()
+  const {isDark} = useEffectiveTheme()
 
   const handleClose = () => {
     form.setFieldTouched(field.name, true)
@@ -20,7 +21,7 @@ export const DatePickerField = ({field, form, isFieldValid, onChange, isSubmitti
             'is-invalid': !isFieldValid,
             'is-valid': form.touched[field.name] && isFieldValid,
           },
-          mode === 'dark' && 'flatpickr-dark'
+          isDark && 'flatpickr-dark'
         )}
         value={field.value}
         onChange={([date]) => onChange(formatDate(date, 'yyyy-MM-dd'))}
@@ -30,7 +31,7 @@ export const DatePickerField = ({field, form, isFieldValid, onChange, isSubmitti
           locale: Spanish,
           monthSelectorType: 'static',
           onOpen: () => {
-            if (mode === 'dark') {
+            if (isDark) {
               setTimeout(() => {
                 const calendars = document.querySelectorAll('.flatpickr-calendar')
                 calendars.forEach((calendar) => {

@@ -28,9 +28,12 @@ const getColumns = ({
   getLoadingState,
 }: ModalHandlers): ReadonlyArray<Column<DeclaratoriaComision>> => [
   {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='Acciones' className='min-w-150px' />
-    ),
+    Header: (props) => <CustomHeader tableProps={props} title='N°' className='min-w-10px w-10px' />,
+    id: 'rowNumber',
+    Cell: ({row}) => <span>{row.index + 1}</span>,
+  },
+  {
+    Header: (props) => <CustomHeader tableProps={props} title='Acciones' className='w-actions' />,
     id: 'actions',
     Cell: ({row}) => (
       <ActionsCell
@@ -41,11 +44,6 @@ const getColumns = ({
         isLoading={getLoadingState(row.original.id_declaratoria_comision?.toString() || '')}
       />
     ),
-  },
-  {
-    Header: (props) => <CustomHeader tableProps={props} title='N°' className='min-w-50px' />,
-    id: 'rowNumber',
-    Cell: ({row}) => <span>{row.index + 1}</span>,
   },
   {
     Header: (props) => (
@@ -80,16 +78,16 @@ const getColumns = ({
     accessor: 'rrhh_hoja_ruta_numero',
   },
   {
+    Header: (props) => <CustomHeader tableProps={props} title='Estado' className='min-w-100px' />,
+    accessor: 'estado',
+    Cell: ({value}) => <EstadoBadge estado={value} />,
+  },
+  {
     Header: (props) => (
       <CustomHeader tableProps={props} title='Elaboración' className='min-w-120px' />
     ),
     id: 'fecha_elaboracion',
     Cell: ({row}) => <ElaboracionCell declaratoria={row.original} />,
-  },
-  {
-    Header: (props) => <CustomHeader tableProps={props} title='Estado' className='min-w-100px' />,
-    accessor: 'estado',
-    Cell: ({value}) => <EstadoBadge estado={value} />,
   },
 ]
 

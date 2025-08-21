@@ -6,6 +6,7 @@ import {SelectField} from 'src/app/modules/components/SelectField'
 import {estadoOptions} from '../core/_models'
 import {DatePickerField} from 'src/app/modules/components/DatePickerField'
 import {TipoPermiso} from '../../../permisos/tipos-permisos/list/core/_models'
+import {useEffect} from 'react'
 
 const tipoComisionOptions = [
   {value: 'TODO', label: 'Todo'},
@@ -61,6 +62,11 @@ export const ReportModalForm = ({
               onChange={handleChange('fechaInicio')}
               onBlur={() => formik.setFieldTouched('fechaInicio', true)}
             />
+            {!isFieldValid('fechaInicio') && (
+              <div className='fv-plugins-message-container'>
+                <span role='alert'>{formik.errors.fechaInicio as string}</span>
+              </div>
+            )}
           </div>
           <div className='col-md-6'>
             <label className='form-label fw-semibold'>📅 Fecha de fin</label>
@@ -72,6 +78,11 @@ export const ReportModalForm = ({
               onChange={handleChange('fechaFin')}
               onBlur={() => formik.setFieldTouched('fechaFin', true)}
             />
+            {!isFieldValid('fechaFin') && (
+              <div className='fv-plugins-message-container'>
+                <span role='alert'>{formik.errors.fechaFin as string}</span>
+              </div>
+            )}
           </div>
           {/* <div className='col-md-6 mb-4 mt-4'>
             <label className='form-label fw-semibold'>📝 Estado</label>

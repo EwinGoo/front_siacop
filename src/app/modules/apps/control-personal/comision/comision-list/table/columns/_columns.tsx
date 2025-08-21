@@ -27,9 +27,23 @@ export const getColumns = ({isAdmin}: GetColumnsProps): ReadonlyArray<Column<Com
 
   columns.push(
     {
-      Header: (props) => <CustomHeader tableProps={props} title='N°' className='min-w-50px' />,
+      Header: (props) => (
+        <CustomHeader tableProps={props} title='N°' className='min-w-10px w-10px' />
+      ),
       id: 'numero',
       Cell: ({row}) => <span>{row.index + 1}</span>,
+    },
+    {
+      Header: (props) => <CustomHeader tableProps={props} title='Acciones' className='w-actions' />,
+      id: 'actions',
+      Cell: ({...props}) => (
+        <ActionsCell
+          id={props.data[props.row.index].id_comision}
+          estado={props.data[props.row.index].estado_boleta_comision}
+          hash={props.data[props.row.index].hash}
+          tipo={props.data[props.row.index].tipo_comision}
+        />
+      ),
     },
     {
       Header: (props) => (
@@ -66,30 +80,16 @@ export const getColumns = ({isAdmin}: GetColumnsProps): ReadonlyArray<Column<Com
       ),
     },
     {
-      Header: (props) => (
-        <CustomHeader tableProps={props} title='Detalles' className='min-w-250px' />
-      ),
-      id: 'detalles',
-      Cell: ({row}) => <DetallesCell comision={row.original} />,
-    },
-    {
       Header: (props) => <CustomHeader tableProps={props} title='Estado' className='min-w-100px' />,
       accessor: 'estado_boleta_comision',
       Cell: ({value}) => <EstadoBadge estado={value} />,
     },
     {
       Header: (props) => (
-        <CustomHeader tableProps={props} title='Acciones' className='text-end min-w-150px' />
+        <CustomHeader tableProps={props} title='Detalles' className='min-w-250px' />
       ),
-      id: 'actions',
-      Cell: ({...props}) => (
-        <ActionsCell
-          id={props.data[props.row.index].id_comision}
-          estado={props.data[props.row.index].estado_boleta_comision}
-          hash={props.data[props.row.index].hash}
-          tipo={props.data[props.row.index].tipo_comision}
-        />
-      ),
+      id: 'detalles',
+      Cell: ({row}) => <DetallesCell comision={row.original} />,
     }
   )
 

@@ -1,4 +1,4 @@
-import {useAuth} from 'src/app/modules/auth'
+import { useAuth } from "./Auth"
 
 export const usePermissions = (estado?: string) => {
   const {hasPermission} = useAuth()

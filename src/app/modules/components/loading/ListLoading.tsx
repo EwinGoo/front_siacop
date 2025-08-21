@@ -1,9 +1,9 @@
 import {useThemeMode} from 'src/_metronic/partials/layout/theme-mode/ThemeModeProvider'
+import { useEffectiveTheme } from 'src/app/hooks/useEffectiveTheme'
 
 const ListLoading = () => {
-  const {mode} = useThemeMode()
-
-  const isDark = mode === 'dark'
+  const {isDark} = useEffectiveTheme()
+  
 
   const styles = {
     borderRadius: '0.475rem',

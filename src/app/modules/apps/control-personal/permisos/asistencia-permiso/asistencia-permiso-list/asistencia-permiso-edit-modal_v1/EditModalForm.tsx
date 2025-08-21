@@ -20,7 +20,6 @@ import {
 
 import {asistenciaPermisoSchema} from '../../schemas/asistenciaPermisoSchema'
 
-import {ListLoading} from '../components/loading/ListLoading'
 import {SelectField} from 'src/app/modules/components/SelectField'
 import {ValidationError} from 'src/app/utils/httpErrors'
 import {useApiFieldErrors} from 'src/app/hooks/useApiFieldErrors'
@@ -29,6 +28,7 @@ import {DatePickerField} from 'src/app/modules/components/DatePickerField'
 import AsyncSelectField from '../../../../comision/comision-list/comision-edit-modal/components/AsyncSelectField'
 import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
 import {getPersonaAutocomplete} from '../../../../comision/comision-list/core/_requests'
+import { ListLoading } from 'src/app/modules/components/loading/ListLoading'
 
 type Props = {
   isAsistenciaPermisoLoading: boolean

@@ -3,7 +3,8 @@ import Select from 'react-select'
 import clsx from 'clsx'
 import {useThemeMode} from 'src/_metronic/partials/layout/theme-mode/ThemeModeProvider'
 import {getSelectStyles} from './selectStyles'
-import { ID } from 'src/_metronic/helpers'
+import {ID} from 'src/_metronic/helpers'
+import {useEffectiveTheme} from 'src/app/hooks/useEffectiveTheme'
 
 interface SelectFieldProps {
   field: any
@@ -27,9 +28,9 @@ export const SelectField: React.FC<SelectFieldProps> = ({
   placeholder = 'Seleccionar...',
   className,
 }) => {
-  const {mode} = useThemeMode()
+  const {isDark} = useEffectiveTheme()
   const selectedOption = options.find((option) => option.value === field.value) || null
-  const styles = getSelectStyles(mode, isFieldValid)
+  const styles = getSelectStyles(isDark ? 'dark' : 'light', isFieldValid)
 
   const handleChange = (selectedOption: any) => {
     if (selectedOption) {
@@ -63,10 +64,10 @@ export const SelectField: React.FC<SelectFieldProps> = ({
         ...theme,
         colors: {
           ...theme.colors,
-          primary: mode === 'dark' ? '#3699FF' : '#1BC5BD',
-          primary25: mode === 'dark' ? '#2D2D43' : '#F5F5F5',
-          neutral0: mode === 'dark' ? '#1e1e2d' : '#ffffff',
-          neutral80: mode === 'dark' ? '#FFFFFF' : '#3F4254',
+          primary: isDark ? '#3699FF' : '#1BC5BD',
+          primary25: isDark ? '#2D2D43' : '#F5F5F5',
+          neutral0: isDark ? '#1e1e2d' : '#ffffff',
+          neutral80: isDark ? '#FFFFFF' : '#3F4254',
         },
       })}
     />

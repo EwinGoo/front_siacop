@@ -3,6 +3,7 @@ import AsyncSelect from 'react-select/async'
 import {debounce} from 'lodash'
 import {useThemeMode} from 'src/_metronic/partials/layout/theme-mode/ThemeModeProvider'
 import {ID} from 'src/_metronic/helpers'
+import { useEffectiveTheme } from 'src/app/hooks/useEffectiveTheme'
 
 interface OptionType {
   value: number
@@ -28,9 +29,8 @@ const AsyncSelectField: React.FC<AsyncSelectFieldProps> = ({
   placeholder = 'Buscar...',
   isInvalid = false,
 }) => {
-  const {mode} = useThemeMode()
-  const isDark = mode === 'dark'
 
+  const {isDark} =  useEffectiveTheme()
   // Estados para control de peticiones
   const [isLoading, setIsLoading] = useState(false)
   const lastRequestRef = useRef<string>('')

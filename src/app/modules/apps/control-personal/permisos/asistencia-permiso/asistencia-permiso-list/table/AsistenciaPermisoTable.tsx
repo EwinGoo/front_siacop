@@ -5,10 +5,10 @@ import {CustomRow} from './columns/CustomRow'
 import {useQueryResponseData, useQueryResponseLoading} from '../core/QueryResponseProvider'
 import {getColumns} from './columns/_columns' // Asegúrate de tener las columnas adecuadas para TipoPermiso
 import {AsistenciaPermiso} from '../core/_models'
-import {ListLoading} from '../components/loading/ListLoading'
 import {ListPagination} from '../components/pagination/ListPagination'
 import {KTCardBody} from '../../../../../../../../_metronic/helpers'
 import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
+import { ListLoading } from 'src/app/modules/components/loading/ListLoading'
 
 const AsistenciaPermisoTable = () => {
   const tiposPermiso = useQueryResponseData()

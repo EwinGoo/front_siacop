@@ -19,43 +19,60 @@ const DeclaratoriaComisionTable: React.FC<DeclaratoriaComisionTableProps> = ({
 }) => {
   const declaratoria = useQueryResponseData()
   const isLoading = useQueryResponseLoading()
-  const allColumns = useMemo(
-    () => getColumns({onShowPDF, onShowData, onSetLoading, getLoadingState}),
-    [onShowPDF, onShowData, onSetLoading, getLoadingState]
+    const data = useMemo(() => declaratoria, [declaratoria]);
+  const columns = useMemo(
+    () =>
+      getColumns({
+        onShowPDF,
+        onShowData,
+        onSetLoading,
+        getLoadingState,
+      }),
+    []
   )
 
-  // Hook de visibilidad de columnas
-  const {
-    visibleColumns,
-    columnConfig,
-    toggleColumn,
-    showAllColumns,
-    hideAllOptionalColumns,
-    resetToDefaults,
-  } = useColumnVisibility(allColumns, 'declaratoria_comision')
+  const { getTableProps, getTableBodyProps, headers, rows, prepareRow } = useTable({
+    columns,
+    data,
+  });
+
+  // const allColumns = useMemo(
+  //   () => getColumns({onShowPDF, onShowData, onSetLoading, getLoadingState}),
+  //   [onShowPDF, onShowData, onSetLoading, getLoadingState]
+  // )
+
+  // // Hook de visibilidad de columnas
+  // const {
+  //   visibleColumns,
+  //   columnConfig,
+  //   toggleColumn,
+  //   showAllColumns,
+  //   hideAllOptionalColumns,
+  //   resetToDefaults,
+  // } = useColumnVisibility(allColumns, 'declaratoria_comision')
   // const memoizedVisibleColumns = useMemo(() => {
   //   return visibleColumns
   // }, [visibleColumns])
 
-  const data = useMemo(() => declaratoria, [declaratoria])
+  // const data = useMemo(() => declaratoria, [declaratoria])
 
   // Usar las columnas visibles en lugar de todas
-  const {getTableProps, getTableBodyProps, headers, rows, prepareRow} = useTable({
-    columns: visibleColumns, // Cambio aquí
-    data,
-  })
+  // const {getTableProps, getTableBodyProps, headers, rows, prepareRow} = useTable({
+  //   columns: visibleColumns, // Cambio aquí
+  //   data,
+  // })
   // console.log(visibleColumns, data);
 
-  useEffect(() => {
-    // Guardamos las funciones en el window para que ListHeader las use
-    (window as any).columnVisibilityConfig = {
-      columnConfig,
-      toggleColumn,
-      showAllColumns,
-      hideAllOptionalColumns,
-      resetToDefaults
-    }
-  }, [columnConfig, toggleColumn, showAllColumns, hideAllOptionalColumns, resetToDefaults])
+  // useEffect(() => {
+  //   // Guardamos las funciones en el window para que ListHeader las use
+  //   (window as any).columnVisibilityConfig = {
+  //     columnConfig,
+  //     toggleColumn,
+  //     showAllColumns,
+  //     hideAllOptionalColumns,
+  //     resetToDefaults
+  //   }
+  // }, [columnConfig, toggleColumn, showAllColumns, hideAllOptionalColumns, resetToDefaults])
 
   return (
     <KTCardBody className='py-4'>
@@ -80,7 +97,7 @@ const DeclaratoriaComisionTable: React.FC<DeclaratoriaComisionTableProps> = ({
               })
             ) : (
               <tr>
-                <td colSpan={11}>
+                <td colSpan={10}>
                   <div className='d-flex text-center w-100 align-content-center justify-content-center'>
                     No se encontraron registros
                   </div>

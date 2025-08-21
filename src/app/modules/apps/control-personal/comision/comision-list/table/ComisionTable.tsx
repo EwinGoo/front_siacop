@@ -45,7 +45,7 @@ const ComisionTable = () => {
               })
             ) : (
               <tr>
-                <td colSpan={10}>
+                <td colSpan={headers.length}>
                   <div className='d-flex text-center w-100 align-content-center justify-content-center'>
                     No se encontraron registros
                   </div>

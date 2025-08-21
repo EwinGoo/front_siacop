@@ -18,7 +18,6 @@ import {
 
 import {asistenciaPermisoSchema} from '../../schemas/asistenciaPermisoSchema'
 
-import {ListLoading} from '../components/loading/ListLoading'
 import {SelectField} from 'src/app/modules/components/SelectField'
 import {ValidationError} from 'src/app/utils/httpErrors'
 import {useApiFieldErrors} from 'src/app/hooks/useApiFieldErrors'
@@ -27,6 +26,7 @@ import {DatePickerField} from 'src/app/modules/components/DatePickerField'
 import AsyncSelectField from '../../../../comision/comision-list/comision-edit-modal/components/AsyncSelectField'
 import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
 import {useAuth} from 'src/app/modules/auth'
+import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
 
 // import AsyncSelectFieldDebug from '../../../../comision/comision-list/comision-edit-modal/components/AsyncSelectFieldDebug'
 
@@ -165,10 +165,27 @@ const EditModalForm: FC<Props> = ({
     {label: 'Tarde', value: 'TARDE'},
   ]
 
-  useEffect(()=>{
-    console.log(formik.errors);
+  const getFilteredTiposPermisos = () => {
+    console.log(tiposPermisos);
+    
+    const isDocente = currentUser?.personal?.tipo_personal === 'DOCENTE'
 
-  },[formik.errors])
+    if (isDocente) {
+      // Solo Baja Médica para docentes
+      return tiposPermisos.filter((tipo) => tipo.id_tipo_permiso == 4)
+    }
+    return tiposPermisos
+
+    // Todos los tipos para otros usuarios, con Baja Médica primero
+    // return tiposPermisos.sort((a, b) =>
+    //   a.nombre === 'Baja Médica' ? -1 : b.nombre === 'Baja Médica' ? 1 : 0
+    // )
+  }
+
+  // useEffect(()=>{
+  //   console.log(formik.errors);
+
+  // },[formik.errors])
 
   return (
     <>
@@ -222,7 +239,7 @@ const EditModalForm: FC<Props> = ({
               clearFieldError={clearFieldError}
               isSubmitting={formik.isSubmitting}
               placeholder='Seleccione un tipo de permiso'
-              options={tiposPermisos.map((tipo) => ({
+              options={getFilteredTiposPermisos().map((tipo) => ({
                 label: tipo.nombre,
                 value: tipo.id_tipo_permiso!.toString(),
               }))}

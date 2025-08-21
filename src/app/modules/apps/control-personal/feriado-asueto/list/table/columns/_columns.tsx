@@ -11,9 +11,17 @@ import HorarioCell from './HorarioCell'
 
 const Columns: ReadonlyArray<Column<FeriadoAsueto>> = [
   {
-    Header: (props) => <CustomHeader tableProps={props} title='N°' className='min-w-50px' />,
+    Header: (props) => <CustomHeader tableProps={props} title='N°' className='min-w-10px w-10px' />,
     id: 'numero',
     Cell: ({row}) => <span>{row.index + 1}</span>,
+  },
+  {
+    Header: (props) => <CustomHeader tableProps={props} title='Acciones' className='w-actions' />,
+    // maxWidth: 20,
+    id: 'actions',
+    Cell: ({...props}) => (
+      <ActionsCell id={props.data[props.row.index].id_asistencia_feriado_asueto} />
+    ),
   },
   {
     Header: (props) => <CustomHeader tableProps={props} title='Evento' className='min-w-200px' />,
@@ -54,15 +62,6 @@ const Columns: ReadonlyArray<Column<FeriadoAsueto>> = [
       >
         {value}
       </span>
-    ),
-  },
-  {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='Acciones' className='text-end min-w-100px' />
-    ),
-    id: 'actions',
-    Cell: ({...props}) => (
-      <ActionsCell id={props.data[props.row.index].id_asistencia_feriado_asueto} />
     ),
   },
 ]

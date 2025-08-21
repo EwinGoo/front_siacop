@@ -10,6 +10,7 @@ import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
 import {ProtectedRoute} from '../modules/auth/core/ProtectedRoute'
 import AccessDeniedPage from '../pages/AccessDeniedPage'
 import {GestionQrPage} from '../modules/apps/control-personal/gestion-qr'
+import { PERMISSIONS } from '../modules/auth/core/roles/permissions'
 // import AsistenciaPermisoPage from '../modules/apps/control-personal/permisos/asistencia-permisos/AsistenciaPermisoPage'
 
 const PrivateRoutes = () => {
@@ -103,7 +104,7 @@ const PrivateRoutes = () => {
               path='apps/gestion-persona/*'
               element={
                 <SuspensedView>
-                  <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
+                  <ProtectedRoute>
                     <PersonPage />
                   </ProtectedRoute>
                 </SuspensedView>
@@ -121,61 +122,66 @@ const PrivateRoutes = () => {
           }
         /> */}
         <Route
-          path='apps/feriados-asuetos/*'
-          element={
-            <SuspensedView>
-              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
-                <FeriadoAsuetoPage />
-              </ProtectedRoute>
-            </SuspensedView>
-          }
-        />
-        <Route
           path='apps/asistencias-permisos/*'
           element={
             <SuspensedView>
-              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL','ADMINISTRATIVO']}>
+              <ProtectedRoute requiredPermissions={[PERMISSIONS.ASISTENCIA_PERMISO.VIEW]}>
                 <AsistenciaPermisoPage />
               </ProtectedRoute>
             </SuspensedView>
           }
         />
+
+        <Route
+          path='apps/declaratoria-comision/*'
+          element={
+            <SuspensedView>
+              <ProtectedRoute requiredPermissions={[PERMISSIONS.DECLARATORIA_COMISION.VIEW]}>
+                <DeclaratoriaComisionPage />
+              </ProtectedRoute>
+            </SuspensedView>
+          }
+        />
+
         <Route
           path='apps/tipos-permisos/*'
           element={
             <SuspensedView>
-              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
+              <ProtectedRoute requiredPermissions={[PERMISSIONS.TIPO_PERMISO.VIEW]}>
                 <TipoPermisoPage />
               </ProtectedRoute>
             </SuspensedView>
           }
         />
+
+        <Route
+          path='apps/feriados-asuetos/*'
+          element={
+            <SuspensedView>
+              <ProtectedRoute requiredPermissions={[PERMISSIONS.FERIADO_ASUETO.VIEW]}>
+                <FeriadoAsuetoPage />
+              </ProtectedRoute>
+            </SuspensedView>
+          }
+        />
+
         <Route
           path='apps/comisiones/*'
           element={
             <SuspensedView>
-              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL','ADMINISTRATIVO']}>
+              <ProtectedRoute requiredPermissions={[PERMISSIONS.COMISION.VIEW]}>
                 <ComisionPage />
               </ProtectedRoute>
             </SuspensedView>
           }
         />
+
         <Route
           path='apps/gestion-qr'
           element={
             <SuspensedView>
-              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
+              <ProtectedRoute requiredPermissions={[PERMISSIONS.GESTION_QR.VIEW]}>
                 <GestionQrPage />
-              </ProtectedRoute>
-            </SuspensedView>
-          }
-        />
-        <Route
-          path='apps/declaratoria-comision/*'
-          element={
-            <SuspensedView>
-              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL', 'SECRETARIA_RRHH']}>
-                <DeclaratoriaComisionPage />
               </ProtectedRoute>
             </SuspensedView>
           }

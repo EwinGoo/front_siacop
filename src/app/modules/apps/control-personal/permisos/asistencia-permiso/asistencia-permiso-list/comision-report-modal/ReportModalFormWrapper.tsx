@@ -1,12 +1,14 @@
 import {getLocalDate} from 'src/app/hooks/useDateFormatter'
-import { getTiposPermiso} from '../core/_requests'
+import {getTiposPermiso} from '../core/_requests'
 import {ReportModalForm} from './ReportModalForm'
 import {useFormik} from 'formik'
 import {useQuery} from 'react-query'
-import { API_ROUTES } from 'src/app/config/apiRoutes'
+import {API_ROUTES} from 'src/app/config/apiRoutes'
+import {reportValidationSchema} from './schema/reportValidationSchema'
 
 export const ReportModalFormWrapper = ({onClose}) => {
   const formik = useFormik({
+    validationSchema: reportValidationSchema,
     initialValues: {
       fechaInicio: getLocalDate(),
       fechaFin: getLocalDate(),
@@ -33,8 +35,7 @@ export const ReportModalFormWrapper = ({onClose}) => {
       addInput('fechaFin', formatDate(values.fechaFin))
       addInput('estado', values.estado)
       addInput('tipoPermiso', values.tipoPermiso)
-      console.log(values.tipoPermiso);
-      
+      console.log(values.tipoPermiso)
 
       document.body.appendChild(form)
       form.submit()
@@ -44,7 +45,7 @@ export const ReportModalFormWrapper = ({onClose}) => {
     },
   })
 
-  const {data: tiposPermiso = []} = useQuery('tipos-permiso', getTiposPermiso, {
+  const {data: tiposPermiso = []} = useQuery('asistencia-tipos-permiso', getTiposPermiso, {
     staleTime: 1000 * 60 * 5, // 5 minutos de cache
   })
 

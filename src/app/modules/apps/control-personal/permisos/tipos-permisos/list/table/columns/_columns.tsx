@@ -12,6 +12,17 @@ const Columns: ReadonlyArray<Column<TipoPermiso>> = [
     Cell: ({row}) => <span>{row.index + 1}</span>,
   },
   {
+    Header: (props) => <CustomHeader tableProps={props} title='Acciones' className='w-actions' />,
+    id: 'actions',
+    Cell: ({...props}) => (
+      <ActionsCell
+        id={props.data[props.row.index].id_tipo_permiso}
+        isActive={!props.data[props.row.index].deleted_at}
+      />
+    ),
+  },
+
+  {
     Header: (props) => <CustomHeader tableProps={props} title='Nombre' className='min-w-50px' />,
     id: 'nombre',
     Cell: ({...props}) => <InfoCell tipoPermiso={props.data[props.row.index]} />,
@@ -47,18 +58,6 @@ const Columns: ReadonlyArray<Column<TipoPermiso>> = [
   //   accessor: 'updated_at',
   //   Cell: ({value}) => (value ? new Date(value).toLocaleString() : '-'),
   // },
-  {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='Acciones' className='text-end min-w-150px' />
-    ),
-    id: 'actions',
-    Cell: ({...props}) => (
-      <ActionsCell
-        id={props.data[props.row.index].id_tipo_permiso}
-        isActive={!props.data[props.row.index].deleted_at}
-      />
-    ),
-  },
 ]
 
 export {Columns}

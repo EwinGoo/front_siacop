@@ -32,11 +32,14 @@ export const ReportModalForm = ({
 
   const tipoOptions = [
     {value: 'TODO', label: 'Todo'},
-    ...tiposPermisos.map((tipo) => ({
-      value: tipo.id_tipo_permiso!.toString(),
-      label: tipo.nombre,
-    })),
+    {value: 'LICENCIAS', label: 'LICENCIAS ESPECIALES'},
     {value: 'DAF', label: 'DAF'},
+    ...tiposPermisos
+      .sort((a, b) => (a.nombre === 'Baja Médica' ? -1 : b.nombre === 'Baja Médica' ? 1 : 0))
+      .map((tipo) => ({
+        value: tipo.id_tipo_permiso!.toString(),
+        label: tipo.nombre,
+      })),
   ]
   const handleChange = (fieldName: string) => (value: any) => {
     formik.setFieldValue(fieldName, value)
@@ -60,6 +63,11 @@ export const ReportModalForm = ({
               onChange={handleChange('fechaInicio')}
               onBlur={() => formik.setFieldTouched('fechaInicio', true)}
             />
+            {!isFieldValid('fechaInicio') && (
+              <div className='fv-plugins-message-container'>
+                <span role='alert'>{formik.errors.fechaInicio as string}</span>
+              </div>
+            )}
           </div>
           <div className='col-md-6'>
             <label className='form-label fw-semibold'>📅 Fecha de fin</label>
@@ -71,6 +79,11 @@ export const ReportModalForm = ({
               onChange={handleChange('fechaFin')}
               onBlur={() => formik.setFieldTouched('fechaFin', true)}
             />
+            {!isFieldValid('fechaFin') && (
+              <div className='fv-plugins-message-container'>
+                <span role='alert'>{formik.errors.fechaFin as string}</span>
+              </div>
+            )}
           </div>
           {/* <div className='col-md-6 mb-4 mt-4'>
             <label className='form-label fw-semibold'>📝 Estado</label>
