@@ -26,9 +26,9 @@ import {useApiFieldErrors} from 'src/app/hooks/useApiFieldErrors'
 import {FormActions} from 'src/app/modules/components/FormActions'
 import {DatePickerField} from 'src/app/modules/components/DatePickerField'
 import AsyncSelectField from '../../../../comision/comision-list/comision-edit-modal/components/AsyncSelectField'
-import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
 import {getPersonaAutocomplete} from '../../../../comision/comision-list/core/_requests'
 import { ListLoading } from 'src/app/modules/components/loading/ListLoading'
+import { usePermissions } from 'src/app/modules/auth/hooks/usePermissions'
 
 type Props = {
   isAsistenciaPermisoLoading: boolean
@@ -51,7 +51,9 @@ const EditModalForm: FC<Props> = ({
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const {isAdminComision} = usePermissions()
+  const {comision: permissions} = usePermissions()
+    const isAdminComision = permissions.canManage; // Para mostrar campo de solicitante
+
   const {apiErrors, setApiErrors, getFieldError, clearFieldError} = useApiFieldErrors()
 
   const [asistenciaPermisoForEdit] = useState<AsistenciaPermiso>({

@@ -10,12 +10,14 @@ import {useQueryResponse} from '../core/QueryResponseProvider'
 import {editComisionSchema} from './schemas/editComisionSchema'
 import {SelectPickerField} from './components/SelectPickerField'
 import {DatePickerField} from 'src/app/modules/components/DatePickerField'
-import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
 import {ValidationError} from 'src/app/utils/httpErrors'
 import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
 import {FormActions} from 'src/app/modules/components/FormActions'
 import AsyncSelectField from './components/AsyncSelectField'
 import {useApiFieldErrors} from 'src/app/hooks/useApiFieldErrors'
+import {usePermissions} from 'src/app/modules/auth/hooks/usePermissions'
+import { useAuth } from 'src/app/modules/auth'
+import { canManageComisiones } from 'src/app/modules/auth/core/roles/roleDefinitions'
 
 type Props = {
   isLoading: boolean
@@ -27,8 +29,34 @@ type Props = {
 const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
-  const {isAdminComision} = usePermissions()
   const {apiErrors, setApiErrors, clearFieldError} = useApiFieldErrors()
+  const {currentUser} = useAuth()
+  const canManage = currentUser?.groups ? canManageComisiones(currentUser.groups) : false
+  // ✅ PROFESIONAL: Usar permisos granulares específicos
+  const isCreating = !isNotEmpty(comision.id_comision)
+  const isEditing = isNotEmpty(comision.id_comision)
+
+  // Verificación de permisos para la acción específica
+  // const hasPermissionForAction = useMemo(() => {
+  //   if (isCreating) return permissions.canCreate;
+  //   if (isEditing) return permissions.canEdit;
+  //   return false;
+  // }, [isCreating, isEditing, permissions.canCreate, permissions.canEdit]);
+
+  // // ✅ PROFESIONAL: Verificación temprana de permisos
+  // if (!hasPermissionForAction) {
+  //   return (
+  //     <div className="alert alert-warning d-flex align-items-center p-5">
+  //       <KTIcon iconName='shield-cross' className='fs-2hx text-warning me-4' />
+  //       <div className="d-flex flex-column">
+  //         <h4 className="mb-1 text-warning">Permisos Insuficientes</h4>
+  //         <span>
+  //           No tienes permisos para {isCreating ? 'crear' : 'editar'} comisiones.
+  //         </span>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   const [comisionForEdit] = useState<Comision>({
     ...comision,
@@ -41,7 +69,8 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) =
     hora_salida: comision.hora_salida || initialComision.hora_salida,
     hora_retorno: comision.hora_retorno || initialComision.hora_retorno,
     id_tipo_permiso: comision.id_tipo_permiso || initialComision.id_tipo_permiso,
-    estado_boleta_comision: comision.estado_boleta_comision || initialComision.estado_boleta_comision,
+    estado_boleta_comision:
+      comision.estado_boleta_comision || initialComision.estado_boleta_comision,
   })
 
   // Determinar el tipo actual basado en tipoPermiso
@@ -55,7 +84,6 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) =
     return 'PERSONAL' // Valor por defecto
   }, [tipoPermiso, comision.tipo_comision])
 
-
   const cancel = (withRefresh?: boolean) => {
     if (withRefresh) {
       refetch()
@@ -67,9 +95,15 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) =
     initialValues: {
       ...comisionForEdit,
       tipo_comision: tipoActual,
-      id_tipo_permiso: tipoPermiso?.id_tipo_permiso || comisionForEdit.id_tipo_permiso
+      id_tipo_permiso: tipoPermiso?.id_tipo_permiso || comisionForEdit.id_tipo_permiso,
     },
-    validationSchema: () => editComisionSchema({isAdmin: isAdminComision, tipoPermiso: tipoActual}),
+    // ✅ PROFESIONAL: Usar permisos específicos en lugar de isAdminComision
+    validationSchema: () =>
+      editComisionSchema({
+        isAdmin: canManage,
+        tipoPermiso: tipoActual,
+        // canManageUsers: canManageUsers
+      }),
     onSubmit: async (values, {setSubmitting}) => {
       setSubmitting(true)
       setApiErrors({})
@@ -79,7 +113,7 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) =
         const dataToSend = {
           ...values,
           tipo_comision: tipoActual,
-          id_tipo_permiso: tipoPermiso?.id_tipo_permiso || values.id_tipo_permiso
+          id_tipo_permiso: tipoPermiso?.id_tipo_permiso || values.id_tipo_permiso,
         }
 
         if (isNotEmpty(values.id_comision)) {
@@ -120,7 +154,7 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) =
   }
 
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null)
-  
+
   const fetchPersonaOptions = async (input: string): Promise<OptionType[]> => {
     const response = await getPersonaAutocomplete(input)
     return response.sugerencias.map((item) => ({
@@ -185,7 +219,7 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) =
       setSelectedOption({
         value: comision.id_usuario_generador,
         label: `${comision.ci || ''} - ${comision.nombre_generador}`,
-        id_asignacion_administrativo: comision.id_asignacion_administrativo
+        id_asignacion_administrativo: comision.id_asignacion_administrativo,
       })
     }
   }, [comision])
@@ -194,22 +228,19 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) =
     <>
       <form id='kt_modal_add_comision_form' className='form' onSubmit={formik.handleSubmit}>
         <div className='d-flex flex-column scroll-y me-n7 pe-7 pt-5'>
-          
-          {/* Mostrar información del tipo seleccionado */}
-          {/* {tipoPermiso && (
-            <div className='alert alert-light-primary d-flex align-items-center p-5 mb-7'>
-              <KTIcon iconName='information-5' className='fs-2hx text-primary me-4' />
-              <div className='d-flex flex-column'>
-                <h5 className='fw-bold mb-1'>Tipo seleccionado: {tipoPermiso.nombre}</h5>
-                <span className='text-muted fs-7'>
-                  {tipoPermiso.tipo_permiso} 
-                  {tipoPermiso.requiere_hoja_ruta === '1' && ' • Requiere hoja de ruta'}
-                </span>
-              </div>
+          {/* ✅ PROFESIONAL: Mostrar información de permisos en desarrollo */}
+
+          {/* {process.env.NODE_ENV === 'development' && (
+            <div className='alert alert-light-info d-flex align-items-center p-3 mb-5'>
+              <KTIcon iconName='information-5' className='fs-6 text-info me-2' />
+              <small>
+                Permisos: {permissions.canCreate && 'Crear'} {permissions.canEdit && 'Editar'} {permissions.canManage && 'Gestionar'}
+              </small>
             </div>
           )} */}
 
-          {isAdminComision && (
+          {/* ✅ PROFESIONAL: Campo de solicitante solo si puede gestionar usuarios */}
+          {canManage && (
             <div className='fv-row mb-7 px-1'>
               <label className='required fw-bold fs-6 mb-2'>Solicitante:</label>
               {comision.id_comision ? (
@@ -244,21 +275,13 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) =
           )}
 
           {/* Campos ocultos para el tipo */}
-          <input
-            type='hidden'
-            name='tipo_comision'
-            value={tipoActual}
-          />
-          <input
-            type='hidden'
-            name='id_tipo_permiso'
-            value={tipoPermiso?.id_tipo_permiso || ''}
-          />
+          <input type='hidden' name='tipo_comision' value={tipoActual} />
+          <input type='hidden' name='id_tipo_permiso' value={tipoPermiso?.id_tipo_permiso || ''} />
 
-          {/* Fecha de inicio */}
+          {/* ✅ PROFESIONAL: Control de fecha basado en permisos específicos */}
           <div className='fv-row mb-7 px-1'>
             <label className='required fw-bold fs-6 mb-2'>{getLabelFecha()}</label>
-            {isAdminComision || mostrarFechaFin()? (
+            {canManage || mostrarFechaFin() ? (
               <DatePickerField
                 field={formik.getFieldProps('fecha_comision')}
                 form={formik}
@@ -286,7 +309,7 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) =
           {mostrarFechaFin() && (
             <div className='fv-row mb-7 px-1'>
               <label className='required fw-bold fs-6 mb-2'>Fecha fin</label>
-              {isAdminComision || mostrarFechaFin()? (
+              {canManage || mostrarFechaFin() ? (
                 <DatePickerField
                   field={formik.getFieldProps('fecha_comision_fin')}
                   form={formik}
@@ -402,7 +425,7 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) =
               rows={3}
               disabled={formik.isSubmitting}
               placeholder={
-                esTipoCajaSalud() 
+                esTipoCajaSalud()
                   ? 'Describa la razón de la atención médica...'
                   : esTipoFisioterapia()
                   ? 'Describa el motivo de la fisioterapia...'
@@ -415,28 +438,16 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) =
               </div>
             )}
           </div>
-
-          {/* Mostrar instrucciones según el tipo */}
-          {/* {tipoPermiso?.instruccion && (
-            <div className='fv-row mb-7 px-1'>
-              <div className='alert alert-warning'>
-                <h6 className='fw-bold mb-2'>
-                  <KTIcon iconName='information-5' className='fs-6 me-2' />
-                  Instrucciones importantes:
-                </h6>
-                <div dangerouslySetInnerHTML={{ __html: tipoPermiso.instruccion }} />
-              </div>
-            </div>
-          )} */}
         </div>
 
-        {/* Actions */}
+        {/* ✅ PROFESIONAL: Actions con control de permisos */}
         <FormActions
           onClose={onClose}
           isSubmitting={formik.isSubmitting}
-          // isValid={formik.isValid}
           isValid={true}
           isEdit={!!comision.id_comision}
+          // Opcional: puedes pasar permisos si FormActions los necesita
+          // canSave={hasPermissionForAction}
         />
       </form>
       {(formik.isSubmitting || isLoading) && <ListLoading />}

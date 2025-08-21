@@ -10,7 +10,6 @@ import {
 } from '../core/_models'
 import clsx from 'clsx'
 import {useListView} from '../core/ListViewProvider'
-import {useAuth} from 'src/app/modules/auth'
 import {createDeclaratoriaComision, updateDeclaratoriaComision} from '../core/_requests'
 import {useQueryResponse} from '../core/QueryResponseProvider'
 import {toast} from 'react-toastify'
@@ -19,12 +18,13 @@ import {useApiFieldErrors} from 'src/app/hooks/useApiFieldErrors'
 import {FormActions} from 'src/app/modules/components/FormActions'
 import {ValidationError} from 'src/app/utils/httpErrors'
 import {parseTipoViaticoFromApi, parseTipoViaticoToApi} from '../helpers/viatico'
-import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
 import AsyncSelectField from '../../../comision/comision-list/comision-edit-modal/components/AsyncSelectField'
 import {getPersonaAutocomplete} from '../../../comision/comision-list/core/_requests'
 import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
 import { SelectField } from 'src/app/modules/components/SelectField'
 import { formatUtils } from 'src/app/utils/formatUtils'
+import { useAuth } from 'src/app/modules/auth/core/Auth'
+import { usePermissions } from 'src/app/modules/auth/core/usePermissions1'
 
 type Props = {
   isDeclaratoriaLoading: boolean

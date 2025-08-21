@@ -5,6 +5,7 @@ export type EstadoType = 'GENERADO' | 'ENVIADO' | 'RECEPCIONADO' | 'APROBADO' | 
 
 export type Comision = {
   id_comision?: ID | undefined
+  id_temporal?: string
   id_asignacion_administrativo?: number | null
   id_usuario_generador?: number | null
   id_usuario_aprobador?: number | null

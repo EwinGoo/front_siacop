@@ -11,12 +11,14 @@ import {
   procesarEstadoPermiso,
 } from '../../core/_requests'
 import {toast} from 'react-toastify'
-import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
 import {showToast} from 'src/app/utils/toastHelper'
 import {showConfirmDialog} from 'src/app/utils/swalHelpers.ts'
 import {getPermisosComision} from 'src/app/modules/auth/core/permissions'
 import {EstadoType} from '../../core/_models'
 import {API_ROUTES} from 'src/app/config/apiRoutes'
+import { usePermissions } from 'src/app/modules/auth/hooks/usePermissions'
+import { useAuth } from 'src/app/modules/auth'
+import { canManageComisiones } from 'src/app/modules/auth/core/roles/roleDefinitions'
 
 type Props = {
   id: ID
@@ -26,13 +28,14 @@ type Props = {
 
 const ActionsCell: FC<Props> = ({id, estado, hash = null}) => {
   const {setAccion, setItemIdForUpdate, setIsShow} = useListView()
-  const {canManageComisiones} = usePermissions()
-  const {query} = useQueryResponse()
   const queryClient = useQueryClient()
+  const {query} = useQueryResponse()
+  const {currentUser} = useAuth()
+  const canManage = currentUser?.groups ? canManageComisiones(currentUser.groups) : false
 
   const permisos = getPermisosComision({
     estado: estado || 'GENERADO',
-    puedeGestionar: canManageComisiones,
+    puedeGestionar: canManage,
   })
   // console.log(currentUser?.groups)
 

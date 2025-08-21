@@ -1,3 +1,4 @@
+// core/Auth.tsx (versión actualizada)
 import {
   FC,
   useState,
@@ -7,15 +8,17 @@ import {
   useRef,
   Dispatch,
   SetStateAction,
+  useMemo,
 } from 'react'
 import {LayoutSplashScreen} from '../../../../_metronic/layout/core'
 import {AuthModel, UserModel} from './_models'
 import * as authHelper from './AuthHelpers'
-// import {getUserByToken} from './_requests'
 import {getUserBySession} from './_requests'
 import {WithChildren} from '../../../../_metronic/helpers'
 import {APP_ROLES, PERMISSION_GROUPS, RoleKey} from './roles'
 import {useNavigate} from 'react-router-dom'
+import { Permission } from './roles/permissions'
+import { ROLE_PERMISSIONS } from './roles/roleDefinitions'
 
 type AuthContextProps = {
   auth: AuthModel | undefined
@@ -24,7 +27,14 @@ type AuthContextProps = {
   setCurrentUser: Dispatch<SetStateAction<UserModel | undefined>>
   logout: () => void
   hasRole: (roleKey: RoleKey) => boolean
+  // Método legacy para compatibilidad
   hasPermission: (permissionKey: keyof typeof PERMISSION_GROUPS) => boolean
+  // Nuevo método para permisos granulares
+  hasSpecificPermission: (permission: Permission) => boolean
+  // Método para verificar múltiples permisos específicos
+  hasAllSpecificPermissions: (permissions: Permission[]) => boolean
+  hasAnySpecificPermission: (permissions: Permission[]) => boolean
+  userPermissions: Set<Permission>
 }
 
 const initAuthContextPropsState = {
@@ -35,6 +45,10 @@ const initAuthContextPropsState = {
   logout: () => {},
   hasRole: (_roleKey) => false,
   hasPermission: (_permissionKey) => false,
+  hasSpecificPermission: (_permission) => false,
+  hasAllSpecificPermissions: (_permissions) => false,
+  hasAnySpecificPermission: (_permissions) => false,
+  userPermissions: new Set<Permission>(),
 }
 
 const AuthContext = createContext<AuthContextProps>(initAuthContextPropsState)
@@ -46,11 +60,11 @@ const useAuth = () => {
 const AuthProvider: FC<WithChildren> = ({children}) => {
   const [auth, setAuth] = useState<AuthModel | undefined>(authHelper.getAuth())
   const [currentUser, setCurrentUser] = useState<UserModel | undefined>()
+  
   const saveAuth = (auth: AuthModel | undefined) => {
     setAuth(auth)
     if (auth) {
       authHelper.setAuth(auth)
-      // setCurrentUser(auth.user);
     } else {
       authHelper.removeAuth()
     }
@@ -65,19 +79,60 @@ const AuthProvider: FC<WithChildren> = ({children}) => {
     return currentUser?.groups?.includes(APP_ROLES[roleKey]) ?? false
   }
 
+  // Método legacy para compatibilidad (manténlo mientras migras)
   const hasPermission = (permissionKey: keyof typeof PERMISSION_GROUPS): boolean => {
     const allowedRoles = PERMISSION_GROUPS[permissionKey]
     if (!allowedRoles) {
-      // No existe ese grupo de permiso
       console.warn(`Permiso no definido: ${permissionKey}`)
       return false
     }
     return currentUser?.groups?.some((group) => allowedRoles.includes(group)) ?? false
   }
 
+  // Memoizar los permisos del usuario para optimizar
+  const userPermissions = useMemo(() => {
+    if (!currentUser?.groups?.length) return new Set<Permission>()
+    
+    const permissions = new Set<Permission>()
+    
+    currentUser.groups.forEach(role => {
+      const rolePermissions = ROLE_PERMISSIONS[role]
+      if (rolePermissions) {
+        rolePermissions.forEach(permission => permissions.add(permission))
+      }
+    })
+    
+    return permissions
+  }, [currentUser?.groups])
+
+  // Nuevos métodos para permisos específicos
+  const hasSpecificPermission = (permission: Permission): boolean => {
+    return userPermissions.has(permission)
+  }
+
+  const hasAllSpecificPermissions = (permissions: Permission[]): boolean => {
+    return permissions.every(permission => userPermissions.has(permission))
+  }
+
+  const hasAnySpecificPermission = (permissions: Permission[]): boolean => {
+    return permissions.some(permission => userPermissions.has(permission))
+  }
+
   return (
     <AuthContext.Provider
-      value={{auth, saveAuth, currentUser, setCurrentUser, logout, hasRole, hasPermission}}
+      value={{
+        auth,
+        saveAuth,
+        currentUser,
+        setCurrentUser,
+        logout,
+        hasRole,
+        hasPermission, // Legacy
+        hasSpecificPermission,
+        hasAllSpecificPermissions,
+        hasAnySpecificPermission,
+        userPermissions,
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -89,18 +144,16 @@ const AuthInit: FC<WithChildren> = ({children}) => {
   const didRequest = useRef(false)
   const [showSplashScreen, setShowSplashScreen] = useState(true)
   const navigate = useNavigate()
-  // We should request user by authToken (IN OUR EXAMPLE IT'S API_TOKEN) before rendering the application
+
   useEffect(() => {
     const requestUser = async () => {
       try {
         if (!didRequest.current) {
-          // Cambiamos esta parte para usar la sesión en lugar del token
           const {data} = await getUserBySession()
           if (data) {
             setCurrentUser(data.user)
-            // Creamos un auth model básico para mantener compatibilidad
             const authModel: AuthModel = {
-              api_token: 'session-based', // Esto es simbólico
+              api_token: 'session-based',
               refreshToken: undefined,
             }
             authHelper.setAuth(authModel)
@@ -109,7 +162,6 @@ const AuthInit: FC<WithChildren> = ({children}) => {
       } catch (error: any) {
         console.error(error)
         if (error.code === 'ERR_NETWORK') {
-          // Redirige a página de error 500
           navigate('/error/500')
           return
         }
@@ -125,7 +177,6 @@ const AuthInit: FC<WithChildren> = ({children}) => {
     }
 
     requestUser()
-    // eslint-disable-next-line
   }, [])
 
   return showSplashScreen ? <LayoutSplashScreen /> : <>{children}</>

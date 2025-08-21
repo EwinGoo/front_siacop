@@ -10,9 +10,10 @@ import {useQueryResponse} from '../../core/QueryResponseProvider'
 import {aprobarComisiones} from '../../core/_requests'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {initialQueryState} from 'src/_metronic/helpers'
-import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
 import {showAlert} from 'src/app/utils/swalHelpers.ts'
 import {useAuth} from 'src/app/modules/auth'
+import {usePermissions} from 'src/app/modules/auth/hooks/usePermissions'
+import { canManageComisiones } from 'src/app/modules/auth/core/roles/roleDefinitions'
 
 const textApproveHTML = `
   Esta acción cambiará el estado de 
@@ -25,8 +26,8 @@ const ListToolbar = () => {
   const queryClient = useQueryClient()
   const {query, refetch} = useQueryResponse()
   const {updateState} = useQueryRequest()
-  const {isAdminComision} = usePermissions()
   const {currentUser} = useAuth()
+  const canManage = currentUser?.groups ? canManageComisiones(currentUser.groups) : false
 
   const openAddModal = async () => {
     if (!currentUser) {
@@ -112,7 +113,7 @@ const ListToolbar = () => {
 
   return (
     <div className='row g-2'>
-      {isAdminComision && (
+      {canManage && (
         <>
           <div className='col-12 col-md-auto'>
             <Button className='btn-light-warning w-100' onClick={openReportModal}>

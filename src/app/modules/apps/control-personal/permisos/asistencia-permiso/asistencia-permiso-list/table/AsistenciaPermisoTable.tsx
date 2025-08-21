@@ -7,15 +7,17 @@ import {getColumns} from './columns/_columns' // Asegúrate de tener las columna
 import {AsistenciaPermiso} from '../core/_models'
 import {ListPagination} from '../components/pagination/ListPagination'
 import {KTCardBody} from '../../../../../../../../_metronic/helpers'
-import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
-import { ListLoading } from 'src/app/modules/components/loading/ListLoading'
+import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
+import { useAuth } from 'src/app/modules/auth'
+import { canManageComisiones } from 'src/app/modules/auth/core/roles/roleDefinitions'
 
 const AsistenciaPermisoTable = () => {
   const tiposPermiso = useQueryResponseData()
   const isLoading = useQueryResponseLoading()
   const data = useMemo(() => tiposPermiso, [tiposPermiso])
-  const {isAdminComision} = usePermissions()
-  const columns = useMemo(() => getColumns({isAdmin: isAdminComision}), [isAdminComision])
+  const {currentUser} = useAuth()
+  const canManage = currentUser?.groups ? canManageComisiones(currentUser.groups) : false
+  const columns = useMemo(() => getColumns({isAdmin: canManage}), [canManage])
 
   const {getTableProps, getTableBodyProps, headers, rows, prepareRow} = useTable({
     columns,

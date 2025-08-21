@@ -24,9 +24,10 @@ import {useApiFieldErrors} from 'src/app/hooks/useApiFieldErrors'
 import {FormActions} from 'src/app/modules/components/FormActions'
 import {DatePickerField} from 'src/app/modules/components/DatePickerField'
 import AsyncSelectField from '../../../../comision/comision-list/comision-edit-modal/components/AsyncSelectField'
-import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
 import {useAuth} from 'src/app/modules/auth'
 import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
+import {usePermissions} from 'src/app/modules/auth/hooks/usePermissions'
+import { canManageComisiones } from 'src/app/modules/auth/core/roles/roleDefinitions'
 
 // import AsyncSelectFieldDebug from '../../../../comision/comision-list/comision-edit-modal/components/AsyncSelectFieldDebug'
 
@@ -52,10 +53,11 @@ const EditModalForm: FC<Props> = ({
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const {isAdminComision} = usePermissions()
+  const {currentUser} = useAuth()
+  const canManage = currentUser?.groups ? canManageComisiones(currentUser.groups) : false
+
   const {setApiErrors, getFieldError, clearFieldError} = useApiFieldErrors()
   const [limiteDias, setLimiteDias] = useState<number | null>(null)
-  const {currentUser} = useAuth()
 
   const [asistenciaPermisoForEdit] = useState<AsistenciaPermiso>({
     ...asistenciaPermiso,
@@ -80,7 +82,7 @@ const EditModalForm: FC<Props> = ({
   const formik = useFormik({
     initialValues: asistenciaPermisoForEdit,
     validationSchema: asistenciaPermisoSchema({
-      isAdmin: isAdminComision,
+      isAdmin: canManage,
       limiteDias,
     }),
     onSubmit: async (values, {setSubmitting}) => {
@@ -166,8 +168,8 @@ const EditModalForm: FC<Props> = ({
   ]
 
   const getFilteredTiposPermisos = () => {
-    console.log(tiposPermisos);
-    
+    // console.log(tiposPermisos);
+
     const isDocente = currentUser?.personal?.tipo_personal === 'DOCENTE'
 
     if (isDocente) {
@@ -195,7 +197,7 @@ const EditModalForm: FC<Props> = ({
         onSubmit={formik.handleSubmit}
       >
         <div className='me-n7 pe-7 pt-5'>
-          {isAdminComision && (
+          {canManage && (
             <div className='fv-row mb-7 px-1'>
               <label className='required fw-bold fs-6 mb-2'>Solicitante:</label>
               {asistenciaPermiso.id_asistencia_permiso ? (

@@ -5,6 +5,7 @@ export type EstadoType = 'GENERADO' | 'ENVIADO' | 'RECEPCIONADO' | 'APROBADO' | 
 
 export type AsistenciaPermiso = {
   id_asistencia_permiso: ID
+  id_temporal?: string
   id_persona?: ID
   id_tipo_permiso: number | null
   id_usuario_generador?: number | null

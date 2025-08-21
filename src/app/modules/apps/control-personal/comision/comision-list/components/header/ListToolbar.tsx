@@ -8,12 +8,12 @@ import Tooltip from '@mui/material/Tooltip'
 import Swal from 'sweetalert2'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
 import {aprobarComisiones, procesarEstadoComision, verficarAsignacion} from '../../core/_requests'
-import {ApiResponse} from '../../core/_models'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {initialQueryState} from '../../../../../../../../_metronic/helpers'
-import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
 import {showAlert} from 'src/app/utils/swalHelpers.ts'
-import {useAuth} from 'src/app/modules/auth'
+import {useAuth} from 'src/app/modules/auth/core/Auth'
+import { canManageComisiones } from 'src/app/modules/auth/core/roles/roleDefinitions'
+import { APP_ROLES } from 'src/app/modules/auth/core/roles'
 
 const textApproveHTML = `
   Esta acción cambiará el estado de 
@@ -26,8 +26,23 @@ const ListToolbar = () => {
   const queryClient = useQueryClient()
   const {query, refetch} = useQueryResponse()
   const {updateState} = useQueryRequest()
-  const {isAdminComision} = usePermissions()
   const {currentUser} = useAuth()
+
+  // ✅ Lógica corregida para verificar permisos de gestión
+  const canManage = currentUser?.groups 
+    ? canManageComisiones(currentUser.groups) 
+    : false
+
+  // ✅ Verificar si es docente administrativo (para bloquear completamente)
+  const isDocenteAdministrativo = 
+    currentUser?.personal?.tipo_personal === 'DOCENTE' && 
+    currentUser?.groups?.includes(APP_ROLES.ADMINISTRATIVO)
+
+
+  // ✅ Si es docente administrativo, no mostrar nada (ya debería estar bloqueado en la ruta)
+  // if (isDocenteAdministrativo) {
+  //   return null
+  // }
 
   const openAddModal = async () => {
     if (!currentUser) {
@@ -39,7 +54,7 @@ const ListToolbar = () => {
       return
     }
 
-    // 3. Usar optional chaining para propiedades anidadas
+    // Verificar asignación activa para crear comisiones
     if (currentUser.active_asignacion?.active) {
       setItemIdForUpdate(null)
       setAccion('editar')
@@ -48,11 +63,13 @@ const ListToolbar = () => {
       await showAlert({
         title: 'Sin asignación activa',
         text:
-          currentUser.active_asignacion?.message || 'No cumples con los requisitos para esta acción',
+          currentUser.active_asignacion?.message ||
+          'No cumples con los requisitos para esta acción',
         icon: 'info',
       })
     }
   }
+
   const openReportModal = () => {
     setAccion('report')
     setIsShow(true)
@@ -60,12 +77,9 @@ const ListToolbar = () => {
 
   const approveItem = useMutation(() => aprobarComisiones(), {
     onSuccess: (data) => {
-      // data es la respuesta del backend: { status, error, message, data }
       queryClient.invalidateQueries([`${QUERIES.COMISIONES_LIST}-${query}`])
       updateState({filter: undefined, ...initialQueryState})
-
       console.log(data?.message)
-
       toast.success(data?.message || 'Comisión aprobada correctamente', {
         position: 'top-right',
         autoClose: 5000,
@@ -78,7 +92,6 @@ const ListToolbar = () => {
     },
     onError: (error) => {
       throw error
-      // toast.error('Ocurrió un error al aprobar las comisiones')
     },
   })
 
@@ -99,7 +112,6 @@ const ListToolbar = () => {
           cancelButton: 'btn btn-danger',
         },
       })
-
       if (result.isConfirmed) {
         await approveItem.mutateAsync()
       }
@@ -110,7 +122,8 @@ const ListToolbar = () => {
 
   return (
     <div className='row g-2'>
-      {isAdminComision && (
+      {/* ✅ Solo mostrar botones de gestión para administradores y control_personal */}
+      {canManage && (
         <>
           <div className='col-12 col-md-auto'>
             <Button className='btn-light-warning w-100' onClick={openReportModal}>
@@ -118,7 +131,6 @@ const ListToolbar = () => {
               Generar Reporte
             </Button>
           </div>
-
           <div className='col-6 col-md-auto'>
             <Tooltip title='Aprobar todas las comisiones' arrow placement='top'>
               <Button className='btn-light-success w-100' onClick={handleApprove}>
@@ -129,11 +141,12 @@ const ListToolbar = () => {
           </div>
         </>
       )}
-
+      
       <div className='col-6 col-md-auto text-end'>
         <ListFilter />
       </div>
-
+      
+      {/* ✅ Botón crear - disponible para todos (excepto docentes administrativos) */}
       <div className='col-12 col-md-auto'>
         <Button variant='primary' className='w-100' onClick={openAddModal}>
           <KTIcon iconName='plus' className='fs-2' />

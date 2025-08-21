@@ -7,28 +7,34 @@ import {useListView} from '../../core/ListViewProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
 import {COMISION_URL, deleteComision, procesarEstadoComision} from '../../core/_requests'
 import {toast} from 'react-toastify'
-import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
 import {showToast} from 'src/app/utils/toastHelper'
 import {showConfirmDialog} from 'src/app/utils/swalHelpers.ts'
 import {getPermisosComision} from 'src/app/modules/auth/core/permissions'
 import {API_ROUTES} from 'src/app/config/apiRoutes'
+import {usePermissions} from 'src/app/modules/auth/hooks/usePermissions'
+import {useAuth} from 'src/app/modules/auth'
+import {canManageComisiones} from 'src/app/modules/auth/core/roles/roleDefinitions'
 
 type Props = {
   id: ID
   estado?: 'GENERADO' | 'ENVIADO' | 'RECEPCIONADO' | 'APROBADO' | 'OBSERVADO' // Add estado prop for comision-specific actions
-  hash?: string,
-  tipo?: string,
+  hash?: string
+  tipo?: string
 }
 
 const ActionsCell: FC<Props> = ({id, estado, hash, tipo}) => {
   const {setAccion, setItemIdForUpdate, setIsShow} = useListView()
-  const {canManageComisiones} = usePermissions()
+  const {currentUser} = useAuth()
+  const canManage = currentUser?.groups ? canManageComisiones(currentUser.groups) : false
+  // const canManageUsers = permissions.canManage // Para mostrar campo de solicitante
+  // const canEditAdvanced = permissions.canEdit || permissions.canManage
+
   const {query} = useQueryResponse()
   const queryClient = useQueryClient()
 
   const permisos = getPermisosComision({
     estado: estado || 'GENERADO',
-    puedeGestionar: canManageComisiones,
+    puedeGestionar: canManage,
   })
   // console.log(currentUser?.groups)
 
@@ -107,7 +113,9 @@ const ActionsCell: FC<Props> = ({id, estado, hash, tipo}) => {
       // Si está en GENERADO, mostrar confirmación
       const result = await showConfirmDialog({
         title: '¿Está seguro?',
-        html: `<div>Una vez que imprima, ${tipo =='CAJA SALUD' ? 'el permiso': 'la comisión'} <strong>no podrá ser modificado</strong> y se marcará como </div><span class="badge badge-light-warning fs-5 mt-3">ENVIADO</span>`,
+        html: `<div>Una vez que imprima, ${
+          tipo == 'CAJA SALUD' ? 'el permiso' : 'la comisión'
+        } <strong>no podrá ser modificado</strong> y se marcará como </div><span class="badge badge-light-warning fs-5 mt-3">ENVIADO</span>`,
         icon: 'warning',
         confirmButtonText: 'Sí, imprimir',
       })
@@ -141,7 +149,7 @@ const ActionsCell: FC<Props> = ({id, estado, hash, tipo}) => {
   const handleApprove = async () => {
     try {
       const result = await showConfirmDialog({
-        title: `¿Aprobar ${tipo === 'CAJA SALUD'?'el permiso':'la comisión'}?`,
+        title: `¿Aprobar ${tipo === 'CAJA SALUD' ? 'el permiso' : 'la comisión'}?`,
         html: 'Esta acción cambiará el estado a <span class="badge badge-light-success">APROBADO</span>',
         icon: 'question',
         confirmButtonText: 'Sí, aprobar',

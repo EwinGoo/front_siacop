@@ -58,7 +58,7 @@ export const getColumns = ({
     },
     {
       Header: (props) => <CustomHeader tableProps={props} title='Código' className='min-w-100px' />,
-      accessor: 'id_asistencia_permiso',
+      accessor: 'id_temporal',
     },
     {
       Header: (props) => (

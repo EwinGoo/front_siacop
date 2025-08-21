@@ -22,6 +22,7 @@ export const PERMISSIONS = {
     MANAGE: 'feriado_asueto.manage',
   },
   COMISION: {
+    VIEW_FULL_ACCESS: 'comision.view_full_access', // Nuevo permiso específico
     VIEW: 'comision.view',
     CREATE: 'comision.create',
     EDIT: 'comision.edit',

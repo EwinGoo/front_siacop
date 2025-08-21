@@ -1,3 +1,4 @@
+// PrivateRoutes.tsx (versión actualizada)
 import {lazy, FC, Suspense} from 'react'
 import {Route, Routes, Navigate} from 'react-router-dom'
 import {MasterLayout} from '../../_metronic/layout/MasterLayout'
@@ -10,7 +11,7 @@ import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
 import {ProtectedRoute} from '../modules/auth/core/ProtectedRoute'
 import AccessDeniedPage from '../pages/AccessDeniedPage'
 import {GestionQrPage} from '../modules/apps/control-personal/gestion-qr'
-// import AsistenciaPermisoPage from '../modules/apps/control-personal/permisos/asistencia-permisos/AsistenciaPermisoPage'
+import { PERMISSIONS } from '../modules/auth/core/roles/permissions'
 
 const PrivateRoutes = () => {
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
@@ -99,6 +100,7 @@ const PrivateRoutes = () => {
                 </SuspensedView>
               }
             />
+            {/* Mantienes compatibilidad con el sistema anterior durante la migración */}
             <Route
               path='apps/gestion-persona/*'
               element={
@@ -112,90 +114,86 @@ const PrivateRoutes = () => {
           </>
         )}
 
-        {/* <Route
-          path='apps/control-personal/*'
-          element={
-            <SuspensedView>
-              <PersonPage />
-            </SuspensedView>
-          }
-        /> */}
+        {/* RUTAS ACTUALIZADAS CON NUEVO SISTEMA DE PERMISOS */}
+        
+        {/* Feriados y Asuetos - requiere permiso específico */}
         <Route
           path='apps/feriados-asuetos/*'
           element={
             <SuspensedView>
-              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
+              <ProtectedRoute requiredSpecificPermissions={[PERMISSIONS.FERIADO_ASUETO.VIEW]}>
                 <FeriadoAsuetoPage />
               </ProtectedRoute>
             </SuspensedView>
           }
         />
+        
+        {/* Asistencias y Permisos - requiere al menos ver */}
         <Route
           path='apps/asistencias-permisos/*'
           element={
             <SuspensedView>
-              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL','ADMINISTRATIVO']}>
+              <ProtectedRoute requiredSpecificPermissions={[PERMISSIONS.ASISTENCIA_PERMISO.VIEW]}>
                 <AsistenciaPermisoPage />
               </ProtectedRoute>
             </SuspensedView>
           }
         />
+        
+        {/* Tipos de Permisos */}
         <Route
           path='apps/tipos-permisos/*'
           element={
             <SuspensedView>
-              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
+              <ProtectedRoute requiredSpecificPermissions={[PERMISSIONS.TIPO_PERMISO.VIEW]}>
                 <TipoPermisoPage />
               </ProtectedRoute>
             </SuspensedView>
           }
         />
+        
+        {/* Comisiones */}
         <Route
           path='apps/comisiones/*'
           element={
             <SuspensedView>
-              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL','ADMINISTRATIVO']}>
+              <ProtectedRoute requiredSpecificPermissions={[PERMISSIONS.COMISION.VIEW]} excludeDocenteAdministrativo={true}>
                 <ComisionPage />
               </ProtectedRoute>
             </SuspensedView>
           }
         />
+        
+        {/* Gestión QR */}
         <Route
           path='apps/gestion-qr'
           element={
             <SuspensedView>
-              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
+              <ProtectedRoute requiredSpecificPermissions={[PERMISSIONS.GESTION_QR.VIEW]}>
                 <GestionQrPage />
               </ProtectedRoute>
             </SuspensedView>
           }
         />
+        
+        {/* Declaratoria de Comisión - requiere múltiples permisos alternativos */}
         <Route
           path='apps/declaratoria-comision/*'
           element={
             <SuspensedView>
-              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL', 'SECRETARIA_RRHH']}>
+              <ProtectedRoute 
+                requiredSpecificPermissions={[
+                  PERMISSIONS.DECLARATORIA_COMISION.VIEW,
+                  PERMISSIONS.DECLARATORIA_COMISION.CREATE
+                ]}
+                requireAllPermissions={false} // OR logic - al menos uno
+              >
                 <DeclaratoriaComisionPage />
               </ProtectedRoute>
             </SuspensedView>
           }
         />
-        {/* <Route
-          path='apps/asistencia/*'
-          element={
-            <SuspensedView>
-              <ComisionPage />
-            </SuspensedView>
-          }
-        /> */}
-        {/* <Route
-          path='apps/biometricos/*'
-          element={
-            <SuspensedView>
-              <ComisionPage />
-            </SuspensedView>
-          }
-        /> */}
+
         {/* Page Not Found */}
         <Route path='*' element={<Navigate to='/error/404' />} />
         <Route path='/acceso-denegado' element={<AccessDeniedPage />} />
@@ -205,7 +203,6 @@ const PrivateRoutes = () => {
 }
 
 const SuspensedView: FC<WithChildren> = ({children}) => {
-  // const baseColor = getCSSVariableValue('--bs-primary')
   const baseColor = getCSSVariableValue('--bs-primary') || '#0d6efd'
   TopBarProgress.config({
     barColors: {

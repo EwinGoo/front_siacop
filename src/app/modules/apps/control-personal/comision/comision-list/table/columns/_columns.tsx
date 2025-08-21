@@ -10,14 +10,26 @@ import {DetallesCell} from './DetallesCell'
 import {EstadoBadge} from '../components/EstadoBadge'
 import HorarioCell from './HorarioCell'
 
-type GetColumnsProps = {
-  isAdmin: boolean
+// type GetColumnsProps = {
+//   isAdmin: boolean
+// }
+
+interface ComisionTablePermissions {
+  canView: boolean
+  canEdit: boolean
+  canDelete: boolean
+  canCreate: boolean
+  canManage: boolean
+  hasActionPermissions: boolean // Computed property
 }
 
-export const getColumns = ({isAdmin}: GetColumnsProps): ReadonlyArray<Column<Comision>> => {
+export const getColumns = (
+  permissions: ComisionTablePermissions
+): ReadonlyArray<Column<Comision>> => {
   const columns: Column<Comision>[] = []
 
-  if (isAdmin) {
+  // if (isAdmin) {
+  if (permissions.canManage) {
     columns.push({
       Header: (props) => <SelectionHeader tableProps={props} />,
       id: 'selection',
@@ -54,7 +66,7 @@ export const getColumns = ({isAdmin}: GetColumnsProps): ReadonlyArray<Column<Com
     },
     {
       Header: (props) => <CustomHeader tableProps={props} title='Código' className='min-w-100px' />,
-      accessor: 'id_comision',
+      accessor: 'id_temporal',
     },
     {
       Header: (props) => (
