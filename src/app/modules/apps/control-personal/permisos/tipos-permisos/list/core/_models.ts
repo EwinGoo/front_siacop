@@ -4,7 +4,7 @@ export type TipoPermiso = {
   id_tipo_permiso?: ID;
   nombre: string;
   descripcion?: string | null;
-  tipo_permiso?: 'PERSONAL' | 'PERMISO';  // Nuevo campo enum
+  tipo_permiso?: 'COMISION' | 'PERMISO';  // Nuevo campo enum
   // requiere_hoja_ruta?: boolean | '0' | '1';  // Nuevo campo (puede ser boolean o string)
   instruccion?: string | null;  // Nuevo campo
   limite_dias?: number | null;  // Nuevo campo
@@ -56,7 +56,7 @@ export const initialTipoPermiso: TipoPermiso = {
   tipo_permiso: 'PERMISO', // Valor por defecto
   // requiere_hoja_ruta: false, // O '1' si prefieres mantener el formato string
   instruccion: '',
-  limite_dias: undefined,
+  limite_dias: null,
 };
 
 export interface TipoPermisoPayload extends Omit<TipoPermiso, 'requiere_hoja_ruta'> {

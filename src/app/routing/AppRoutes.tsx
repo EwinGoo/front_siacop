@@ -11,8 +11,8 @@ import {PrivateRoutes} from './PrivateRoutes'
 import {ErrorsPage} from '../modules/errors/ErrorsPage'
 import {Logout, AuthPage, useAuth} from '../modules/auth'
 import {App} from '../App'
-import { ExternalRedirect } from './components/ExternalRedirect'
-import { API_URL } from '../config/apiRoutes'
+import {ExternalRedirect} from './components/ExternalRedirect'
+import {API_URL} from '../config/apiRoutes'
 
 /**
  * Base URL of the website.
@@ -20,6 +20,7 @@ import { API_URL } from '../config/apiRoutes'
  * @see https://facebook.github.io/create-react-app/docs/using-the-public-folder
  */
 // const {PUBLIC_URL} = process.env.REACT_APP_ENVIRONMENT || ''
+const enviroment = process.env.REACT_APP_ENVIRONMENT || ''
 
 const AppRoutes: FC = () => {
   const {currentUser} = useAuth()
@@ -31,14 +32,19 @@ const AppRoutes: FC = () => {
           <Route path='logout' element={<Logout />} />
           {currentUser ? (
             <>
+              {enviroment === 'production' && (
+                <Route index element={<ExternalRedirect url={`${API_URL}`} />} />
+              )}
               <Route path='/*' element={<PrivateRoutes />} />
-              <Route index element={<Navigate to='/dashboard' />} />
+              {enviroment === 'development' && (
+                <Route index element={<Navigate to='/dashboard' />} />
+              )}
               {/* <Route index element={<Navigate to='/principal' />} /> */}
             </>
           ) : (
             <>
               <Route path='*' element={<ExternalRedirect url={`${API_URL}/login`} />} />
-              <Route path='auth/*' element={<ExternalRedirect  url={`${API_URL}/login`} />} />
+              <Route path='auth/*' element={<ExternalRedirect url={`${API_URL}/login`} />} />
               {/* <Route path='auth/*' element={<AuthPage />} />
               <Route path='auth/*' element={<AuthPage />} />
               <Route path='auth/*' element={<AuthPage />} />

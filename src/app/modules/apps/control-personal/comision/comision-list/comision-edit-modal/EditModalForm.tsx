@@ -1,8 +1,8 @@
-import {FC, useState, useCallback, useEffect} from 'react'
+import {FC, useState, useCallback, useEffect, useMemo} from 'react'
 import clsx from 'clsx'
 import {useFormik} from 'formik'
 import {toast} from 'react-toastify'
-import {isNotEmpty, KTIcon} from 'src/_metronic/helpers'
+import {ID, isNotEmpty, KTIcon} from 'src/_metronic/helpers'
 import {initialComision, Comision} from '../core/_models'
 import {useListView} from '../core/ListViewProvider'
 import {createComision, getPersonaAutocomplete, updateComision} from '../core/_requests'
@@ -21,9 +21,10 @@ type Props = {
   isLoading: boolean
   comision: Comision
   onClose: () => void
+  tipoPermiso?: any // El objeto completo del tipo de permiso
 }
 
-const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
+const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
   const {isAdminComision} = usePermissions()
@@ -36,12 +37,24 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
     recorrido_de: comision.recorrido_de || initialComision.recorrido_de,
     recorrido_a: comision.recorrido_a || initialComision.recorrido_a,
     fecha_comision: comision.fecha_comision || initialComision.fecha_comision,
+    fecha_comision_fin: comision.fecha_comision_fin || initialComision.fecha_comision_fin,
     hora_salida: comision.hora_salida || initialComision.hora_salida,
     hora_retorno: comision.hora_retorno || initialComision.hora_retorno,
-    tipo_comision: comision.tipo_comision || initialComision.tipo_comision,
-    estado_boleta_comision:
-      comision.estado_boleta_comision || initialComision.estado_boleta_comision,
+    id_tipo_permiso: comision.id_tipo_permiso || initialComision.id_tipo_permiso,
+    estado_boleta_comision: comision.estado_boleta_comision || initialComision.estado_boleta_comision,
   })
+
+  // Determinar el tipo actual basado en tipoPermiso
+  const tipoActual = useMemo(() => {
+    if (tipoPermiso?.nombre) {
+      return tipoPermiso.nombre
+    }
+    if (comision.tipo_comision) {
+      return comision.tipo_comision
+    }
+    return 'PERSONAL' // Valor por defecto
+  }, [tipoPermiso, comision.tipo_comision])
+
 
   const cancel = (withRefresh?: boolean) => {
     if (withRefresh) {
@@ -51,26 +64,30 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
   }
 
   const formik = useFormik({
-    initialValues: comisionForEdit,
-    validationSchema: () => editComisionSchema({isAdmin: isAdminComision}),
-    // validationSchema: null, // Elimina el schema de validación
-    // validateOnBlur: false, // Desactiva validación al perder foco
-    // validateOnChange: false,
+    initialValues: {
+      ...comisionForEdit,
+      tipo_comision: tipoActual,
+      id_tipo_permiso: tipoPermiso?.id_tipo_permiso || comisionForEdit.id_tipo_permiso
+    },
+    validationSchema: () => editComisionSchema({isAdmin: isAdminComision, tipoPermiso: tipoActual}),
     onSubmit: async (values, {setSubmitting}) => {
       setSubmitting(true)
       setApiErrors({})
 
       try {
+        // Asegurar que se envíen los valores correctos del tipo
+        const dataToSend = {
+          ...values,
+          tipo_comision: tipoActual,
+          id_tipo_permiso: tipoPermiso?.id_tipo_permiso || values.id_tipo_permiso
+        }
+
         if (isNotEmpty(values.id_comision)) {
-          const res = await updateComision(values)
-          // console.log(res);
-          
-          toast.success('Registro actualizada correctamente')
-          // toast.success('Comisión actualizada correctamente')
+          const res = await updateComision(dataToSend)
+          toast.success('Registro actualizado correctamente')
         } else {
-          await createComision(values)
-          // toast.success('Comisión creada correctamente')
-          toast.success('Registro creada correctamente')
+          await createComision(dataToSend)
+          toast.success('Registro creado correctamente')
         }
         cancel(true)
         onClose()
@@ -88,10 +105,6 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
     },
   })
 
-  // useEffect(() => {
-  //   console.log('Formik values:', formik.values)
-  // }, [formik.values])
-
   const getFieldError = (fieldName: string) => {
     return formik.errors[fieldName] || apiErrors[fieldName]
   }
@@ -99,15 +112,17 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
   const isFieldValid = (fieldName: string) => {
     return !(formik.touched[fieldName] && getFieldError(fieldName))
   }
+
   interface OptionType {
     value: number
     label: string
+    id_asignacion_administrativo?: ID
   }
 
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null)
+  
   const fetchPersonaOptions = async (input: string): Promise<OptionType[]> => {
     const response = await getPersonaAutocomplete(input)
-
     return response.sugerencias.map((item) => ({
       value: item.id,
       label: item.texto,
@@ -120,15 +135,84 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
     clearFieldError(fieldName)
   }
 
+  // Funciones para determinar qué campos mostrar según el tipo
+  const esTipoPersonalOTransporte = () => {
+    return tipoActual === 'PERSONAL' || tipoActual === 'TRANSPORTE'
+  }
+
+  const esTipoCajaSalud = () => {
+    return tipoActual === 'CAJA SALUD'
+  }
+
+  const esTipoFisioterapia = () => {
+    return tipoActual === 'FISIOTERAPIA'
+  }
+
+  const mostrarRecorrido = () => {
+    return esTipoPersonalOTransporte()
+  }
+
+  const mostrarFechaFin = () => {
+    return esTipoFisioterapia()
+  }
+
+  // Funciones para obtener labels dinámicos
+  const getLabelFecha = () => {
+    if (esTipoCajaSalud()) return 'Fecha de atención'
+    if (esTipoFisioterapia()) return 'Fecha inicio'
+    return 'Fecha comisión'
+  }
+
+  const getLabelHoraSalida = () => {
+    if (esTipoFisioterapia()) return 'Hora llegada'
+    return 'Hora salida'
+  }
+
+  const getLabelHoraRetorno = () => {
+    if (esTipoFisioterapia()) return 'Hora salida'
+    return 'Hora retorno'
+  }
+
+  const getLabelDescripcion = () => {
+    if (esTipoCajaSalud()) return 'Razón de atención'
+    if (esTipoFisioterapia()) return 'Motivo de fisioterapia'
+    return 'Motivo de la comisión'
+  }
+
+  // Establecer opción seleccionada en modo edición
+  useEffect(() => {
+    if (comision.id_comision && comision.id_usuario_generador && comision.nombre_generador) {
+      setSelectedOption({
+        value: comision.id_usuario_generador,
+        label: `${comision.ci || ''} - ${comision.nombre_generador}`,
+        id_asignacion_administrativo: comision.id_asignacion_administrativo
+      })
+    }
+  }, [comision])
+
   return (
     <>
       <form id='kt_modal_add_comision_form' className='form' onSubmit={formik.handleSubmit}>
         <div className='d-flex flex-column scroll-y me-n7 pe-7 pt-5'>
+          
+          {/* Mostrar información del tipo seleccionado */}
+          {/* {tipoPermiso && (
+            <div className='alert alert-light-primary d-flex align-items-center p-5 mb-7'>
+              <KTIcon iconName='information-5' className='fs-2hx text-primary me-4' />
+              <div className='d-flex flex-column'>
+                <h5 className='fw-bold mb-1'>Tipo seleccionado: {tipoPermiso.nombre}</h5>
+                <span className='text-muted fs-7'>
+                  {tipoPermiso.tipo_permiso} 
+                  {tipoPermiso.requiere_hoja_ruta === '1' && ' • Requiere hoja de ruta'}
+                </span>
+              </div>
+            </div>
+          )} */}
+
           {isAdminComision && (
             <div className='fv-row mb-7 px-1'>
               <label className='required fw-bold fs-6 mb-2'>Solicitante:</label>
               {comision.id_comision ? (
-                // Modo edición - mostrar campo readonly
                 <input
                   type='text'
                   className='form-control form-control-solid'
@@ -140,7 +224,7 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
                   value={selectedOption}
                   onChange={(selected) => {
                     setSelectedOption(selected)
-                    // formik.setFieldValue('id_usuario_generador', selected?.value ?? '')
+                    formik.setFieldValue('id_usuario_generador', selected?.value ?? '')
                     formik.setFieldValue(
                       'id_asignacion_administrativo',
                       selected?.id_asignacion_administrativo ?? ''
@@ -159,41 +243,27 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
             </div>
           )}
 
-          {/* Tipo de Comisión */}
-          <div className='fv-row mb-7 px-1 d-none'>
-            <label className='required fw-bold fs-6 mb-2'>Tipo Comisión</label>
-            <select
-              {...formik.getFieldProps('tipo_comision')}
-              className={clsx('form-control form-control-solid', {
-                'is-invalid': !isFieldValid('tipo_comision'),
-                'is-valid': formik.touched.tipo_comision && isFieldValid('tipo_comision'),
-              })}
-              // disabled={formik.isSubmitting}
-            >
-              <option value='PERSONAL'>Comisión</option>
-              <option value='TRANSPORTE'>Transporte</option>
-              <option value='CAJA SALUD'>Caja de Salud</option>
-            </select>
-            {!isFieldValid('tipo_comision') && (
-              <div className='fv-plugins-message-container'>
-                <span role='alert'>{getFieldError('tipo_comision')}</span>
-              </div>
-            )}
-          </div>
+          {/* Campos ocultos para el tipo */}
+          <input
+            type='hidden'
+            name='tipo_comision'
+            value={tipoActual}
+          />
+          <input
+            type='hidden'
+            name='id_tipo_permiso'
+            value={tipoPermiso?.id_tipo_permiso || ''}
+          />
 
-          {/* Fecha */}
+          {/* Fecha de inicio */}
           <div className='fv-row mb-7 px-1'>
-            <label className='required fw-bold fs-6 mb-2'>
-              Fecha {formik.values.tipo_comision === 'CAJA SALUD' ? '' : 'comisión'}
-            </label>
-            {isAdminComision ? (
+            <label className='required fw-bold fs-6 mb-2'>{getLabelFecha()}</label>
+            {isAdminComision || mostrarFechaFin()? (
               <DatePickerField
                 field={formik.getFieldProps('fecha_comision')}
                 form={formik}
                 isFieldValid={isFieldValid('fecha_comision')}
                 isSubmitting={formik.isSubmitting}
-                // onChange={handleChange('fecha_fin_permiso')}
-                // onChange={([date]) => handleChange('fecha_comision')(date)}
                 onChange={handleChange('fecha_comision')}
                 onBlur={() => formik.setFieldTouched('fecha_comision', true)}
               />
@@ -212,10 +282,39 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
             )}
           </div>
 
+          {/* Fecha fin - Solo para fisioterapia */}
+          {mostrarFechaFin() && (
+            <div className='fv-row mb-7 px-1'>
+              <label className='required fw-bold fs-6 mb-2'>Fecha fin</label>
+              {isAdminComision || mostrarFechaFin()? (
+                <DatePickerField
+                  field={formik.getFieldProps('fecha_comision_fin')}
+                  form={formik}
+                  isFieldValid={isFieldValid('fecha_comision_fin')}
+                  isSubmitting={formik.isSubmitting}
+                  onChange={handleChange('fecha_comision_fin')}
+                  onBlur={() => formik.setFieldTouched('fecha_comision_fin', true)}
+                />
+              ) : (
+                <SelectPickerField
+                  field={formik.getFieldProps('fecha_comision_fin')}
+                  form={formik}
+                  isFieldValid={isFieldValid('fecha_comision_fin')}
+                  isSubmitting={formik.isSubmitting}
+                />
+              )}
+              {!isFieldValid('fecha_comision_fin') && (
+                <div className='fv-plugins-message-container'>
+                  <span role='alert'>{getFieldError('fecha_comision_fin')}</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Horarios */}
           <div className='row mb-7 px-1'>
             <div className='col-md-6 fv-row'>
-              <label className='required fw-bold fs-6 mb-2'>Hora Salida</label>
+              <label className='required fw-bold fs-6 mb-2'>{getLabelHoraSalida()}</label>
               <input
                 type='time'
                 {...formik.getFieldProps('hora_salida')}
@@ -232,7 +331,7 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
               )}
             </div>
             <div className='col-md-6 fv-row'>
-              <label className='required fw-bold fs-6 mb-2'>Hora Retorno</label>
+              <label className='required fw-bold fs-6 mb-2'>{getLabelHoraRetorno()}</label>
               <input
                 type='time'
                 {...formik.getFieldProps('hora_retorno')}
@@ -250,7 +349,8 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
             </div>
           </div>
 
-          {formik.values.tipo_comision !== 'CAJA SALUD' && (
+          {/* Recorrido - Solo para PERSONAL y TRANSPORTE */}
+          {mostrarRecorrido() && (
             <div className='row mb-7 px-1'>
               <div className='col-md-6 fv-row'>
                 <label className='required fw-bold fs-6 mb-2'>Punto de partida (Desde)</label>
@@ -261,6 +361,7 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
                     'is-valid': formik.touched.recorrido_de && isFieldValid('recorrido_de'),
                   })}
                   disabled={formik.isSubmitting}
+                  placeholder='Ej: Oficina central, Hospital, etc.'
                 />
                 {!isFieldValid('recorrido_de') && (
                   <div className='fv-plugins-message-container'>
@@ -277,6 +378,7 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
                     'is-valid': formik.touched.recorrido_a && isFieldValid('recorrido_a'),
                   })}
                   disabled={formik.isSubmitting}
+                  placeholder='Ej: Banco, Municipio, Cliente, etc.'
                 />
                 {!isFieldValid('recorrido_a') && (
                   <div className='fv-plugins-message-container'>
@@ -289,9 +391,7 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
 
           {/* Descripción */}
           <div className='fv-row mb-7 px-1'>
-            <label className='required fw-bold fs-6 mb-2'>
-              {formik.values.tipo_comision === 'CAJA SALUD' ? 'Razón de atención' : 'Motivo de la comisión'}
-            </label>
+            <label className='required fw-bold fs-6 mb-2'>{getLabelDescripcion()}</label>
             <textarea
               {...formik.getFieldProps('descripcion_comision')}
               className={clsx('form-control form-control-solid', {
@@ -301,6 +401,13 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
               })}
               rows={3}
               disabled={formik.isSubmitting}
+              placeholder={
+                esTipoCajaSalud() 
+                  ? 'Describa la razón de la atención médica...'
+                  : esTipoFisioterapia()
+                  ? 'Describa el motivo de la fisioterapia...'
+                  : 'Describa el motivo de la comisión...'
+              }
             />
             {!isFieldValid('descripcion_comision') && (
               <div className='fv-plugins-message-container'>
@@ -308,16 +415,27 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose}) => {
               </div>
             )}
           </div>
-          {/* )} */}
 
-          {/* Ruta */}
+          {/* Mostrar instrucciones según el tipo */}
+          {/* {tipoPermiso?.instruccion && (
+            <div className='fv-row mb-7 px-1'>
+              <div className='alert alert-warning'>
+                <h6 className='fw-bold mb-2'>
+                  <KTIcon iconName='information-5' className='fs-6 me-2' />
+                  Instrucciones importantes:
+                </h6>
+                <div dangerouslySetInnerHTML={{ __html: tipoPermiso.instruccion }} />
+              </div>
+            </div>
+          )} */}
         </div>
 
         {/* Actions */}
         <FormActions
           onClose={onClose}
           isSubmitting={formik.isSubmitting}
-          isValid={formik.isValid}
+          // isValid={formik.isValid}
+          isValid={true}
           isEdit={!!comision.id_comision}
         />
       </form>

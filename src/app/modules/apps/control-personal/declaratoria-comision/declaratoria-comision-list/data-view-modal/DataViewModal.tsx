@@ -197,6 +197,14 @@ const DataViewModal: React.FC<DataViewModalProps> = ({isOpen, onClose, declarato
                       </div>
                       <div className='d-flex flex-column'>
                         <label className='fs-7 text-muted fw-bold text-uppercase mb-2'>
+                          Unidad Solicitante
+                        </label>
+                        <span className='fw-semibold text-gray-800 fs-6'>
+                          {declaratoria.descripcion_cua || 'No especificado'}
+                        </span>
+                      </div>
+                      <div className='d-flex flex-column'>
+                        <label className='fs-7 text-muted fw-bold text-uppercase mb-2'>
                           Tipo de Viático
                         </label>
                         <div className='d-flex align-items-center'>

@@ -139,7 +139,7 @@ const ActionsCell: FC<ActionsProps> = ({
         href='#'
         className='btn btn-light btn-active-light-primary btn-sm'
         data-kt-menu-trigger='click'
-        data-kt-menu-placement='bottom-end'
+        data-kt-menu-placement='bottom-left'
       >
         Acciones
         <KTIcon iconName='down' className='fs-5 m-0' />

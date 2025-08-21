@@ -36,7 +36,6 @@ type Props = {
 interface OptionType {
   value: number
   label: string
-  id_asignacion_administrativo?: number // Agregar este campo
 }
 
 const declaratoriaComisionSchema = Yup.object().shape({
@@ -178,13 +177,13 @@ const EditModalForm: FC<Props> = ({declaratoria, unidades, isDeclaratoriaLoading
     }))
   }
 
-  useEffect(() => {
-    if (Object.keys(formik.errors).length > 0) {
-      console.log(formik.values)
+  // useEffect(() => {
+  //   if (Object.keys(formik.errors).length > 0) {
+  //     console.log(formik.values)
 
-      console.log('Errores en el formulario:', formik.errors)
-    }
-  }, [formik.errors])
+  //     console.log('Errores en el formulario:', formik.errors)
+  //   }
+  // }, [formik.errors])
 
   return (
     <>

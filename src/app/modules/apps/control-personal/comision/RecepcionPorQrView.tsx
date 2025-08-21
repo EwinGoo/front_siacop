@@ -15,6 +15,7 @@ import {showAxiosError} from 'src/app/utils/showAxiosErrorToast'
 import {getAxiosErrorMessage} from 'src/app/utils/axiosErrorHandler'
 import {Comision, ProcesarComisionParams} from './comision-list/core/_models'
 import {ID} from 'src/_metronic/helpers'
+import RelojTiempoReal from './components/RelojTiempoReal'
 
 // Interfaces
 // interface Comision {
@@ -57,8 +58,9 @@ const RecepcionPorQrView: React.FC = () => {
   const {formatToBolivianDate} = useDateFormatter()
   const [modoRecepcion, setModoRecepcion] = useState<'automatico' | 'manual'>('manual')
   const modoRecepcionRef = useRef(modoRecepcion)
-  const [fechaHora, setFechaHora] = useState(() => getLocalDateTime())
+  // const [fechaHora, setFechaHora] = useState(() => getLocalDateTime())
   const [isPaused, setIsPaused] = useState<boolean>(false)
+  const [fechaHora, setFechaHora] = useState(new Date())
 
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined
@@ -68,7 +70,7 @@ const RecepcionPorQrView: React.FC = () => {
       interval = setInterval(() => {
         console.log(fechaHora)
 
-        setFechaHora(getLocalDateTime())
+        // setFechaHora(getLocalDateTime())
       }, 1000)
     }
 
@@ -424,7 +426,7 @@ const RecepcionPorQrView: React.FC = () => {
       const response = await procesarEstadoComision({
         code: parseInt(codigo),
         action: 'receive',
-        fecha: fechaHora,
+        // fecha: fechaHora,
       })
 
       await Swal.fire({
@@ -618,6 +620,15 @@ const RecepcionPorQrView: React.FC = () => {
     console.log(fechaHora)
   }, [fechaHora])
 
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setFechaHora(new Date())
+    }, 1000)
+
+    return () => clearInterval(timer) // limpieza
+  }, [])
+
   return (
     <>
       {/* <PageTitle breadcrumbs={[]}>
@@ -635,6 +646,7 @@ const RecepcionPorQrView: React.FC = () => {
                   Escáner de Códigos QR
                 </h3>
               </div>
+               {/* <RelojTiempoReal /> */}
             </div>
             <div className='card-body'>
               {modoRecepcion === 'automatico' && (
@@ -675,13 +687,13 @@ const RecepcionPorQrView: React.FC = () => {
                 <label htmlFor='fechaRecepcion' className='form-label mb-0 me-3'>
                   Fecha de Recepción:
                 </label>
-                <input
+                {/* <input
                   type='datetime-local'
                   id='fechaRecepcion'
                   className='form-control form-control-sm w-auto'
                   value={fechaHora}
                   onChange={(e) => setFechaHora(e.target.value)}
-                />
+                /> */}
               </div>
               <div className='d-flex justify-content-between align-items-center mt-3 mb-4'>
                 <div className='form-check form-switch form-switch-sm d-flex justify-content-between align-items-center w-100 p-0'>

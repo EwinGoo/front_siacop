@@ -34,7 +34,7 @@ const EditModalFormWrapper = ({onClose}) => {
   )
 
   const {data: tiposPermiso =[]} = useQuery(
-    'tipos-permiso',
+    'asistencia-tipos-permiso',
     getTiposPermiso,
     {
       staleTime: 1000 * 60 * 5, // 5 minutos de cache

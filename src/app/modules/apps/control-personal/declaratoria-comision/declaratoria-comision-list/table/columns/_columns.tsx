@@ -4,20 +4,20 @@ import {CustomHeader} from './CustomHeader'
 import {DeclaratoriaComision} from '../../core/_models'
 import {DateCell} from './DateCell'
 import ElaboracionCell from './ElaboracionCell'
-import { EstadoBadge } from '../../components/EstadoBadge'
+import {EstadoBadge} from '../../components/EstadoBadge'
 
 // Interfaces para tipado
 interface PDFData {
-  base64: string;
-  filename: string;
-  declaratoria: any;
+  base64: string
+  filename: string
+  declaratoria: any
 }
 
 interface ModalHandlers {
-  onShowPDF: (pdfData: PDFData) => void;
-  onShowData: (declaratoria: any) => void;
-  onSetLoading: (declaratoriaId: string, isLoading: boolean) => void;
-  getLoadingState: (declaratoriaId: string) => boolean;
+  onShowPDF: (pdfData: PDFData) => void
+  onShowData: (declaratoria: any) => void
+  onSetLoading: (declaratoriaId: string, isLoading: boolean) => void
+  getLoadingState: (declaratoriaId: string) => boolean
 }
 
 // Función que retorna las columnas con los handlers necesarios
@@ -25,8 +25,23 @@ const getColumns = ({
   onShowPDF,
   onShowData,
   onSetLoading,
-  getLoadingState
+  getLoadingState,
 }: ModalHandlers): ReadonlyArray<Column<DeclaratoriaComision>> => [
+  {
+    Header: (props) => (
+      <CustomHeader tableProps={props} title='Acciones' className='min-w-150px' />
+    ),
+    id: 'actions',
+    Cell: ({row}) => (
+      <ActionsCell
+        declaratoria={row.original}
+        onShowPDF={onShowPDF}
+        onShowData={onShowData}
+        onSetLoading={onSetLoading}
+        isLoading={getLoadingState(row.original.id_declaratoria_comision?.toString() || '')}
+      />
+    ),
+  },
   {
     Header: (props) => <CustomHeader tableProps={props} title='N°' className='min-w-50px' />,
     id: 'rowNumber',
@@ -75,21 +90,6 @@ const getColumns = ({
     Header: (props) => <CustomHeader tableProps={props} title='Estado' className='min-w-100px' />,
     accessor: 'estado',
     Cell: ({value}) => <EstadoBadge estado={value} />,
-  },
-  {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='Acciones' className='text-end min-w-150px' />
-    ),
-    id: 'actions',
-    Cell: ({row}) => (
-      <ActionsCell 
-        declaratoria={row.original}
-        onShowPDF={onShowPDF}
-        onShowData={onShowData}
-        onSetLoading={onSetLoading}
-        isLoading={getLoadingState(row.original.id_declaratoria_comision?.toString() || '')}
-      />
-    ),
   },
 ]
 

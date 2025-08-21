@@ -7,6 +7,7 @@ import {
   AsistenciaPermisoBackendData,
   AsistenciaTipoPermisoQueryResponseData,
   ProcesarComisionParams,
+  AutocompleteResponse,
 } from './_models'
 import {API_ROUTES, API_BASE_URL} from 'src/app/config/apiRoutes'
 import {TipoPermiso} from '../../../tipos-permisos/list/core/_models'
@@ -133,7 +134,7 @@ const uploadFile = (
   })
 }
 
-const procesarEstadoComision = (
+const procesarEstadoPermiso = (
   params: ProcesarComisionParams
 ): Promise<BackendResponse<AsistenciaPermisoBackendData>> => {
   // Estructura los datos según la acción
@@ -164,6 +165,27 @@ const aprobarSelectedPermisos= async (
   }
 }
 
+const getPersonaAutocomplete = async (termino: string): Promise<AutocompleteResponse> => {
+  try {
+    const response = await axiosClient.get(`${ASISTENCIA_PERMISO_URL}/autocompletar?termino=${termino}`)
+
+    const data = response.data
+
+    if (data.error) {
+      throw new Error(data.message || 'Error desconocido al obtener la comisión')
+    }
+
+    if (!data.sugerencias) {
+      throw new Error('No se encontraron sugerencias')
+    }
+
+    return data as AutocompleteResponse
+  } catch (error: any) {
+    console.error('Error en getPersonaAutocomplete:', error)
+    throw new Error(error.message || 'Error al obtener datos de autocompletado')
+  }
+}
+
 export {
   getAsistenciasPermiso,
   deleteAsistenciaPermiso,
@@ -175,7 +197,8 @@ export {
   cambiarEstadoPermiso,
   getTiposPermiso,
   uploadFile,
-  procesarEstadoComision,
+  procesarEstadoPermiso,
   aprobarComisiones,
-  aprobarSelectedPermisos
+  aprobarSelectedPermisos,
+  getPersonaAutocomplete
 }

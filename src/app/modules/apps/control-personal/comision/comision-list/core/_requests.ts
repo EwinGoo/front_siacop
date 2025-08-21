@@ -1,6 +1,7 @@
 import {AxiosResponse} from 'axios'
 import axiosClient from 'src/app/services/axiosClient'
-import {ID, Response} from '../../../../../../../_metronic/helpers'
+import {ID, ApiResponse as ApiResponseT} from '../../../../../../../_metronic/helpers'
+
 import {
   Comision,
   ComisionQueryResponse,
@@ -12,6 +13,7 @@ import {
 } from './_models'
 import {API_ROUTES} from 'src/app/config/apiRoutes'
 import {ValidationError} from 'src/app/utils/httpErrors'
+import { TipoPermiso } from '../../../permisos/tipos-permisos/list/core/_models'
 
 export const COMISION_URL = API_ROUTES.CONTROL_PERSONAL + '/boletas-comision'
 
@@ -75,7 +77,7 @@ const createComision = async (comision: Comision): Promise<Comision> => {
       throw new ValidationError(validationErrors || {}, message)
     }
 
-    throw new Error(message)  
+    throw new Error(message)
   }
 }
 
@@ -91,7 +93,7 @@ const updateComision = async (comision: Comision): Promise<Comision> => {
         error.response.data.message
       )
     }
-    throw error 
+    throw error
   }
 }
 
@@ -109,6 +111,18 @@ const verficarAsignacion = async (): Promise<any> => {
     return response.data
   } catch (error: any) {
     throw error
+  }
+}
+
+const getTiposPermiso = async (): Promise<TipoPermiso[]> => {
+  try {
+    const response: AxiosResponse<ApiResponseT<TipoPermiso[]>> = await axiosClient.get(
+      `${COMISION_URL}/tipos-permiso`
+    )
+    return response.data.data
+  } catch (error) {
+    console.error('Error fetching tipos permiso:', error)
+    return []
   }
 }
 
@@ -132,6 +146,7 @@ const getPersonaAutocomplete = async (termino: string): Promise<AutocompleteResp
     throw new Error(error.message || 'Error al obtener datos de autocompletado')
   }
 }
+
 const aprobarComisiones = async (): Promise<ApiResponse> => {
   const response = await axiosClient.post(`${COMISION_URL}/aprobar-comisiones-recepcionados`)
   return response.data // <- Esto es lo que espera useMutation
@@ -159,12 +174,12 @@ const procesarEstadoComision = (
 ): Promise<BackendResponse<ComisionesBackendData>> => {
   // Estructura los datos según la acción
   // console.log('requst '+params.fecha);
-  
+
   const requestData = {
     id: params.code,
     action: params.action,
     ...(params.action === 'observe' && {observacion: params.observacion}),
-    ...((params.action === 'receive') && {fecha: params.fecha}),
+    ...(params.action === 'receive' && {fecha: params.fecha}),
   }
 
   return axiosClient.post(`${COMISION_URL}/comision-qr`, requestData)
@@ -182,4 +197,5 @@ export {
   aprobarComisiones,
   getPersonaAutocomplete,
   verficarAsignacion,
+  getTiposPermiso
 }

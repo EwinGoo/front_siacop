@@ -33,6 +33,8 @@ export const ReportModalFormWrapper = ({onClose}) => {
       addInput('fechaFin', formatDate(values.fechaFin))
       addInput('estado', values.estado)
       addInput('tipoPermiso', values.tipoPermiso)
+      console.log(values.tipoPermiso);
+      
 
       document.body.appendChild(form)
       form.submit()

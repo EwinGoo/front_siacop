@@ -48,6 +48,7 @@
     "react-toastify": "^11.0.5",
     "react-topbar-progress-indicator": "4.1.1",
     "socicon": "3.0.5",
+    "socket.io-client": "^4.8.1",
     "sweetalert2": "^11.22.2",
     "yup": "^1.0.0"
   },

@@ -4,8 +4,61 @@ import {FC} from 'react'
 import {KTIcon} from '../../../../../../../../_metronic/helpers'
 import {Comision} from '../../core/_models'
 import Tooltip, {TooltipProps, tooltipClasses} from '@mui/material/Tooltip'
+
 type Props = {
   comision: Comision
+}
+
+// Mapeo de iconos por nombre de tipo de permiso
+const iconMapping: Record<string, {icon: string, color: string, bgColor: string, isKTIcon: boolean}> = {
+  'PERSONAL': {
+    icon: 'briefcase',
+    color: 'text-info',
+    bgColor: 'bg-light-info',
+    isKTIcon: true
+  },
+  'TRANSPORTE': {
+    icon: 'truck',
+    color: 'text-primary',
+    bgColor: 'bg-light-primary',
+    isKTIcon: true
+  },
+  'CAJA SALUD': {
+    icon: 'hospital',
+    color: '#f3779eff',
+    bgColor: 'bg-light-danger',
+    isKTIcon: false
+  },
+  'FISIOTERAPIA': {
+    icon: 'hand-holding-medical',
+    color: '#f3779eff',
+    bgColor: 'bg-light-danger',
+    isKTIcon: false
+  },
+  'CAPACITACION': {
+    icon: 'graduation-cap',
+    color: 'text-success',
+    bgColor: 'bg-light-success',
+    isKTIcon: true
+  },
+  'REUNION': {
+    icon: 'users',
+    color: 'text-dark',
+    bgColor: 'bg-light-dark',
+    isKTIcon: true
+  },
+  'TRAMITE': {
+    icon: 'file-text',
+    color: 'text-warning',
+    bgColor: 'bg-light-warning',
+    isKTIcon: true
+  },
+  'OTROS': {
+    icon: 'gear',
+    color: 'text-secondary',
+    bgColor: 'bg-light-secondary',
+    isKTIcon: true
+  }
 }
 
 const InfoCell: FC<Props> = ({comision}) => {
@@ -18,11 +71,36 @@ const InfoCell: FC<Props> = ({comision}) => {
   const statusClass =
     comision.estado_boleta_comision === 'APROBADO' ? 'badge-light-success' : 'badge-light-warning'
 
+  // Get the permission type name (usar nombre_permiso en lugar de tipo_comision)
+  const tipoPermiso = comision.tipo_comision || 'OTROS'
+  
+  // Get icon configuration for the permission type
+  const iconConfig = iconMapping[tipoPermiso.toUpperCase()] || iconMapping['OTROS']
+
+  // Function to render the appropriate icon
+  const renderIcon = () => {
+    if (iconConfig.isKTIcon) {
+      return (
+        <KTIcon 
+          iconName={iconConfig.icon} 
+          className={`fs-2 ${iconConfig.color}`} 
+        />
+      )
+    } else {
+      return (
+        <i 
+          className={`fas fa-${iconConfig.icon} fs-2`}
+          style={{ color: iconConfig.color }}
+        />
+      )
+    }
+  }
+
   return (
     <div className='d-flex align-items-center'>
-      {/* Icon based on commission type */}
+      {/* Icon based on permission type */}
       <Tooltip
-        title={comision.tipo_comision}
+        title={`Tipo: ${tipoPermiso}`}
         arrow
         slotProps={{
           tooltip: {
@@ -33,53 +111,17 @@ const InfoCell: FC<Props> = ({comision}) => {
         }}
       >
         <div className='symbol symbol-50px me-5'>
-          <span
-            className={`symbol-label bg-light-${
-              comision.tipo_comision === 'PERSONAL'
-                ? 'info'
-                : comision.tipo_comision === 'TRANSPORTE'
-                ? 'primary'
-                : 'secondary' // Para CAJA SALUD
-            }`}
-          >
-            {comision.tipo_comision === 'PERSONAL' ? (
-              <KTIcon iconName='briefcase' className='fs-2 text-info' />
-            ) : comision.tipo_comision === 'TRANSPORTE' ? (
-              <KTIcon iconName='truck' className='fs-2 text-primary' />
-            ) : (
-              <i className='fas fa-hospital fs-2'  style={{ color: '#f3779eff' }}></i> // CAJA SALUD
-            )}
+          <span className={`symbol-label ${iconConfig.bgColor}`}>
+            {renderIcon()}
           </span>
         </div>
       </Tooltip>
 
       <div className='d-flex flex-column'>
-        {/* Main description */}
+        {/* Main description - mostrar el nombre del tipo de permiso */}
         <a href='#' className='text-gray-800 text-hover-primary fw-bolder mb-1 fs-6'>
-          {comision.tipo_comision || 'Comisión sin descripción'}
+          {tipoPermiso || 'Permiso sin descripción'}
         </a>
-
-        {/* Secondary info row */}
-        <div className='d-flex flex-wrap align-items-center'>
-          {/* Date */}
-          {/* <span className='text-muted fw-bold me-2'>
-            <KTIcon iconName='calendar' className='fs-5 me-1' />
-            {formattedDate}
-          </span> */}
-
-          {/* Status badge */}
-          {/* <span className={clsx('badge', statusClass, 'me-2')}>
-            {comision.estado_boleta_comision}
-          </span> */}
-
-          {/* Route info */}
-          {/* {comision.recorrido_de && comision.recorrido_a && (
-            <span className='text-muted fw-bold'>
-              <KTIcon iconName='arrow-right' className='fs-5 mx-1' />
-              {comision.recorrido_de} → {comision.recorrido_a}
-            </span>
-          )} */}
-        </div>
       </div>
     </div>
   )

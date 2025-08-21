@@ -2,6 +2,8 @@ import {getLocalDate} from 'src/app/hooks/useDateFormatter'
 import {ReportModalForm} from './ReportModalForm'
 import {useFormik} from 'formik'
 import {API_ROUTES} from 'src/app/config/apiRoutes'
+import {useQuery} from 'react-query'
+import {getTiposPermiso} from '../core/_requests'
 
 export const ReportModalFormWrapper = ({onClose}) => {
   const formik = useFormik({
@@ -40,7 +42,11 @@ export const ReportModalFormWrapper = ({onClose}) => {
     },
   })
 
-  return <ReportModalForm formik={formik} onClose={onClose} />
+  const {data: tiposPermiso = []} = useQuery('tipos-permiso', getTiposPermiso, {
+    staleTime: 1000 * 60 * 5, // 5 minutos de cache
+  })
+
+  return <ReportModalForm formik={formik} onClose={onClose} tiposPermiso={tiposPermiso} />
 }
 
 function formatDate(date: any): string {

@@ -94,6 +94,9 @@ export interface UserModel {
     active: boolean
     message?: string
   }
+  personal?: {
+    tipo_personal: 'ADMINISTRATIVO' | 'DOCENTE'
+  }
 }
 
 export interface UserCheckRequest {

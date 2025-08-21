@@ -1,0 +1,1 @@
+export { QRScannerPanel } from './QRScannerPanel'

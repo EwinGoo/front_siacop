@@ -51,7 +51,7 @@ export const getColumns = ({isAdmin}: GetColumnsProps): ReadonlyArray<Column<Com
     {
       Header: (props) => <CustomHeader tableProps={props} title='Fecha' className='min-w-120px' />,
       accessor: 'fecha_comision',
-      Cell: ({value}) => <DateCell value={value} />,
+      Cell: ({row}) => <DateCell comision={row.original} />,
     },
     {
       Header: (props) => (

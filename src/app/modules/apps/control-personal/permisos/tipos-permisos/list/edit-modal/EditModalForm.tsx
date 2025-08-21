@@ -16,12 +16,18 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import {FormActions} from 'src/app/modules/components/FormActions'
 import {ValidationError} from 'src/app/utils/httpErrors'
 import {useApiFieldErrors} from 'src/app/hooks/useApiFieldErrors'
+import {SelectField} from 'src/app/modules/components/SelectField'
 
 type Props = {
   isLoading: boolean
   tipoPermiso: TipoPermiso
   onClose: () => void
 }
+
+const permisoOptions = [
+  {label: 'PERMISO', value: 'PERMISO'},
+  {label: 'COMISIÓN', value: 'COMISION'},
+]
 
 const editTipoPermisoSchema = Yup.object().shape({
   nombre: Yup.string()
@@ -62,8 +68,8 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
   const formik = useFormik({
     initialValues: tipoPermisoForEdit,
     validationSchema: editTipoPermisoSchema,
-    // validationSchema: null, 
-    // validateOnBlur: false, 
+    // validationSchema: null,
+    // validateOnBlur: false,
     // validateOnChange: false,
     onSubmit: async (values, {setSubmitting}) => {
       setSubmitting(true)
@@ -118,7 +124,7 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
             <label className='required fw-bold fs-6 mb-2'>Nombre</label>
             <input
               {...formik.getFieldProps('nombre')}
-              onChange={(value)=>{
+              onChange={(value) => {
                 clearFieldError('nombre')
                 formik.handleChange(value)
               }}
@@ -140,7 +146,7 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
             <label className='fw-bold fs-6 mb-2'>Descripción</label>
             <textarea
               {...formik.getFieldProps('descripcion')}
-              onChange={(value)=>{
+              onChange={(value) => {
                 clearFieldError('descripcion')
                 formik.handleChange(value)
               }}
@@ -154,6 +160,24 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
             {!isFieldValid('descripcion') && (
               <div className='fv-plugins-message-container'>
                 <span role='alert'>{getFieldError(formik.errors, 'descripcion')}</span>
+              </div>
+            )}
+          </div>
+
+          <div className='fv-row mb-7 px-1'>
+            <label className='required fw-bold fs-6 mb-5'>Tipo de Permiso</label>
+            <SelectField
+              field={formik.getFieldProps('tipo_permiso')}
+              form={formik}
+              isFieldValid={isFieldValid('tipo_permiso')}
+              clearFieldError={clearFieldError}
+              isSubmitting={formik.isSubmitting}
+              placeholder='Seleccione el tipo de permiso'
+              options={permisoOptions}
+            />
+            {!isFieldValid('tipo_permiso') && (
+              <div className='fv-plugins-message-container'>
+                <span role='alert'>{getFieldError(formik.errors, 'tipo_permiso')}</span>
               </div>
             )}
           </div>
@@ -195,6 +219,7 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
             <input
               type='number'
               {...formik.getFieldProps('limite_dias')}
+              value={formik.values.limite_dias ?? ''}
               className={clsx('form-control form-control-solid', {
                 'is-invalid': !isFieldValid('limite_dias'),
                 'is-valid': formik.touched.limite_dias && isFieldValid('limite_dias'),

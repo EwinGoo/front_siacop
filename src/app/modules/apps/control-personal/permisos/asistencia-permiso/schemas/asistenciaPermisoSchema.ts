@@ -10,7 +10,7 @@ export const asistenciaPermisoSchema = ({
 }) => {
 
   return Yup.object().shape({
-    id_asignacion_administrativo: Yup.number().when([], {
+    id_persona: Yup.number().when([], {
       is: () => isAdmin,
       then: (schema) => schema.required('El solicitante es requerido'),
       otherwise: (schema) => schema.notRequired(),

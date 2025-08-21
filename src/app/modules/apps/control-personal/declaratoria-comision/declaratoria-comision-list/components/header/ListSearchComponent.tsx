@@ -44,10 +44,10 @@ const ListSearchComponent: React.FC<ListSearchComponentProps> = ({
     }
   }, [debouncedSearchTerm])
 
-setTimeout(()=>{
-console.log(columnVisibilityConfig);
+// setTimeout(()=>{
+// console.log(columnVisibilityConfig);
 
-},1000)
+// },1000)
 
 
   return (

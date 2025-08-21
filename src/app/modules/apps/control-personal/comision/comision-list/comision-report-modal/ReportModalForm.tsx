@@ -5,6 +5,7 @@ import {Spanish} from 'flatpickr/dist/l10n/es'
 import {SelectField} from 'src/app/modules/components/SelectField'
 import {estadoOptions} from '../core/_models'
 import {DatePickerField} from 'src/app/modules/components/DatePickerField'
+import {TipoPermiso} from '../../../permisos/tipos-permisos/list/core/_models'
 
 const tipoComisionOptions = [
   {value: 'TODO', label: 'Todo'},
@@ -15,9 +16,11 @@ const tipoComisionOptions = [
 export const ReportModalForm = ({
   formik,
   onClose,
+  tiposPermiso,
 }: {
   formik: FormikProps<any>
   onClose: () => void
+  tiposPermiso: TipoPermiso[]
 }) => {
   const getFieldError = (fieldName: string) => {
     // return formik.errors[fieldName] || backendErrors[fieldName]
@@ -30,6 +33,17 @@ export const ReportModalForm = ({
   const handleChange = (fieldName: string) => (value: any) => {
     formik.setFieldValue(fieldName, value)
   }
+
+  const tipoOptions = [
+    {value: 'TODO', label: 'Todo'},
+    {value: 'COMISIONES', label: 'COMISIONES'},
+    {value: 'BAJA_MEDICA', label: 'BAJAS MEDICAS'},
+    ...tiposPermiso.map((tipo) => ({
+      value: tipo.id_tipo_permiso!.toString(),
+      label: tipo.nombre,
+    })),
+  ]
+
   return (
     <form onSubmit={formik.handleSubmit}>
       <div className='modal-body py-0'>
@@ -57,7 +71,6 @@ export const ReportModalForm = ({
               isSubmitting={formik.isSubmitting}
               onChange={handleChange('fechaFin')}
               onBlur={() => formik.setFieldTouched('fechaFin', true)}
-
             />
           </div>
           {/* <div className='col-md-6 mb-4 mt-4'>
@@ -70,7 +83,7 @@ export const ReportModalForm = ({
               options={estadoOptions}
               placeholder='Seleccione estado'
             />
-          </div>
+          </div> */}
 
           <div className='col-md-6 mb-4 mt-4'>
             <label className='form-label fw-semibold'>🚗 Tipo de Comisión</label>
@@ -79,10 +92,10 @@ export const ReportModalForm = ({
               form={formik}
               isFieldValid={isFieldValid('tipoComision')}
               isSubmitting={formik.isSubmitting}
-              options={tipoComisionOptions}
+              options={tipoOptions}
               placeholder='Seleccione tipo'
             />
-          </div> */}
+          </div>
         </div>
       </div>
 

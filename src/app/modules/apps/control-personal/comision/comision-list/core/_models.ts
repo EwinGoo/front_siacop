@@ -9,13 +9,16 @@ export type Comision = {
   id_usuario_generador?: number | null
   id_usuario_aprobador?: number | null
   fecha_comision: string
+  fecha_comision_fin?: string
   hora_salida: string
   hora_retorno: string
   descripcion_comision?: string
   recorrido_de?: string
   recorrido_a?: string
   estado_boleta_comision: EstadoType
-  tipo_comision?: 'PERSONAL' | 'TRANSPORTE' | 'CAJA SALUD'
+  id_tipo_permiso?: ID
+  tipo_comision?: string
+  tipo_documento?: string
   created_at?: string
   updated_at?: string
   deleted_at?: string | null
@@ -26,6 +29,7 @@ export type Comision = {
   ci?: string | null
   unidad: string | null
   hash: string | undefined
+  tipo_personal?: string | null
 }
 
 // Respuesta del Backend para Comisiones
@@ -90,6 +94,7 @@ export const initialComision: Comision = {
   id_usuario_generador: null,
   id_usuario_aprobador: null,
   fecha_comision: new Date().toISOString().split('T')[0], // Fecha actual (YYYY-MM-DD)
+  fecha_comision_fin: new Date().toISOString().split('T')[0], // Fecha actual (YYYY-MM-DD)
   hora_salida: '08:30',
   hora_retorno: '12:30',
   descripcion_comision: '',
@@ -98,7 +103,6 @@ export const initialComision: Comision = {
   // recorrido_a: '',
   recorrido_a: '',
   estado_boleta_comision: 'GENERADO',
-  tipo_comision: 'PERSONAL',
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
   deleted_at: null,

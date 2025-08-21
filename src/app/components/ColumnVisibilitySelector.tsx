@@ -45,7 +45,8 @@ const ColumnVisibilitySelector: React.FC<ColumnVisibilitySelectorProps> = ({
       {/* Botón trigger */}
       <button
         type="button"
-        className={`btn btn-light btn-sm d-flex align-items-center ${isOpen ? 'active' : ''}`}
+        className={`btn btn-light d-flex align-items-center ${isOpen ? 'active' : ''}`}
+        style={{width:'26px',padding:'15px 0'}}
         onClick={() => setIsOpen(!isOpen)}
         title="Configurar columnas visibles"
       >

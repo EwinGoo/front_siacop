@@ -2,15 +2,19 @@ import {FC, useState, useRef, useEffect} from 'react'
 import {useFormik} from 'formik'
 import {toast} from 'react-toastify'
 
-import {isNotEmpty} from '../../../../../../../../_metronic/helpers'
+import {ID, isNotEmpty} from 'src/_metronic/helpers'
 
 import {useListView} from '../core/ListViewProvider'
 import {useQueryResponse} from '../core/QueryResponseProvider'
 
-import {initialAsistenciaPermiso, AsistenciaPermiso} from '../core/_models'
+import {initialAsistenciaPermiso as initialData, AsistenciaPermiso} from '../core/_models'
 import {TipoPermiso} from '../../../tipos-permisos/list/core/_models'
 
-import {createAsistenciaPermiso, updateAsistenciaPermiso} from '../core/_requests'
+import {
+  createAsistenciaPermiso,
+  getPersonaAutocomplete,
+  updateAsistenciaPermiso,
+} from '../core/_requests'
 
 import {asistenciaPermisoSchema} from '../../schemas/asistenciaPermisoSchema'
 
@@ -22,7 +26,9 @@ import {FormActions} from 'src/app/modules/components/FormActions'
 import {DatePickerField} from 'src/app/modules/components/DatePickerField'
 import AsyncSelectField from '../../../../comision/comision-list/comision-edit-modal/components/AsyncSelectField'
 import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
-import {getPersonaAutocomplete} from '../../../../comision/comision-list/core/_requests'
+import {useAuth} from 'src/app/modules/auth'
+
+// import AsyncSelectFieldDebug from '../../../../comision/comision-list/comision-edit-modal/components/AsyncSelectFieldDebug'
 
 type Props = {
   isAsistenciaPermisoLoading: boolean
@@ -34,6 +40,7 @@ type Props = {
 interface OptionType {
   value: number
   label: string
+  // id_persona?: ID
 }
 
 const EditModalForm: FC<Props> = ({
@@ -48,27 +55,20 @@ const EditModalForm: FC<Props> = ({
   const {isAdminComision} = usePermissions()
   const {setApiErrors, getFieldError, clearFieldError} = useApiFieldErrors()
   const [limiteDias, setLimiteDias] = useState<number | null>(null)
+  const {currentUser} = useAuth()
 
   const [asistenciaPermisoForEdit] = useState<AsistenciaPermiso>({
     ...asistenciaPermiso,
-    // id_persona_administrativo:
-    //   asistenciaPermiso.id_persona_administrativo ||
-    //   initialAsistenciaPermiso.id_persona_administrativo,
-    id_tipo_permiso: asistenciaPermiso.id_tipo_permiso || initialAsistenciaPermiso.id_tipo_permiso,
+    id_persona: asistenciaPermiso.id_persona || initialData.id_persona,
+    id_tipo_permiso: asistenciaPermiso.id_tipo_permiso || initialData.id_tipo_permiso,
     fecha_inicio_permiso:
-      asistenciaPermiso.fecha_inicio_permiso || initialAsistenciaPermiso.fecha_inicio_permiso,
-    fecha_fin_permiso:
-      asistenciaPermiso.fecha_fin_permiso || initialAsistenciaPermiso.fecha_fin_permiso,
-    detalle_permiso: asistenciaPermiso.detalle_permiso || initialAsistenciaPermiso.detalle_permiso,
-    estado_permiso: asistenciaPermiso.estado_permiso || initialAsistenciaPermiso.estado_permiso,
-    // hoja_ruta: asistenciaPermiso.hoja_ruta || initialAsistenciaPermiso.hoja_ruta,
-    // id_usuario_generador: currentUser?.id || null,
+      asistenciaPermiso.fecha_inicio_permiso || initialData.fecha_inicio_permiso,
+    fecha_fin_permiso: asistenciaPermiso.fecha_fin_permiso || initialData.fecha_fin_permiso,
+    detalle_permiso: asistenciaPermiso.detalle_permiso || initialData.detalle_permiso,
+    estado_permiso: asistenciaPermiso.estado_permiso || initialData.estado_permiso,
+    turno_permiso: asistenciaPermiso.turno_permiso || initialData.turno_permiso, // Nuevo campo
+    tipo_personal: asistenciaPermiso.tipo_personal || currentUser?.personal?.tipo_personal,
   })
-
-  // const [backendErrors, setBackendErrors] = useState<Record<string, string>>({})
-  // const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  // const [uploadProgress, setUploadProgress] = useState<number>(0)
-  // const [isUploading, setIsUploading] = useState<boolean>(false)
 
   const cancel = (withRefresh?: boolean) => {
     if (withRefresh) {
@@ -83,9 +83,6 @@ const EditModalForm: FC<Props> = ({
       isAdmin: isAdminComision,
       limiteDias,
     }),
-    // validationSchema: null,
-    // validateOnBlur: false,
-    // validateOnChange: false,
     onSubmit: async (values, {setSubmitting}) => {
       setSubmitting(true)
       setApiErrors({})
@@ -118,6 +115,14 @@ const EditModalForm: FC<Props> = ({
     },
   })
 
+  // Verificar si el tipo seleccionado es cumpleaños
+  const tipoSeleccionado = tiposPermisos.find(
+    (tipo) => tipo.id_tipo_permiso?.toString() === formik.values.id_tipo_permiso?.toString()
+  )
+  const esCumpleanos =
+    tipoSeleccionado?.nombre?.toLowerCase().includes('cumpleaños') ||
+    tipoSeleccionado?.nombre?.toLowerCase().includes('cumpleanos')
+
   useEffect(() => {
     const permiso = tiposPermisos.find(
       (tipo) => tipo.id_tipo_permiso?.toString() === formik.values.id_tipo_permiso?.toString()
@@ -127,11 +132,12 @@ const EditModalForm: FC<Props> = ({
     } else {
       setLimiteDias(null)
     }
-  }, [formik.values.id_tipo_permiso, tiposPermisos])
 
-  // useEffect(() => {
-  //   console.log('Formik errors:', formik.errors)
-  // }, [formik.errors])
+    // Limpiar el campo turno si no es cumpleaños
+    if (!esCumpleanos) {
+      formik.setFieldValue('turno_permiso', '')
+    }
+  }, [formik.values.id_tipo_permiso, tiposPermisos])
 
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null)
 
@@ -141,7 +147,7 @@ const EditModalForm: FC<Props> = ({
     return response.sugerencias.map((item) => ({
       value: item.id,
       label: item.texto,
-      id_asignacion_administrativo: item.id_asignacion_administrativo,
+      tipo_personal: item.tipo,
     }))
   }
 
@@ -153,6 +159,16 @@ const EditModalForm: FC<Props> = ({
     formik.setFieldValue(fieldName, value)
     clearFieldError(fieldName)
   }
+
+  const turnoOptions = [
+    {label: 'Mañana', value: 'MAÑANA'},
+    {label: 'Tarde', value: 'TARDE'},
+  ]
+
+  useEffect(()=>{
+    console.log(formik.errors);
+
+  },[formik.errors])
 
   return (
     <>
@@ -180,25 +196,22 @@ const EditModalForm: FC<Props> = ({
                   value={selectedOption}
                   onChange={(selected) => {
                     setSelectedOption(selected)
-                    formik.setFieldValue(
-                      'id_asignacion_administrativo',
-                      selected?.id_asignacion_administrativo ?? ''
-                    )
+                    formik.setFieldValue('id_persona', selected?.value ?? '')
+                    formik.setFieldValue('tipo_personal', selected?.tipo_personal ?? '')
                   }}
-                  onBlur={() => formik.setFieldTouched('id_asignacion_administrativo', true)}
+                  onBlur={() => formik.setFieldTouched('id_persona', true)}
                   fetchOptions={fetchPersonaOptions}
-                  isInvalid={!isFieldValid('id_asignacion_administrativo')}
+                  isInvalid={!isFieldValid('id_persona')}
                 />
               )}
-              {!isFieldValid('id_asignacion_administrativo') && (
+              {!isFieldValid('id_persona') && (
                 <div className='fv-plugins-message-container'>
-                  <span role='alert'>
-                    {getFieldError(formik.errors, 'id_asignacion_administrativo')}
-                  </span>
+                  <span role='alert'>{getFieldError(formik.errors, 'id_persona')}</span>
                 </div>
               )}
             </div>
           )}
+
           {/* Tipo de Permiso */}
           <div className='fv-row mb-7 px-1'>
             <label className='required fw-bold fs-6 mb-2'>Tipo de Permiso</label>
@@ -223,7 +236,7 @@ const EditModalForm: FC<Props> = ({
 
           {/* Fechas con Flatpickr */}
           <div className='row mb-7'>
-            <div className='col-md-6 fv-row'>
+            <div className='col-md-6 fv-row  mb-7 mb-md-0'>
               <label className='required fw-bold fs-6 mb-2'>Fecha Inicio</label>
               <DatePickerField
                 field={formik.getFieldProps('fecha_inicio_permiso')}
@@ -256,18 +269,43 @@ const EditModalForm: FC<Props> = ({
               )}
             </div>
           </div>
+
+          {/* Campo Turno - Solo visible para cumpleaños */}
+          {esCumpleanos && (
+            <div className='fv-row mb-7 px-1'>
+              <label className=' fw-bold fs-6 mb-5'>
+                Turno del Permiso
+                <small className='text-muted d-block mt-1 required'>
+                  Seleccione si tomará el permiso en la mañana o en la tarde
+                </small>
+              </label>
+              <SelectField
+                field={formik.getFieldProps('turno_permiso')}
+                form={formik}
+                isFieldValid={isFieldValid('turno_permiso')}
+                clearFieldError={clearFieldError}
+                isSubmitting={formik.isSubmitting}
+                placeholder='Seleccione el turno'
+                options={turnoOptions}
+              />
+              {!isFieldValid('turno_permiso') && (
+                <div className='fv-plugins-message-container'>
+                  <span role='alert'>{getFieldError(formik.errors, 'turno_permiso')}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Actions */}
         <FormActions
           onClose={onClose}
           isSubmitting={formik.isSubmitting}
-          // isUploading={isUploading}
-          isValid={formik.isValid}
+          // isValid={formik.isValid}
+          isValid={true}
           isEdit={!!asistenciaPermiso.id_asistencia_permiso}
         />
       </form>
-      {/* {(formik.isSubmitting || isAsistenciaPermisoLoading || isUploading) && <ListLoading />} */}
       {(formik.isSubmitting || isAsistenciaPermisoLoading) && <ListLoading />}
     </>
   )

@@ -8,7 +8,7 @@ import {useQueryResponse} from '../../core/QueryResponseProvider'
 import {
   ASISTENCIA_PERMISO_URL,
   deleteAsistenciaPermiso,
-  procesarEstadoComision,
+  procesarEstadoPermiso,
 } from '../../core/_requests'
 import {toast} from 'react-toastify'
 import {usePermissions} from 'src/app/modules/auth/core/usePermissions'
@@ -52,7 +52,7 @@ const ActionsCell: FC<Props> = ({id, estado, hash = null}) => {
     setIsShow(true)
   }
 
-  const receiveItem = useMutation(() => procesarEstadoComision({code: id, action: 'receive'}), {
+  const receiveItem = useMutation(() => procesarEstadoPermiso({code: id, action: 'receive'}), {
     onSuccess: () => {
       queryClient.invalidateQueries([`${QUERIES.ASISTENCIAS_PERMISO_LIST}-${query}`])
       showToast({
@@ -62,7 +62,7 @@ const ActionsCell: FC<Props> = ({id, estado, hash = null}) => {
     },
   })
 
-  const approveItem = useMutation(() => procesarEstadoComision({code: id, action: 'approve'}), {
+  const approveItem = useMutation(() => procesarEstadoPermiso({code: id, action: 'approve'}), {
     onSuccess: () => {
       queryClient.invalidateQueries([`${QUERIES.ASISTENCIAS_PERMISO_LIST}-${query}`])
       showToast({
@@ -88,7 +88,7 @@ const ActionsCell: FC<Props> = ({id, estado, hash = null}) => {
     },
   })
 
-  const sendItem = useMutation(() => procesarEstadoComision({code: id, action: 'send'}), {
+  const sendItem = useMutation(() => procesarEstadoPermiso({code: id, action: 'send'}), {
     onSuccess: () => {
       queryClient.invalidateQueries([`${QUERIES.ASISTENCIAS_PERMISO_LIST}-${query}`])
       showToast({message: 'Permiso enviada correctamente', type: 'success'})

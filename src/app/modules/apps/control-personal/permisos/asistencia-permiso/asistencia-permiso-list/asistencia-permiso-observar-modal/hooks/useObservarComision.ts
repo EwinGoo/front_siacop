@@ -1,7 +1,7 @@
 import {useFormik} from 'formik'
 import {ObservarFormValues} from '../types'
 import {ObservarSchema} from '../schemas/observarSchema'
-import {procesarEstadoComision} from '../../core/_requests'
+import {procesarEstadoPermiso} from '../../core/_requests'
 import {useQueryClient} from 'react-query'
 import {QUERIES} from 'src/_metronic/helpers'
 import {toast} from 'react-toastify'
@@ -23,7 +23,7 @@ export const useObservarComision = (comisionId?: number,observacionInicial: stri
       try {
         if (!values.code) return
 
-        await procesarEstadoComision(values)
+        await procesarEstadoPermiso(values)
         await queryClient.invalidateQueries([`${QUERIES.ASISTENCIAS_PERMISO_LIST}-${query}`])
 
         toast.success('Observación enviada correctamente')

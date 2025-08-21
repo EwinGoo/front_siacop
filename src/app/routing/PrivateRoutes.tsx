@@ -9,6 +9,7 @@ import {WithChildren} from '../../_metronic/helpers'
 import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
 import {ProtectedRoute} from '../modules/auth/core/ProtectedRoute'
 import AccessDeniedPage from '../pages/AccessDeniedPage'
+import { GestionQrPage } from '../modules/apps/control-personal/gestion-qr'
 // import AsistenciaPermisoPage from '../modules/apps/control-personal/permisos/asistencia-permisos/AsistenciaPermisoPage'
 
 const PrivateRoutes = () => {
@@ -151,8 +152,18 @@ const PrivateRoutes = () => {
           path='apps/comisiones/*'
           element={
             <SuspensedView>
-              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
+              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}> 
                 <ComisionPage />
+              </ProtectedRoute>
+            </SuspensedView>
+          }
+        />
+        <Route
+          path='apps/gestion-qr'
+          element={
+            <SuspensedView>
+              <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
+                <GestionQrPage />
               </ProtectedRoute>
             </SuspensedView>
           }

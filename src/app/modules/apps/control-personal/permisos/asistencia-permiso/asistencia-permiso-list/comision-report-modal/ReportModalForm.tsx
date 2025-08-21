@@ -36,6 +36,7 @@ export const ReportModalForm = ({
       value: tipo.id_tipo_permiso!.toString(),
       label: tipo.nombre,
     })),
+    {value: 'DAF', label: 'DAF'},
   ]
   const handleChange = (fieldName: string) => (value: any) => {
     formik.setFieldValue(fieldName, value)
@@ -81,7 +82,7 @@ export const ReportModalForm = ({
               options={estadoOptions}
               placeholder='Seleccione estado'
             />
-          </div>
+          </div> */}
 
           <div className='col-md-6 mb-4 mt-4'>
             <label className='form-label fw-semibold'>🚗 Tipo de Permiso</label>
@@ -93,7 +94,7 @@ export const ReportModalForm = ({
               options={tipoOptions}
               placeholder='Seleccione tipo'
             />
-          </div> */}
+          </div>
         </div>
       </div>
 

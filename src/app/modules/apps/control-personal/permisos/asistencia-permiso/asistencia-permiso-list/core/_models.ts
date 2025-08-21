@@ -5,25 +5,28 @@ export type EstadoType = 'GENERADO' | 'ENVIADO' | 'RECEPCIONADO' | 'APROBADO' | 
 
 export type AsistenciaPermiso = {
   id_asistencia_permiso: ID
-  id_asignacion_administrativo?: number | null
-  // id_asignacion_administrativo?: number 
+  id_persona?: ID
   id_tipo_permiso: number | null
   id_usuario_generador?: number | null
   id_usuario_aprobador?: number | null
   nombre_generador?: string | null
   estado_permiso: EstadoType
   hoja_ruta: string
-  fecha_inicio_permiso?: string // Date en formato ISO
-  fecha_fin_permiso?: string // Date en formato ISO
+  fecha_inicio_permiso: string // Date en formato ISO
+  fecha_fin_permiso: string // Date en formato ISO
   detalle_permiso: string
   tipo_permiso_nombre?: string
-  // Nuevos campos para archivo adjunto
+  turno_permiso?: 'TARDE' | 'MAÑANA'
+  tipo_documento?: string
+  tipo_personal?: string
   observacion?: string
   id_multimedia?: number | null
   archivo_adjunto?: MultimediaFile | null
   ci?: string
   created_at?: string | null
   hash?: string
+  unidad?: string | null
+  nombre_cargo?: string
 }
 
 // Tipo para el archivo multimedia
@@ -98,10 +101,26 @@ export type AsistenciaTipoPermisoQueryResponseData = {
   nombre: string
 }
 
+type AutocompleteItem = {
+  id: number
+  valor: string
+  texto: string
+  tipo: string
+  id_persona?: number
+}
+
+export type AutocompleteResponse = {
+  type_respond: 'query' | 'cache'
+  sugerencias: AutocompleteItem[]
+  tiempo_respuesta: number
+}
+
+
+
 // Valores iniciales para un formulario de AsistenciaPermiso
 export const initialAsistenciaPermiso: AsistenciaPermiso = {
   id_asistencia_permiso: undefined,
-  id_asignacion_administrativo: null,
+  id_persona: null,
   id_tipo_permiso: null,
   id_usuario_generador: null,
   id_usuario_aprobador: null,
