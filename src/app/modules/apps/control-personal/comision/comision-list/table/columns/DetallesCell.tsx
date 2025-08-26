@@ -32,11 +32,11 @@ const DetallesCell: React.FC<Props> = ({comision}) => {
       <div className='d-inline-flex flex-col'>
         {comision.tipo_comision === 'TRANSPORTE' ? (
           <span>
-            <strong>Recorrido:</strong> {truncateText(detalle)}
+            {truncateText(detalle)}
           </span>
         ) : (
           <span>
-            <strong>Descripción:</strong> {truncateText(detalle)}
+            {truncateText(detalle)}
           </span>
         )}
       </div>

@@ -5,6 +5,8 @@ import {RecepcionProcessorService, ObservacionProcessorService} from '../compone
 import useDateFormatter from 'src/app/hooks/useDateFormatter'
 import Swal from 'sweetalert2'
 import {UnifiedModalService} from '../components/Process/UnifiedModal'
+import {buildCode, parseIDNumeric} from 'src/app/utils/parseID'
+import { DataAdapter } from '../services/dataAdapter'
 
 interface ProcessQRCodeParams {
   code: string
@@ -24,11 +26,14 @@ export const useProcessor = () => {
       try {
         // Obtener configuración del tipo
         const typeConfig = unifiedService.getTypeConfig(tipoPermiso)
-
         // console.log(`Procesando con ${typeConfig.serviceName}`)
-
+        
         // Obtener datos usando el servicio unificado (YA DEVUELVE UnifiedData)
-        const unifiedData = await unifiedService.getDataByType(parseInt(code), tipoPermiso)
+        
+        const unifiedData = await unifiedService.getDataByType(parseIDNumeric(code), tipoPermiso)
+        if (unifiedData) {
+          unifiedData.codigo = buildCode(unifiedData.id, tipoPermiso)
+        }
 
         if (!unifiedData) {
           await RecepcionProcessorService.showRecepcionError({
@@ -54,14 +59,14 @@ export const useProcessor = () => {
               tipoPermiso
             )
 
+            // `${response.message} (${typeConfig.serviceName})`,
             await RecepcionProcessorService.showRecepcionSuccess(
               code,
-              `${response.message} (${typeConfig.serviceName})`,
+              `${response.message}`,
               tipoPermiso,
-              fechaHora
+              fechaHora,
+              unifiedData
             )
-
-            // ✅ Actualizar historial después del proceso exitoso
             onUpdatedScannedHistory(code, Date.now())
           } catch (error) {
             await RecepcionProcessorService.showRecepcionError(error)
@@ -69,9 +74,8 @@ export const useProcessor = () => {
           return
         }
 
-        // Mostrar modal unificado (CAMBIO PRINCIPAL)
         const response = await UnifiedModalService.showUnifiedModal({
-          data: unifiedData, 
+          data: unifiedData,
           formatToBolivianDate,
         })
 
@@ -88,9 +92,10 @@ export const useProcessor = () => {
 
                 await RecepcionProcessorService.showRecepcionSuccess(
                   code,
-                  `${result.message} (${typeConfig.serviceName})`,
+                  `${result.message}`,
                   tipoPermiso,
-                  fechaHora
+                  fechaHora,
+                  unifiedData
                 )
 
                 // ✅ Actualizar historial después del proceso exitoso
@@ -111,7 +116,7 @@ export const useProcessor = () => {
 
                 await Swal.fire({
                   icon: 'success',
-                  title: `<i class="bi bi-check-circle me-2"></i>¡${displayInfo.tipo} Aprobado!`,
+                  title: `¡${displayInfo.tipo} Aprobado!`,
                   html: `
                     <div class="alert alert-success">
                       <h6 class="alert-heading">
@@ -133,7 +138,7 @@ export const useProcessor = () => {
                       </div>
                       <small class="text-muted">
                         <i class="bi bi-gear me-1"></i>
-                        Procesado por: ${typeConfig.serviceName}
+                        Procesado en: ${typeConfig.serviceName}
                       </small>
                     </div>
                   `,
@@ -151,11 +156,11 @@ export const useProcessor = () => {
               } catch (error) {
                 await Swal.fire({
                   icon: 'error',
-                  title: `<i class="bi bi-x-circle me-2"></i>Error de Aprobación`,
+                  title: `Error de Aprobación`,
                   html: `
                     <div class="alert alert-danger">
                       <p class="mb-2">No se pudo aprobar en ${typeConfig.serviceName}</p>
-                      <small class="text-muted">Verifique la conexión y los permisos</small>
+                      <small class="text-muted">Si el problema persiste, contacte al administrador del sistema.</small>
                     </div>
                   `,
                   confirmButtonText: '<i class="bi bi-arrow-clockwise me-2"></i>Entendido',
@@ -190,7 +195,7 @@ export const useProcessor = () => {
                 } catch (error) {
                   await Swal.fire({
                     icon: 'error',
-                    title: '<i class="bi bi-x-circle me-2"></i>Error al Registrar Observación',
+                    title: 'Error al Registrar Observación',
                     html: `
                       <div class="alert alert-danger">
                         <p class="mb-2">No se pudo registrar la observación en ${typeConfig.serviceName}</p>

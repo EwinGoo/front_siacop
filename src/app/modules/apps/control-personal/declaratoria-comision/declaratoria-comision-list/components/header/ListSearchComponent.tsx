@@ -1,9 +1,11 @@
 // Modificación para ListSearchComponent.tsx
 import React from 'react'
 import { useEffect, useState } from 'react'
-import { initialQueryState, KTIcon, useDebounce } from '../../../../../../../../_metronic/helpers'
+import { initialQueryState, KTIcon, QUERIES, useDebounce } from '../../../../../../../../_metronic/helpers'
 import { useQueryRequest } from '../../core/QueryRequestProvider'
 import { ColumnVisibilitySelector } from 'src/app/components/ColumnVisibilitySelector'
+import { useQueryResponse } from '../../core/QueryResponseProvider'
+import { useQueryClient } from 'react-query'
 
 interface ListSearchComponentProps {
   // Props para el selector de columnas
@@ -29,6 +31,9 @@ const ListSearchComponent: React.FC<ListSearchComponentProps> = ({
   const { updateState } = useQueryRequest()
   const [searchTerm, setSearchTerm] = useState<string>('')
   const debouncedSearchTerm = useDebounce(searchTerm, 150)
+    const {query} = useQueryResponse()
+  const queryClient = useQueryClient()
+
 
   // useEffect(() => {
   //   if (debouncedSearchTerm !== undefined && searchTerm !== undefined) {
@@ -52,6 +57,16 @@ const ListSearchComponent: React.FC<ListSearchComponentProps> = ({
 
   return (
     <div className='card-title'>
+      <button
+        type='button'
+        className='btn btn-light btn-sm mx-2'
+        onClick={() => {
+          queryClient.invalidateQueries([`${QUERIES.DECLARATORIA_COMISION_LIST}-${query}`])
+        }}
+        title='Actualizar tabla'
+      >
+        <KTIcon iconName='arrows-circle' className='fs-1' />
+      </button>
       <div className='d-flex align-items-center gap-3'>
         {/* Selector de columnas */}
         {columnVisibilityConfig &&  (

@@ -1,45 +1,60 @@
-import { Comision } from '../../comision/comision-list/core/_models'
-import { AsistenciaPermiso } from '../../permisos/asistencia-permiso/asistencia-permiso-list/core/_models'
-import { UnifiedData } from '../types'
+import { formatTimeFromString } from 'src/app/utils/dateTimeFormater'
+import {Comision} from '../../comision/comision-list/core/_models'
+import {AsistenciaPermiso} from '../../permisos/asistencia-permiso/asistencia-permiso-list/core/_models'
+import {UnifiedData} from '../types'
+import { truncateText } from 'src/app/utils/textUtils'
 
 export class DataAdapter {
   /**
    * Convierte datos de comisión al formato unificado
    */
+
   static fromComision(comision: Comision): UnifiedData {
+    // console.log(comision)
+
     return {
+      tipo_documento: 'comision',
       id: comision.id_comision,
+      ci: comision.ci || '',
       codigo: comision.id_comision,
       nombre_generador: comision.nombre_generador,
-      estado: comision.estado_boleta_comision,
+      estado: comision.estado_boleta_comision, 
       fecha_inicio: comision.fecha_comision,
       fecha_fin: comision.fecha_comision_fin,
-      descripcion: comision.descripcion_comision,
-      tipo_documento: 'comision',
+      descripcion: this.isComision(comision.tipo_comision || '') ? '':  truncateText((comision.descripcion_comision ||''),120),
+      hora: formatTimeFromString(comision.hora_salida) + '-' + formatTimeFromString(comision.hora_retorno),
+      tipo_permiso: comision.tipo_comision || '',
       nombre_cargo: comision.nombre_cargo,
       unidad: comision.unidad,
-      recorrido_de: comision.recorrido_de,
-      recorrido_a: comision.recorrido_a
+      recorrido_de: this.isComision(comision.tipo_comision || '') ?comision.recorrido_de:'', 
+      recorrido_a: this.isComision(comision.tipo_comision || '') ?comision.recorrido_a:'',
+      observacion: comision.observacion || '',
     }
   }
+  //  data.recorrido_a ? `
+  //       <div class="row mb-2 text-start">
+  //         <div class="col-3 fw-bold">Ruta</div>
+  //         <div class="col-9">: ${data.recorrido_de} → ${data.recorrido_a}</div>
+  //       </div>
+  //       ` : ''}
 
   /**
    * Convierte datos de permiso al formato unificado
    */
   static fromPermiso(permiso: AsistenciaPermiso): UnifiedData {
     return {
+      tipo_documento: 'permiso',
       id: permiso.id_asistencia_permiso,
       codigo: permiso.id_asistencia_permiso,
       nombre_generador: permiso.nombre_generador,
       estado: permiso.estado_permiso,
       fecha_inicio: permiso.fecha_inicio_permiso,
       fecha_fin: permiso.fecha_fin_permiso,
-      descripcion: permiso.detalle_permiso || permiso.tipo_permiso_nombre,
-      tipo_documento: 'permiso',
-      tipo_permiso_nombre: permiso.tipo_permiso_nombre,
+      tipo_permiso: permiso.tipo_permiso_nombre || '',
+      observacion: permiso.observacion || '',
       turno_permiso: permiso.turno_permiso,
       tipo_personal: permiso.tipo_personal,
-      ci: permiso.ci
+      ci: permiso.ci,
     }
   }
 
@@ -54,20 +69,30 @@ export class DataAdapter {
    * Obtiene información de visualización según el tipo
    */
   static getDisplayInfo(data: UnifiedData) {
+    // console.log(data)
+
     if (data.tipo_documento === 'permiso') {
       return {
-        titulo: 'Permiso de Asistencia',
-        subtitulo: data.tipo_permiso_nombre || 'Permiso',
+        titulo: 'LICENCIA ESPECIAL',
+        subtitulo: 'PERMISO: ' + data.tipo_permiso || 'Permiso',
         icono: 'bi-calendar-check',
-        color: 'warning'
+        color: 'primary',
       }
     } else {
+      const textTitle = this.isComision(data.tipo_permiso)
+        ? 'COMISIÓN'
+        : 'JUSTIFICATIVO DE AUSENCIA DE TRABAJO'
       return {
-        titulo: 'Comisión de Servicio',
-        subtitulo: 'Comisión',
+        titulo: textTitle,
+        subtitulo: 'TIPO: ' + data.tipo_permiso,
         icono: 'bi-briefcase',
-        color: 'primary'
+        color: 'info',
       }
     }
+  }
+
+  static isComision(tipo: string): boolean {
+    const tipos = ['PERSONAL', 'TRANSPORTE']
+    return tipos.includes(tipo)
   }
 }

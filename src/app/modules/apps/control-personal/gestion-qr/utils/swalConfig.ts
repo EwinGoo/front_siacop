@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2'
 
 export const showIngresoManualModal = async (): Promise<string | null> => {
-  const { value: codigo } = await Swal.fire({
+  const {value: codigo} = await Swal.fire({
     title: '<i class="bi bi-keyboard me-2"></i>Ingreso Manual de Código',
     html: `
       <div class="text-start">
@@ -31,7 +31,7 @@ export const showIngresoManualModal = async (): Promise<string | null> => {
       confirmButton: 'btn btn-primary btn-lg',
       cancelButton: 'btn btn-secondary',
       title: 'text-primary fw-bold',
-      input: 'd-none' // Ocultar el input por defecto de Swal
+      input: 'd-none', // Ocultar el input por defecto de Swal
     },
     didOpen: () => {
       // Enfocar el input personalizado
@@ -49,21 +49,37 @@ export const showIngresoManualModal = async (): Promise<string | null> => {
     preConfirm: () => {
       const customInput = document.getElementById('codigoInput') as HTMLInputElement
       const value = customInput?.value || ''
-      
+
       if (!value) {
         Swal.showValidationMessage('Debe ingresar un código')
         return false
       }
-      if (!/^\d+$/.test(value)) {
-        Swal.showValidationMessage('El código debe ser un número entero positivo')
+
+      // Validar formato C23 o P23 (C o P seguido de números)
+      if (!/^[CP]\d+$/.test(value)) {
+        Swal.showValidationMessage(
+          'El código debe empezar con C o P seguido de números (ej: C23, P456)'
+        )
         return false
       }
-      if (value.length < 1 || value.length > 10) {
-        Swal.showValidationMessage('El código debe tener entre 1 y 10 dígitos')
+
+      // Validar longitud total (letra + números = 2 a 11 caracteres)
+      if (value.length < 2 || value.length > 11) {
+        Swal.showValidationMessage(
+          'El código debe tener entre 2 y 11 caracteres (ej: C1 hasta P1234567890)'
+        )
         return false
       }
+
+      // Validar que la parte numérica tenga al menos 1 dígito y máximo 10
+      const numberPart = value.substring(1)
+      if (numberPart.length < 1 || numberPart.length > 10) {
+        Swal.showValidationMessage('La parte numérica debe tener entre 1 y 10 dígitos')
+        return false
+      }
+
       return value
-    }
+    },
   })
 
   return codigo || null
@@ -82,8 +98,8 @@ export const showErrorModal = async (title: string, message: string) => {
     confirmButtonColor: '#dc3545',
     customClass: {
       confirmButton: 'btn btn-danger',
-      title: 'text-danger fw-bold'
-    }
+      title: 'text-danger fw-bold',
+    },
   })
 }
 
@@ -101,7 +117,7 @@ export const showSuccessModal = async (title: string, message: string) => {
     timerProgressBar: true,
     customClass: {
       confirmButton: 'btn btn-success',
-      title: 'text-success fw-bold'
-    }
+      title: 'text-success fw-bold',
+    },
   })
 }

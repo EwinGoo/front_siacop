@@ -16,8 +16,8 @@ import {FormActions} from 'src/app/modules/components/FormActions'
 import AsyncSelectField from './components/AsyncSelectField'
 import {useApiFieldErrors} from 'src/app/hooks/useApiFieldErrors'
 import {usePermissions} from 'src/app/modules/auth/hooks/usePermissions'
-import { useAuth } from 'src/app/modules/auth'
-import { canManageComisiones } from 'src/app/modules/auth/core/roles/roleDefinitions'
+import {useAuth} from 'src/app/modules/auth'
+import {canManageComisiones} from 'src/app/modules/auth/core/roles/roleDefinitions'
 
 type Props = {
   isLoading: boolean
@@ -96,6 +96,7 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) =
       ...comisionForEdit,
       tipo_comision: tipoActual,
       id_tipo_permiso: tipoPermiso?.id_tipo_permiso || comisionForEdit.id_tipo_permiso,
+      fecha_comision_fin: tipoActual == 'FISIOTERAPIA' ? comisionForEdit.fecha_comision_fin : undefined,
     },
     // ✅ PROFESIONAL: Usar permisos específicos en lugar de isAdminComision
     validationSchema: () =>
@@ -214,15 +215,15 @@ const EditModalForm: FC<Props> = ({comision, isLoading, onClose, tipoPermiso}) =
   }
 
   // Establecer opción seleccionada en modo edición
-  useEffect(() => {
-    if (comision.id_comision && comision.id_usuario_generador && comision.nombre_generador) {
-      setSelectedOption({
-        value: comision.id_usuario_generador,
-        label: `${comision.ci || ''} - ${comision.nombre_generador}`,
-        id_asignacion_administrativo: comision.id_asignacion_administrativo,
-      })
-    }
-  }, [comision])
+  // useEffect(() => {
+  //   if (comision.id_comision && comision.id_usuario_generador && comision.nombre_generador) {
+  //     setSelectedOption({
+  //       value: comision.id_usuario_generador,
+  //       label: `${comision.ci || ''} - ${comision.nombre_generador}`,
+  //       id_asignacion_administrativo: comision.id_asignacion_administrativo,
+  //     })
+  //   }
+  // }, [comision])
 
   return (
     <>

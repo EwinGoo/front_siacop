@@ -22,7 +22,7 @@ export class ObservacionProcessorService {
       allowOutsideClick: false,
       allowEscapeKey: false,
       showConfirmButton: false,
-      timer: 2000,
+      timer: 500,
       timerProgressBar: true,
       customClass: {
         title: 'text-warning fw-bold'
@@ -33,26 +33,22 @@ export class ObservacionProcessorService {
   static async showObservacionSuccess(codigo: string, observacion: string): Promise<void> {
     await Swal.fire({
       icon: 'success',
-      title: '<i class="bi bi-check-circle me-2"></i>Observación Registrada',
+      title: 'Observación Registrada',
       html: `
         <div class="text-center">
           <div class="alert alert-warning mb-4">
             <h6 class="alert-heading mb-3">
-              <i class="bi bi-exclamation-triangle me-2"></i>
-              Comisión Observada
+              <i class="bi bi-exclamation-triangle me-2 text-warning"></i>
+              Solicitud Observada
             </h6>
             <hr>
             <div class="row text-start mb-3">
-              <div class="col-3 fw-bold">Código:</div>
-              <div class="col-9">${codigo}</div>
+              <div class="col-3 fw-bold">Código</div>
+              <div class="col-9">: ${codigo}</div>
             </div>
             <div class="row text-start">
-              <div class="col-3 fw-bold">Observación:</div>
-              <div class="col-9">
-                <div class="bg-light p-2 rounded text-start">
-                  <small>"${observacion}"</small>
-                </div>
-              </div>
+              <div class="col-3 fw-bold">Obs.</div>
+              <div class="col-9">: ${observacion}</div>
             </div>
           </div>
           <p class="text-muted mb-0">
@@ -62,7 +58,7 @@ export class ObservacionProcessorService {
         </div>
       `,
       confirmButtonText: '<i class="bi bi-arrow-right me-2"></i>Continuar',
-      timer: 4000,
+      timer: 5000,
       timerProgressBar: true,
       customClass: {
         confirmButton: 'btn btn-success',

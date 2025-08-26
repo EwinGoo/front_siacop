@@ -74,7 +74,7 @@ export const showSuccessModal = async (title: string, text: string, codigo: any)
     html: `
         <div style="text-align: center;">
           <p style="font-size: 16px; color: #495057; margin-bottom: 10px;">
-            ${text|| 'La comisión ha sido recepcionada exitosamente'}
+            ${text || 'La comisión ha sido recepcionada exitosamente'}
           </p>
           <p style="font-size: 14px; color: #6c757d;">
             <strong>Código:</strong> ${codigo}
@@ -106,7 +106,7 @@ export const showIngresoManualModal = async () => {
   const {value: codigo} = await Swal.fire({
     title: 'Ingreso Manual de Código',
     input: 'text',
-    inputLabel: 'Código de la comisión',
+    inputLabel: 'Código de la solicitud',
     inputPlaceholder: 'Ingrese el código...',
     showCancelButton: true,
     confirmButtonText: '<i class="las la-search fs-5 me-2"></i> Buscar',
@@ -116,14 +116,44 @@ export const showIngresoManualModal = async () => {
       confirmButton: 'btn btn-primary',
       cancelButton: 'btn btn-danger',
     },
+    didOpen: () => {
+      const input = Swal.getInput() as HTMLInputElement
+      if (input) {
+        // Forzar mayúsculas en tiempo real
+        const handleInput = (e: Event) => {
+          const target = e.target as HTMLInputElement
+          const cursorPosition = target.selectionStart
+          target.value = target.value.toUpperCase()
+          target.setSelectionRange(cursorPosition, cursorPosition)
+        }
+
+        input.addEventListener('input', handleInput)
+        input.addEventListener('paste', (e) => {
+          setTimeout(() => handleInput(e), 0)
+        })
+
+        // Establecer foco y mostrar placeholder
+        input.focus()
+      }
+    },
     inputValidator: (value) => {
       if (!value) {
         return 'Debe ingresar un código'
       }
-      if (!/^\d+$/.test(value)) {
-        return 'El código debe ser un número entero positivo'
+      // if (!/^\d+$/.test(value)) {
+      //   return 'El código debe ser un número entero positivo'
+      // }
+      if (!/^[CP]\d+$/.test(value)) {
+        return 'El código debe empezar con C o P seguido de números (ej: C23, P456)'
+      }
+      if (value.length < 2 || value.length > 11) {
+        return 'El código debe tener entre 2 y 11 caracteres (ej: C1 hasta P1234567890)'
+      }
+
+      if (!/^[A-Za-z0-9]+$/.test(value)) {
+        return 'El código debe ser alfanumérico (solo letras y números, ej: ABC123, X1Y2Z3)'
       }
     },
   })
-  return codigo ? parseInt(codigo, 10) : undefined
+  return codigo ? codigo : undefined
 }

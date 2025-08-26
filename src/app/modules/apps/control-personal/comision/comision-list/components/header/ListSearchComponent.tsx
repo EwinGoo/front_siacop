@@ -1,11 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {useEffect, useState} from 'react'
-import {initialQueryState, KTIcon, useDebounce} from '../../../../../../../../_metronic/helpers'
+import {initialQueryState, KTIcon, QUERIES, useDebounce} from 'src/_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
+import {useQueryClient} from 'react-query'
+import {useQueryResponse} from '../../core/QueryResponseProvider'
 
 const ListSearchComponent = () => {
   const {updateState} = useQueryRequest()
   const [searchTerm, setSearchTerm] = useState<string>('')
+  const {query} = useQueryResponse()
+  const queryClient = useQueryClient()
   // Debounce search term so that it only gives us latest value ...
   // ... if searchTerm has not been updated within last 500ms.
   // The goal is to only have the API call fire when user stops typing ...
@@ -25,6 +29,16 @@ const ListSearchComponent = () => {
   return (
     <div className='card-title'>
       {/* begin::Search */}
+      <button
+        type='button'
+        className='btn btn-light btn-sm mx-2'
+        onClick={() => {
+          queryClient.invalidateQueries([`${QUERIES.COMISIONES_LIST}-${query}`])
+        }}
+        title='Actualizar tabla'
+      >
+        <KTIcon iconName='arrows-circle' className='fs-1' />
+      </button>
       <div className='d-flex align-items-center position-relative my-1'>
         <KTIcon iconName='magnifier' className='fs-1 position-absolute ms-6' />
         <input
@@ -45,6 +59,7 @@ const ListSearchComponent = () => {
           </span>
         )}
       </div>
+
       {/* end::Search */}
     </div>
   )

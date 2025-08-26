@@ -291,7 +291,8 @@ const EditModalForm: FC<Props> = ({feriadoAsueto, isFeriadoAsuetoLoading, onClos
         <FormActions
           onClose={onClose}
           isSubmitting={formik.isSubmitting}
-          isValid={formik.isValid}
+          // isValid={formik.isValid}
+          isValid={true}
           isEdit={!!feriadoAsueto.id_asistencia_feriado_asueto}
         />
       </form>

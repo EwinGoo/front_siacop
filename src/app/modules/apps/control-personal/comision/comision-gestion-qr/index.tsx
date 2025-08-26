@@ -40,8 +40,28 @@ const GestionComisionQR: React.FC = () => {
         if (!value) {
           return 'Debe ingresar un código'
         }
-        if (!/^\d+$/.test(value)) {
-          return 'El código debe ser un número entero positivo'
+        // if (!/^\d+$/.test(value)) {
+        //   return 'El código debe ser un número entero positivo'
+        // }
+        if (!/^[CP]\d+$/.test(value)) {
+          Swal.showValidationMessage(
+            'El código debe empezar con C o P seguido de números (ej: C23, P456)'
+          )
+          return false
+        }
+        
+        if (value.length < 2 || value.length > 11) {
+          Swal.showValidationMessage(
+            'El código debe tener entre 2 y 11 caracteres (ej: C1 hasta P1234567890)'
+          )
+          return false
+        }
+
+        if (!/^[A-Za-z0-9]+$/.test(value)) {
+          Swal.showValidationMessage(
+            'El código debe ser alfanumérico (solo letras y números, ej: ABC123, X1Y2Z3)'
+          )
+          return false
         }
       },
     })

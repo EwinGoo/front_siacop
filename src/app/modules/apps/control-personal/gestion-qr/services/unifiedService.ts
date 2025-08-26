@@ -8,7 +8,7 @@ export class UnifiedComisionService {
     try {
       if (tipoPermiso === 'dia') {
         // Obtener datos de permiso
-        return await permisoService.getComisionById(code)
+        return await permisoService.getPermisoById(code)
       } else {
         // Obtener datos de comisión y convertir al formato unificado
         const comisionData = await comisionService.getComisionById(code)
@@ -23,6 +23,7 @@ export class UnifiedComisionService {
   }
 
   async procesarRecepcionByType(codigo: string, fechaHora: string, tipoPermiso: TipoPermiso) {
+    
     try {
       if (tipoPermiso === 'dia') {
         return await permisoService.procesarRecepcion(codigo, fechaHora, tipoPermiso)
@@ -38,7 +39,7 @@ export class UnifiedComisionService {
   async aprobarComisionByType(codigo: string, tipoPermiso: TipoPermiso) {
     try {
       if (tipoPermiso === 'dia') {
-        return await permisoService.aprobarComision(codigo)
+        return await permisoService.aprobarPermiso(codigo)
       } else {
         return await comisionService.aprobarComision(codigo)
       }
@@ -64,14 +65,14 @@ export class UnifiedComisionService {
   getTypeConfig(tipoPermiso: TipoPermiso) {
     if (tipoPermiso === 'dia') {
       return {
-        serviceName: 'Permisos de Asistencia',
+        serviceName: 'Licencias Especiales',
         icon: 'bi-calendar-check',
         color: 'warning',
         description: 'Procesando permiso de asistencia'
       }
     } else {
       return {
-        serviceName: 'Comisiones de Servicio',
+        serviceName: 'Comisiones',
         icon: 'bi-briefcase',
         color: 'primary',
         description: 'Procesando comisión por horas'

@@ -42,15 +42,15 @@ export const ProtectedRoute: FC<ProtectedRouteProps> = memo(
     // Si usa el nuevo sistema de permisos específicos
     // console.log(hasAllSpecificPermissions(requiredSpecificPermissions!));
 
-    if (excludeDocenteAdministrativo && currentUser) {
-      const isDocente = currentUser.personal?.tipo_personal === 'DOCENTE'
-      const isAdministrativo = currentUser.groups?.includes('administrativo')
+    // if (excludeDocenteAdministrativo && currentUser) {
+    //   const isDocente = currentUser.personal?.tipo_personal === 'DOCENTE'
+    //   const isAdministrativo = currentUser.groups?.includes('docente')
       
 
-      if (isDocente && isAdministrativo) {
-        return <Navigate to='/acceso-denegado' replace />
-      }
-    }  
+    //   if (isDocente && isAdministrativo) {
+    //     return <Navigate to='/acceso-denegado' replace />
+    //   }
+    // }  
 
     if (requiredSpecificPermissions?.length) {
       const hasAccess = requireAllPermissions

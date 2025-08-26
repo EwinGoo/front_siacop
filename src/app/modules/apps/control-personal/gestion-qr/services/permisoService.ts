@@ -1,9 +1,10 @@
+import { parseIDNumeric } from 'src/app/utils/parseID'
 import { getAsistenciaPermisoById, procesarEstadoPermiso } from '../../permisos/asistencia-permiso/asistencia-permiso-list/core/_requests'
 import { TipoPermiso, UnifiedData } from '../types'
 import { DataAdapter } from './dataAdapter'
 
 export class PermisoService {
-  async getComisionById(id: number): Promise<UnifiedData | null> {
+  async getPermisoById(id: number): Promise<UnifiedData | null> {
     try {
       console.log(`Obteniendo permiso con ID: ${id}`)
       
@@ -27,11 +28,11 @@ export class PermisoService {
 
   async procesarRecepcion(codigo: string, fechaHora: string, tipoPermiso: TipoPermiso) {
     try {
-      console.log(`Procesando recepción de permiso: ${codigo}`)
+      // console.log(`Procesando recepción de permiso: ${codigo}`)
       
       // Aquí deberías tener tu endpoint específico para permisos
       const response = await procesarEstadoPermiso({
-        code: parseInt(codigo),
+        code: parseIDNumeric(codigo),
         action: 'receive',
         fecha: fechaHora,
       })
@@ -46,12 +47,12 @@ export class PermisoService {
     }
   }
 
-  async aprobarComision(codigo: string) {
+  async aprobarPermiso(codigo: string) {
     try {
       console.log(`Aprobando permiso: ${codigo}`)
       
       const response = await procesarEstadoPermiso({
-        code: parseInt(codigo),
+        code: parseIDNumeric(codigo),
         action: 'approve'
       })
 
@@ -69,7 +70,7 @@ export class PermisoService {
       console.log(`Registrando observación para permiso: ${codigo}`)
       
       const response = await procesarEstadoPermiso({
-        code: parseInt(codigo),
+        code: parseIDNumeric(codigo),
         action: 'observe',
         observacion: observacion
       })

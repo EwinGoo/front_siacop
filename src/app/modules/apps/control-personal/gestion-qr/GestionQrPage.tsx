@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react'
 import {useIntl} from 'react-intl'
 import {PageLink, PageTitle} from 'src/_metronic/layout/core'
 import {QRScannerPanel} from './components/QRScanner'
@@ -35,6 +36,21 @@ const GestionQrPage: React.FC = () => {
     actualizarTiempo,
     onUpdatedScannedHistory 
   } = useQRScanner()
+
+  // Efecto para manejar el atajo de teclado Ctrl + M
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Verificar si se presiona Ctrl + M
+      if (event.ctrlKey && event.key.toLowerCase() === 'm') {
+        event.preventDefault()
+        handleIngresoManual() 
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [handleIngresoManual])
 
   return (
     <>

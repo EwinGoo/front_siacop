@@ -3,6 +3,7 @@ import {QRResult, ModoRecepcion, TipoPermiso} from '../types'
 import {useFechaHora} from './useFechaHora'
 import {useProcessor} from './useProcessor'
 import {showIngresoManualModal} from 'src/app/utils/swalHelpers.ts'
+import {parseCode} from 'src/app/utils/parseID'
 
 export const useQRScanner = () => {
   const [loading, setLoading] = useState<boolean>(false)
@@ -26,11 +27,16 @@ export const useQRScanner = () => {
     modoRecepcionRef.current = modoRecepcion
   }, [modoRecepcion])
 
+  // ✅ SOLUCION 1: Callback actualizado que usa el tipo detectado directamente
   const onUpdatedScannedHistory = useCallback(
-    (code: string, timestamp: number) => {
-      console.log('entra')
-      setLastScanned({code, timestamp, tipoPermiso})
-      setScannedHistory((prev) => [{code, timestamp, tipoPermiso}, ...prev.slice(0, 9)])
+    (code: string, timestamp: number, detectedType?: TipoPermiso) => {
+      // Usar el tipo detectado si se proporciona, sino usar el del estado
+      const typeToUse = detectedType || tipoPermiso
+
+      console.log('📝 Actualizando historial:', {code, timestamp, tipo: typeToUse})
+
+      setLastScanned({code, timestamp, tipoPermiso: typeToUse})
+      setScannedHistory((prev) => [{code, timestamp, tipoPermiso: typeToUse}, ...prev.slice(0, 9)])
     },
     [tipoPermiso]
   )
@@ -39,38 +45,46 @@ export const useQRScanner = () => {
     async (result: QRResult) => {
       const {code} = result
 
-      // Verificar duplicados
+      // ✅ SOLUCION 2: Detectar el tipo y usarlo directamente sin esperar el estado
+      const detectedTipoPermiso = parseCode(code)
+
+      // Actualizar el estado para la UI (pero no esperar a que se actualice)
+      if (detectedTipoPermiso !== tipoPermiso) {
+        setTipoPermiso(detectedTipoPermiso)
+      }
+
+      // Verificar duplicados usando el tipo detectado
       const isDuplicate = scannedHistory.some(
-        (item) => item.code === code && Date.now() - item.timestamp < 5000
+        (item) =>
+          item.code === code &&
+          item.tipoPermiso === detectedTipoPermiso &&
+          Date.now() - item.timestamp < 5000
       )
 
       if (isDuplicate) {
-        console.log('Código duplicado, ignorando...', code)
+        console.log('⚠️ Código duplicado, ignorando...', code)
         return
       }
 
-      // Actualizar historial
-      // setLastScanned({code, tipoPermiso})
-      // setScannedHistory((prev) => [
-      //   {code, timestamp: result.timestamp, tipoPermiso},
-      //   ...prev.slice(0, 9),
-      // ])
-
-      // Procesar código
       setLoading(true)
       try {
         await processQRCode({
           code,
           modoRecepcion: modoRecepcionRef.current,
-          tipoPermiso,
+          tipoPermiso: detectedTipoPermiso,
           fechaHora,
-          onUpdatedScannedHistory,
+          onUpdatedScannedHistory: (code: string, timestamp: number) =>
+            onUpdatedScannedHistory(code, timestamp, detectedTipoPermiso),
         })
+
+        console.log('✅ Procesamiento exitoso')
+      } catch (error) {
+        console.error('❌ Error en procesamiento:', error)
       } finally {
         setLoading(false)
       }
     },
-    [scannedHistory, processQRCode, tipoPermiso, fechaHora]
+    [scannedHistory, processQRCode, tipoPermiso, fechaHora, onUpdatedScannedHistory]
   )
 
   const handleIngresoManual = useCallback(async () => {
@@ -79,14 +93,6 @@ export const useQRScanner = () => {
       await handleQRDetected({code: codigo.toString(), timestamp: Date.now()})
     }
   }, [handleQRDetected])
-
-  // const updatedScannedHistory  = (code, ) =>{
-  //    setLastScanned({code, tipoPermiso})
-  //     setScannedHistory((prev) => [
-  //       {code, timestamp: result.timestamp, tipoPermiso},
-  //       ...prev.slice(0, 9),
-  //     ])
-  // }
 
   return {
     // Estados

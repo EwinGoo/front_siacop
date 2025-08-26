@@ -1,9 +1,10 @@
-import { 
-  getComisionById, 
-  procesarEstadoComision, 
-  aprobarComisionPorQR 
+import {parseIDNumeric} from 'src/app/utils/parseID'
+import {
+  getComisionById,
+  procesarEstadoComision,
+  aprobarComisionPorQR,
 } from '../../comision/comision-list/core/_requests' // Ajustar ruta según tu estructura
-import { TipoPermiso } from '../types'
+import {TipoPermiso} from '../types'
 
 export class ComisionService {
   async getComisionById(id: number) {
@@ -19,12 +20,17 @@ export class ComisionService {
   async procesarRecepcion(codigo: string, fechaHora: string, tipoPermiso: TipoPermiso) {
     try {
       const response = await procesarEstadoComision({
-        code: parseInt(codigo),
+        code: parseIDNumeric(codigo),
         action: 'receive',
         fecha: fechaHora,
         // tipoPermiso: tipoPermiso
       })
-      return response
+      return {
+        message: `Solicitud recepcionado correctamente el ${new Date(fechaHora).toLocaleDateString(
+          'es-BO'
+        )}`,
+      }
+      // return response
     } catch (error) {
       console.error('Error al recepcionar comisión:', error)
       throw error
@@ -34,8 +40,8 @@ export class ComisionService {
   async aprobarComision(codigo: string) {
     try {
       const response = await procesarEstadoComision({
-        code: parseInt(codigo),
-        action: 'approve'
+        code: parseIDNumeric(codigo),
+        action: 'approve',
       })
       return response
     } catch (error) {
@@ -47,9 +53,9 @@ export class ComisionService {
   async registrarObservacion(codigo: string, observacion: string) {
     try {
       const response = await procesarEstadoComision({
-        code: parseInt(codigo),
+        code: parseIDNumeric(codigo),
         action: 'observe',
-        observacion: observacion
+        observacion: observacion,
       })
       return response
     } catch (error) {

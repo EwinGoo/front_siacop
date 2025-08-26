@@ -107,19 +107,24 @@
   }
 }
 
-[data-kt-app-layout=dark-sidebar] .app-sidebar .menu > .menu-item .menu-link.active {
-    background-color: #2A2A3C !important;
+[data-kt-app-layout='dark-sidebar'] .app-sidebar .menu > .menu-item .menu-link.active {
+  background-color: #2a2a3c !important;
 }
 
 // .react-select__menu-portal {
 //   z-index: 9999 !important;
-// }
+// 0.5
 .action-row {
   max-width: 10rem !important;
   // display: flex;
 }
 
-.w-actions{
+.w-actions {
   width: 130px !important;
   min-width: 130px !important;
+}
+
+.swal2-popup .swal2-html-container,
+.swal2-popup .swal2-content {
+  margin-top: 0.5rem !important;
 }

@@ -5,6 +5,7 @@ import {AsistenciaPermisoDetails} from '../../permisos/asistencia-permiso/asiste
 import {AsistenciaPermiso} from '../../permisos/asistencia-permiso/asistencia-permiso-list/core/_models'
 
 // }
+export type TipoDocumento = 'comision' | 'permiso'
 export interface ComisionActionResponse {
   confirmed: boolean
   action?: string
@@ -13,7 +14,7 @@ export interface ComisionActionResponse {
 }
 
 export interface ProcesarComisionParams {
-  code: number
+  code: number | string
   action: 'receive' | 'approve' | 'observe'
   observacion?: string
 }
@@ -33,19 +34,21 @@ export interface ComisionModalConfig {
 export interface UnifiedData {
   // Campos comunes adaptados
   id: ID
-  codigo: ID
+  codigo:  ID | string
   nombre_generador?: string | null
   estado: string
   fecha_inicio: string
   fecha_fin?: string
   descripcion?: string | null
-  tipo_documento: 'comision' | 'permiso'
-
+  tipo_documento: TipoDocumento
+  tipo_permiso: string
+  hora?: string
   // Campos específicos de comisión
   nombre_cargo?: string | null
   unidad?: string | null
   recorrido_de?: string
   recorrido_a?: string
+  observacion: string
 
   // Campos específicos de permiso
   tipo_permiso_nombre?: string
@@ -53,4 +56,12 @@ export interface UnifiedData {
   tipo_personal?: string
   instruccion?: string
   ci?: string
+}
+
+export const estadoStyles: Record<string, string> = {
+  GENERADO: 'secondary',
+  ENVIADO: 'warning',
+  RECEPCIONADO: 'info',
+  OBSERVADO: 'danger',
+  APROBADO: 'success',
 }

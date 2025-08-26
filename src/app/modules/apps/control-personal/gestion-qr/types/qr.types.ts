@@ -1,3 +1,4 @@
+export type ModalidadPermiso = 'hora' | 'dia' | 'vacacion'
 export interface QRResult {
   code: string
   timestamp: number
@@ -9,3 +10,4 @@ export interface QRScannerState {
   scannedHistory: Array<{ code: string; timestamp: number }>
   loading: boolean
 }
+
