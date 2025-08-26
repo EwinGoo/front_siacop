@@ -22,14 +22,6 @@ export const QRScannerPanel: React.FC<QRScannerPanelProps> = ({
             <i className='bi bi-qr-code-scan me-3 text-primary'></i>
             Escáner de Códigos QR
           </h3>
-          {/* {tipoPermiso === 'hora' && (
-            <div className='alert alert-info d-flex align-items-center py-2 mb-3'>
-              <i className='bi bi-clock me-2'></i>
-              <small>
-                <strong>Procesando:</strong> Permisos por horas específicas
-              </small>
-            </div>
-          )} */}
         </div>
       </div>
       <div className='card-body'>
@@ -61,10 +53,10 @@ export const QRScannerPanel: React.FC<QRScannerPanelProps> = ({
           </div>
         )}
 
-        {/* Componente del escáner QR */}
+        {/* Componente del escáner QR mejorado */}
         <QRReaderAlternative onQRDetected={onQRDetected} autoStart={true} />
 
-        {/* Información adicional */}
+        {/* Información adicional mejorada */}
         <div className='mt-4'>
           <div className='row'>
             <div className='col-md-6'>
@@ -93,17 +85,20 @@ export const QRScannerPanel: React.FC<QRScannerPanelProps> = ({
             <div className='col-md-6'>
               <div className='bg-light p-3 rounded'>
                 <h6 className='fw-bold text-gray-700 mb-2'>
-                  <i className='bi bi-info-circle me-2'></i>Instrucciones
+                  <i className='bi bi-info-circle me-2'></i>Instrucciones C920
                 </h6>
                 <ul className='list-unstyled mb-0 small text-muted'>
                   <li>
                     <i className='bi bi-dot'></i> Apunte la cámara al código QR
                   </li>
                   <li>
-                    <i className='bi bi-dot'></i> Mantenga el código bien enfocado
+                    <i className='bi bi-dot'></i> Use los controles de enfoque para mayor precisión
                   </li>
                   <li>
-                    <i className='bi bi-dot'></i> El escaneo es automático
+                    <i className='bi bi-dot'></i> Distancia óptima: 20-50cm del QR
+                  </li>
+                  <li>
+                    <i className='bi bi-dot'></i> El escaneo es automático y sin duplicados
                   </li>
                 </ul>
               </div>

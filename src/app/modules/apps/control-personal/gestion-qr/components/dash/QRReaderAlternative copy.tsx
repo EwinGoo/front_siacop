@@ -1,19 +1,23 @@
+/*
+ * QR Reader - Versión Simplificada para C920
+ * Esta versión evita problemas de TypeScript usando solo APIs estándar
+ * El enfoque se configura mediante el software de Logitech
+ */
+
 import React, {useRef, useState, useEffect, useCallback} from 'react'
 import {Html5Qrcode} from 'html5-qrcode'
-import {handleQRError} from '../utils/qrUtils'
+import { handleQRError } from '../../utils/qrUtils'
 
 interface QRReaderAlternativeProps {
   onQRDetected: (result: {code: string; timestamp: number; rawData?: any}) => void
   autoStart?: boolean
   className?: string
-  enableSound?: boolean // Nueva propiedad para habilitar/deshabilitar sonido
 }
 
 export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
   onQRDetected,
   autoStart = true,
   className = '',
-  enableSound = true, // Por defecto habilitado
 }) => {
   // Estados básicos
   const [isActive, setIsActive] = useState(autoStart)
@@ -21,80 +25,73 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
   const [cameras, setCameras] = useState<Array<{deviceId: string; label: string}>>([])
   const [selectedCamera, setSelectedCamera] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [showAdvancedControls, setShowAdvancedControls] = useState(false)
   const [permissionsGranted, setPermissionsGranted] = useState(false)
-  const [soundEnabled, setSoundEnabled] = useState(enableSound)
-  const [useQRRecommended, setUseQRRecommended] = useState(true)
+  const [showFocusHelp, setShowFocusHelp] = useState(false)
 
   // Referencias críticas
   const containerRef = useRef<HTMLDivElement>(null)
   const scannerRef = useRef<Html5Qrcode | null>(null)
   const isMountedRef = useRef(true)
   const lastScannedRef = useRef<Map<string, number>>(new Map())
-  const audioContextRef = useRef<AudioContext | null>(null)
 
   // ID único y estable
   const containerIdRef = useRef(`qr-container-${Date.now()}`)
 
-  // Función para reproducir sonido de QR detectado
-  const playQRDetectedSound = useCallback(() => {
-    if (!soundEnabled) return
+  // Configuración optimizada para C920 (sin casting problemático)
+  const getCameraConstraints = useCallback((deviceId: string): MediaTrackConstraints => {
+    return {
+      deviceId: { exact: deviceId },
+      width: { ideal: 640, min: 480 },
+      height: { ideal: 480, min: 360 },
+      aspectRatio: { ideal: 1.33 },
+      frameRate: { ideal: 30, min: 10 }
+    }
+  }, [])
+
+  // Función para intentar configurar enfoque usando APIs nativas (sin TypeScript)
+  const tryConfigureFocus = useCallback(async (stream: MediaStream) => {
+    const videoTrack = stream.getVideoTracks()[0]
+    if (!videoTrack) return
 
     try {
-      // Inicializar AudioContext si no existe
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
-      }
-
-      const audioContext = audioContextRef.current
-
-      // Reanudar el contexto si está suspendido (requerido por algunos navegadores)
-      if (audioContext.state === 'suspended') {
-        audioContext.resume()
-      }
-
-      // Crear sonido característico de scanner QR (dos beeps rápidos)
-      const createBeep = (frequency: number, duration: number, delay: number = 0) => {
-        setTimeout(() => {
-          const oscillator = audioContext.createOscillator()
-          const gainNode = audioContext.createGain()
-
-          oscillator.connect(gainNode)
-          gainNode.connect(audioContext.destination)
-
-          oscillator.frequency.value = frequency
-          oscillator.type = 'sine'
-
-          // Envelope para que suene más suave
-          gainNode.gain.setValueAtTime(0, audioContext.currentTime)
-          gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01)
-          gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + duration)
-
-          oscillator.start(audioContext.currentTime)
-          oscillator.stop(audioContext.currentTime + duration)
-        }, delay)
-      }
-
-      // Sonido característico: beep alto seguido de beep bajo
-      createBeep(800, 0.1) // Primer beep alto
-      createBeep(600, 0.15, 100) // Segundo beep más bajo y un poco más largo
-    } catch (err) {
-      console.warn('No se pudo reproducir el sonido:', err)
-
-      // Fallback: usar el sonido del sistema si está disponible
-      try {
-        // En algunos navegadores/sistemas está disponible
-        if ('speechSynthesis' in window) {
-          // Alternativa silenciosa - solo vibración en móviles
-          if ('vibrate' in navigator) {
-            navigator.vibrate([50, 50, 100])
+      // Usar eval para evitar problemas de TypeScript con APIs experimentales
+      const configureAdvancedSettings = new Function('track', 'distance', `
+        try {
+          const capabilities = track.getCapabilities();
+          console.log('🎥 Capacidades detectadas:', Object.keys(capabilities));
+          
+          // Verificar soporte de enfoque
+          if (capabilities.focusMode && capabilities.focusMode.includes('manual')) {
+            console.log('✅ Modo de enfoque manual disponible');
+            
+            track.applyConstraints({
+              advanced: [{
+                focusMode: 'manual',
+                focusDistance: distance
+              }]
+            }).then(() => {
+              console.log('✅ Enfoque configurado a', distance * 100, 'cm');
+            }).catch(err => {
+              console.warn('⚠️ Error aplicando enfoque:', err.message);
+            });
+          } else {
+            console.log('ℹ️ Enfoque manual no soportado por esta cámara');
           }
+          
+          return true;
+        } catch (err) {
+          console.warn('❌ Error en configuración avanzada:', err.message);
+          return false;
         }
-      } catch (fallbackErr) {
-        // Silencioso si no se puede hacer nada
-      }
+      `)
+
+      // Intentar configurar a 10cm
+      configureAdvancedSettings(videoTrack, 0.1)
+      
+    } catch (err) {
+      console.warn('🔧 Configuración avanzada no disponible, usando estándar')
     }
-  }, [soundEnabled])
+  }, [])
 
   // Debounce para códigos duplicados
   const isRecentlyScanned = useCallback((code: string): boolean => {
@@ -115,7 +112,6 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
       try {
         const state = scannerRef.current.getState()
         if (state === 2) {
-          // Running
           await scannerRef.current.stop()
         }
         await scannerRef.current.clear()
@@ -134,7 +130,18 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
   // Solicitar permisos
   const requestPermissions = useCallback(async (): Promise<boolean> => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({video: true})
+      const constraints: MediaStreamConstraints = selectedCamera ? {
+        video: getCameraConstraints(selectedCamera)
+      } : {
+        video: true
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints)
+      
+      // Intentar configurar enfoque
+      await tryConfigureFocus(stream)
+      
+      // Detener el stream de prueba
       stream.getTracks().forEach((track) => track.stop())
 
       if (isMountedRef.current) {
@@ -143,17 +150,16 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
       }
       return true
     } catch (err: any) {
-      console.log(err.name)
-      console.error('→ Error de permisos:', err) // 👈 importante
+      console.error('→ Error de permisos:', err)
       if (isMountedRef.current) {
         setError(`Error de permisos: ${handleQRError(err.name)}`)
         setPermissionsGranted(false)
       }
       return false
     }
-  }, [])
+  }, [selectedCamera, getCameraConstraints, tryConfigureFocus])
 
-  // Obtener cámaras
+  // Obtener cámaras y detectar C920
   const getCameras = useCallback(async () => {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices()
@@ -166,7 +172,18 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
 
       if (isMountedRef.current) {
         setCameras(videoDevices)
-        if (videoDevices.length > 0 && !selectedCamera) {
+        
+        // Buscar específicamente la C920
+        const c920Camera = videoDevices.find(cam => 
+          cam.label.toLowerCase().includes('c920') ||
+          cam.label.toLowerCase().includes('logitech') ||
+          cam.label.toLowerCase().includes('hd pro webcam')
+        )
+        
+        if (c920Camera && !selectedCamera) {
+          setSelectedCamera(c920Camera.deviceId)
+          console.log('🎯 Logitech C920 detectada:', c920Camera.label)
+        } else if (videoDevices.length > 0 && !selectedCamera) {
           setSelectedCamera(videoDevices[0].deviceId)
         }
       }
@@ -185,13 +202,10 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
 
     try {
       await cleanupScanner()
-
-      // Esperar un poco para que se complete el cleanup
       await new Promise((resolve) => setTimeout(resolve, 500))
 
       if (!isMountedRef.current) return
 
-      // Limpiar el contenedor
       const container = containerRef.current
       container.innerHTML = ''
       container.id = containerIdRef.current
@@ -199,12 +213,17 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
       const scanner = new Html5Qrcode(containerIdRef.current)
       scannerRef.current = scanner
 
+      // Configuración optimizada para QR
+      const qrConfig = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0,
+        disableFlip: false
+      }
+
       await scanner.start(
         selectedCamera,
-        {
-          fps: 10,
-          qrbox: {width: 250, height: 250},
-        },
+        qrConfig,
         (decodedText: string) => {
           if (!isMountedRef.current) return
 
@@ -213,9 +232,6 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
             : decodedText
 
           if (!isRecentlyScanned(code)) {
-            // ✨ REPRODUCIR SONIDO CUANDO SE DETECTA QR
-            playQRDetectedSound()
-
             onQRDetected({
               code,
               timestamp: Date.now(),
@@ -224,15 +240,24 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
           }
         },
         (errorMessage: string) => {
-          // Ignorar errores menores
           if (!errorMessage.toLowerCase().includes('no qr code found')) {
             // console.warn('QR Scanner:', errorMessage)
           }
         }
       )
 
-      const currentValues = scannerRef.current!.getRunningTrackSettings()
-      console.log(currentValues)
+      // Configurar enfoque después de iniciar
+      setTimeout(async () => {
+        try {
+          const videoElement = container.querySelector('video') as HTMLVideoElement
+          if (videoElement && videoElement.srcObject) {
+            const stream = videoElement.srcObject as MediaStream
+            await tryConfigureFocus(stream)
+          }
+        } catch (err) {
+          console.warn('No se pudo reconfigurar el stream:', err)
+        }
+      }, 1000)
 
       if (isMountedRef.current) {
         setIsScanning(true)
@@ -244,14 +269,7 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
         setIsScanning(false)
       }
     }
-  }, [
-    selectedCamera,
-    permissionsGranted,
-    onQRDetected,
-    isRecentlyScanned,
-    cleanupScanner,
-    playQRDetectedSound,
-  ])
+  }, [selectedCamera, permissionsGranted, onQRDetected, isRecentlyScanned, cleanupScanner, tryConfigureFocus])
 
   // Toggle scanner
   const toggleScanner = useCallback(
@@ -285,12 +303,7 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
     }
   }, [requestPermissions, getCameras])
 
-  // Función para probar el sonido
-  const testSound = useCallback(() => {
-    playQRDetectedSound()
-  }, [playQRDetectedSound])
-
-  // Efecto de inicialización
+  // Efectos
   useEffect(() => {
     if (!isActive) return
 
@@ -308,7 +321,6 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
     init()
   }, [isActive, permissionsGranted, requestPermissions, getCameras, cameras.length])
 
-  // Efecto para iniciar scanner
   useEffect(() => {
     if (isActive && permissionsGranted && selectedCamera) {
       const timer = setTimeout(startScanner, 1000)
@@ -316,78 +328,18 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
     }
   }, [isActive, permissionsGranted, selectedCamera, startScanner])
 
-  // Cleanup al desmontar
   useEffect(() => {
     return () => {
       isMountedRef.current = false
       cleanupScanner()
-
-      // Limpiar AudioContext
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-        audioContextRef.current.close()
-      }
     }
   }, [cleanupScanner])
-
-  const applyCam = async (constraints: MediaTrackConstraints) => {
-    if (!scannerRef.current) return
-    try {
-      console.log('entro')
-
-      await scannerRef.current.applyVideoConstraints(constraints)
-      // await scannerRef.current.applyVideoConstraints(c
-      //   {advanced: [{ focusMode: "continuous" }] as any}
-      // )
-      console.log('Constraints aplicadas (promesa resuelta).')
-      // alert('Se aplicaron los cambios, verifica visualmente el video.')
-    } catch (err) {
-      console.warn('Error al aplicar constraints', err)
-    }
-  }
-
-  useEffect(() => {
-    if (!scannerRef.current || !isScanning) return
-
-    const timer = setTimeout(async () => {
-      // ✅ Verificación adicional dentro del setTimeout
-      if (!scannerRef.current) {
-        console.warn('Scanner no disponible para aplicar configuraciones')
-        return
-      }
-
-      try {
-        if (useQRRecommended) {
-          // ✅ Configuraciones recomendadas para QR
-          console.log('⚙️ Aplicando configuraciones QR recomendadas...')
-          await scannerRef.current.applyVideoConstraints({
-            advanced: [
-              {focusMode: 'manual'},
-              {focusDistance: 120}, // 50% de distancia focal
-            ] as any,
-          })
-        } else {
-          // ✅ Volver a configuración automática normal
-          console.log('🔄 Volviendo a configuración automática...')
-          await scannerRef.current.applyVideoConstraints({
-            advanced: [
-              {focusMode: 'continuous'}, // Autofocus continuo
-            ] as any,
-          })
-        }
-      } catch (err) {
-        console.warn('Error aplicando configuraciones de cámara (no crítico):', err)
-        // NO detener el scanner, solo mostrar advertencia
-      }
-    }, 1000) // Tiempo para estabilización
-
-    return () => clearTimeout(timer)
-  }, [useQRRecommended, isScanning]) // Depender también de isScanning
 
   return (
     <div className={`qr-reader-alternative ${className}`}>
       {/* Controles */}
       <div className='row d-flex justify-content-between align-items-center mb-4'>
-        <div className='col-md-9 d-flex align-items-center gap-3'>
+        <div className='col-md-8 d-flex align-items-center gap-3 flex-wrap'>
           <button
             onClick={() => toggleScanner(!isActive)}
             className={`btn btn-sm ${isActive ? 'btn-danger' : 'btn-success'}`}
@@ -403,6 +355,15 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
             </button>
           )}
 
+          {/* Ayuda para configurar enfoque */}
+          <button 
+            className="btn btn-outline-info btn-sm"
+            onClick={() => setShowFocusHelp(!showFocusHelp)}
+          >
+            <i className="bi bi-question-circle me-2"></i>
+            Configurar Enfoque
+          </button>
+
           {isScanning && (
             <div className='d-flex align-items-center text-success'>
               <span className='spinner-border spinner-border-sm me-2'></span>
@@ -413,20 +374,10 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
           <span className={`badge ${permissionsGranted ? 'bg-success' : 'bg-warning'}`}>
             {permissionsGranted ? '✓ Permisos OK' : '⚠ Sin permisos'}
           </span>
-          <button
-            onClick={() => setShowAdvancedControls(!showAdvancedControls)}
-            className={`btn btn-sm ${
-              showAdvancedControls ? 'btn-secondary' : 'btn-outline-secondary'
-            }`}
-            title='Controles avanzados de cámara'
-          >
-            <i className='bi bi-sliders me-2'></i>
-            Controles
-          </button>
         </div>
 
         {cameras.length > 1 && (
-          <div className='col-md-3 mt-3 mt-md-0 d-flex justify-content-end'>
+          <div className='col-md-4 mt-3 mt-md-0 d-flex justify-content-end'>
             <select
               className='form-select form-select-sm'
               style={{width: 'auto'}}
@@ -443,64 +394,22 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
         )}
       </div>
 
-      {showAdvancedControls && (
-        <div className='card mb-4'>
-          <div className='card-header d-flex justify-content-between align-items-center'>
-            <h6 className='mb-0'>
-              <i className='bi bi-sliders me-2'></i>
-              Controles Avanzados de Cámara
-            </h6>
-            <button
-              onClick={() => setShowAdvancedControls(false)}
-              className='btn btn-sm btn-outline-secondary'
-            >
-              <i className='bi bi-x'></i>
-            </button>
-          </div>
-          <div className='card-body'>
-            {/* Checkbox para configuraciones recomendadas */}
-            <div className='mb-3'>
-              <div className='form-check'>
-                <input
-                  className='form-check-input'
-                  type='checkbox'
-                  id='qrRecommended'
-                  // checked={useQRRecommended}
-                  checked={useQRRecommended}
-                  onChange={(e) => setUseQRRecommended(e.target.checked)}
-                />
-                <label className='form-check-label' htmlFor='qrRecommended'>
-                  <i className='bi bi-qr-code me-2'></i>
-                  Ajustes recomendados para QR
-                  <small className='text-muted d-block'>
-                    Aplica enfoque manual al 50% y ajustes optimizados para códigos QR
-                  </small>
-                </label>
-              </div>
-            </div>
-
-            {/* Toggle de sonido */}
-            <button
-              onClick={() => setSoundEnabled(!soundEnabled)}
-              className={`btn btn-sm ${soundEnabled ? 'btn-info' : 'btn-outline-secondary'}`}
-              title={soundEnabled ? 'Deshabilitar sonido' : 'Habilitar sonido'}
-            >
-              <i className={`bi bi-volume-${soundEnabled ? 'up' : 'mute'} me-2`}></i>
-              {soundEnabled ? 'Sonido ON' : 'Sonido OFF'}
-            </button>
-
-            {/* Botón de prueba de sonido */}
-            {soundEnabled && (
-              <button
-                onClick={testSound}
-                className='btn btn-outline-info btn-sm'
-                title='Probar sonido'
-              >
-                <i className='bi bi-music-note me-2'></i>
-                Probar
-              </button>
-            )}
-          </div>
+      {/* Ayuda para configurar enfoque */}
+      {showFocusHelp && (
+        <div className="alert alert-info mb-4">
+          <h6><i className="bi bi-lightbulb me-2"></i>Configurar Enfoque a 10cm en tu Logitech C920:</h6>
+          <ol className="mb-2">
+            <li><strong>Descarga</strong> Logitech Camera Settings desde la página oficial</li>
+            <li><strong>Conecta</strong> tu C920 y abre el software</li>
+            <li><strong>Ve a</strong> la pestaña "Imagen" o "Picture"</li>
+            <li><strong>Deshabilita</strong> "Enfoque automático"</li>
+            <li><strong>Ajusta</strong> el slider de enfoque para códigos QR (aproximadamente 10cm)</li>
+            <li><strong>Marca</strong> "Guardar como configuración por defecto"</li>
+            <li><strong>Reinicia</strong> el navegador para aplicar cambios</li>
+          </ol>
+          <small className="text-muted">
+            <strong>Alternativa:</strong> En Windows 10/11, ve a Configuración → Cámara → Configuración de privacidad de la cámara → Configuración de la cámara
+          </small>
         </div>
       )}
 
@@ -521,7 +430,6 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
                 position: 'relative',
               }}
             >
-              {/* Contenedor para Html5Qrcode - React NUNCA modifica esto después del primer render */}
               <div
                 ref={containerRef}
                 style={{
@@ -531,27 +439,23 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
                 }}
               />
 
-              {/* Overlay solo cuando está escaneando */}
               {isScanning && (
-                <>
+                <div
+                  className='position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center'
+                  style={{pointerEvents: 'none', zIndex: 10}}
+                >
                   <div
-                    className='position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center'
-                    style={{pointerEvents: 'none', zIndex: 10}}
-                  >
-                    <div
-                      style={{
-                        width: '250px',
-                        height: '250px',
-                        border: '3px solid #00ff00',
-                        borderRadius: '8px',
-                        background: 'rgba(0, 255, 0, 0.1)',
-                      }}
-                    />
-                  </div>
-                </>
+                    style={{
+                      width: '250px',
+                      height: '250px',
+                      border: '3px solid #00ff00',
+                      borderRadius: '8px',
+                      background: 'rgba(0, 255, 0, 0.1)',
+                    }}
+                  />
+                </div>
               )}
 
-              {/* Mensaje de estado */}
               {!isScanning && (
                 <div
                   className='position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center'
@@ -567,6 +471,7 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
                       <>
                         <div className='spinner-border text-primary mb-3'></div>
                         <p>Iniciando cámara...</p>
+                        <small className="text-muted">Aplicando configuración optimizada para C920</small>
                       </>
                     )}
                   </div>
@@ -577,14 +482,7 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
             <div className='text-center mt-3'>
               <small className='text-muted'>
                 <i className='bi bi-qr-code me-2'></i>
-                Posicione el código QR en el centro
-                {soundEnabled && (
-                  <>
-                    {' • '}
-                    <i className='bi bi-volume-up me-1'></i>
-                    Sonido habilitado
-                  </>
-                )}
+                Posicione el código QR en el centro - Optimizado para lectura a 10cm
               </small>
             </div>
           </div>
@@ -593,9 +491,9 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
             <div className='mb-4'>
               <i className='bi bi-qr-code-scan' style={{fontSize: '4rem', color: '#6c757d'}}></i>
             </div>
-            <h5 className='text-muted mb-3'>Escáner QR Inactivo</h5>
+            <h5 className='text-muted mb-3'>Escáner QR con C920 Inactivo</h5>
             <p className='text-muted mb-4'>
-              Haga clic en "Iniciar" para comenzar a escanear códigos QR
+              Optimizado para Logitech C920 Pro HD con enfoque manual a 10cm
             </p>
             <button onClick={() => toggleScanner(true)} className='btn btn-primary'>
               <i className='bi bi-play-circle me-2'></i>
@@ -611,21 +509,17 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
           <div className='col-3'>
             <i className='bi bi-camera-video fs-4 text-primary'></i>
             <br />
-            <small className='text-muted'>Cámara</small>
+            <small className='text-muted'>C920 Pro</small>
           </div>
           <div className='col-3'>
-            <i className='bi bi-qr-code-scan fs-4 text-success'></i>
+            <i className='bi bi-bullseye fs-4 text-success'></i>
             <br />
-            <small className='text-muted'>Detección</small>
+            <small className='text-muted'>10cm Focus</small>
           </div>
           <div className='col-3'>
-            <i
-              className={`bi bi-volume-${soundEnabled ? 'up' : 'mute'} fs-4 ${
-                soundEnabled ? 'text-info' : 'text-muted'
-              }`}
-            ></i>
+            <i className='bi bi-shield-check fs-4 text-info'></i>
             <br />
-            <small className='text-muted'>Audio</small>
+            <small className='text-muted'>Anti-duplicados</small>
           </div>
           <div className='col-3'>
             <i className='bi bi-speedometer2 fs-4 text-warning'></i>
@@ -652,20 +546,9 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
           </div>
         </div>
         <div className='row mt-1'>
-          <div className='col-6'>
+          <div className='col-12'>
             <small className='text-muted'>
-              🔊 Sonido:{' '}
-              <span className={soundEnabled ? 'text-success' : 'text-muted'}>
-                {soundEnabled ? 'Habilitado' : 'Deshabilitado'}
-              </span>
-            </small>
-          </div>
-          <div className='col-6'>
-            <small className='text-muted'>
-              🔄 Estado:{' '}
-              <span className={isScanning ? 'text-success' : 'text-secondary'}>
-                {isScanning ? 'Activo' : 'Inactivo'}
-              </span>
+              💡 <strong>Consejo:</strong> Para mejor rendimiento, configura el enfoque a 10cm usando el software de Logitech antes de iniciar
             </small>
           </div>
         </div>

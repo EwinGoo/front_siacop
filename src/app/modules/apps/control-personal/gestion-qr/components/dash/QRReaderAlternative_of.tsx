@@ -1,6 +1,6 @@
 import React, {useRef, useState, useEffect, useCallback} from 'react'
 import {Html5Qrcode} from 'html5-qrcode'
-import {handleQRError} from '../utils/qrUtils'
+import { handleQRError } from '../../utils/qrUtils'
 
 interface QRReaderAlternativeProps {
   onQRDetected: (result: {code: string; timestamp: number; rawData?: any}) => void
@@ -21,10 +21,8 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
   const [cameras, setCameras] = useState<Array<{deviceId: string; label: string}>>([])
   const [selectedCamera, setSelectedCamera] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [showAdvancedControls, setShowAdvancedControls] = useState(false)
   const [permissionsGranted, setPermissionsGranted] = useState(false)
   const [soundEnabled, setSoundEnabled] = useState(enableSound)
-  const [useQRRecommended, setUseQRRecommended] = useState(true)
 
   // Referencias críticas
   const containerRef = useRef<HTMLDivElement>(null)
@@ -38,63 +36,64 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
 
   // Función para reproducir sonido de QR detectado
   const playQRDetectedSound = useCallback(() => {
-    if (!soundEnabled) return
+    if (!soundEnabled) return;
 
     try {
       // Inicializar AudioContext si no existe
       if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
 
-      const audioContext = audioContextRef.current
-
+      const audioContext = audioContextRef.current;
+      
       // Reanudar el contexto si está suspendido (requerido por algunos navegadores)
       if (audioContext.state === 'suspended') {
-        audioContext.resume()
+        audioContext.resume();
       }
 
       // Crear sonido característico de scanner QR (dos beeps rápidos)
       const createBeep = (frequency: number, duration: number, delay: number = 0) => {
         setTimeout(() => {
-          const oscillator = audioContext.createOscillator()
-          const gainNode = audioContext.createGain()
-
-          oscillator.connect(gainNode)
-          gainNode.connect(audioContext.destination)
-
-          oscillator.frequency.value = frequency
-          oscillator.type = 'sine'
-
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          oscillator.frequency.value = frequency;
+          oscillator.type = 'sine';
+          
           // Envelope para que suene más suave
-          gainNode.gain.setValueAtTime(0, audioContext.currentTime)
-          gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01)
-          gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + duration)
-
-          oscillator.start(audioContext.currentTime)
-          oscillator.stop(audioContext.currentTime + duration)
-        }, delay)
-      }
+          gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+          gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+          gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + duration);
+          
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + duration);
+        }, delay);
+      };
 
       // Sonido característico: beep alto seguido de beep bajo
-      createBeep(800, 0.1) // Primer beep alto
-      createBeep(600, 0.15, 100) // Segundo beep más bajo y un poco más largo
+      createBeep(800, 0.1); // Primer beep alto
+      createBeep(600, 0.15, 100); // Segundo beep más bajo y un poco más largo
+      
     } catch (err) {
-      console.warn('No se pudo reproducir el sonido:', err)
-
+      console.warn('No se pudo reproducir el sonido:', err);
+      
       // Fallback: usar el sonido del sistema si está disponible
       try {
         // En algunos navegadores/sistemas está disponible
         if ('speechSynthesis' in window) {
           // Alternativa silenciosa - solo vibración en móviles
           if ('vibrate' in navigator) {
-            navigator.vibrate([50, 50, 100])
+            navigator.vibrate([50, 50, 100]);
           }
         }
       } catch (fallbackErr) {
         // Silencioso si no se puede hacer nada
       }
     }
-  }, [soundEnabled])
+  }, [soundEnabled]);
 
   // Debounce para códigos duplicados
   const isRecentlyScanned = useCallback((code: string): boolean => {
@@ -214,8 +213,8 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
 
           if (!isRecentlyScanned(code)) {
             // ✨ REPRODUCIR SONIDO CUANDO SE DETECTA QR
-            playQRDetectedSound()
-
+            playQRDetectedSound();
+            
             onQRDetected({
               code,
               timestamp: Date.now(),
@@ -231,9 +230,6 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
         }
       )
 
-      const currentValues = scannerRef.current!.getRunningTrackSettings()
-      console.log(currentValues)
-
       if (isMountedRef.current) {
         setIsScanning(true)
         setError(null)
@@ -244,14 +240,7 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
         setIsScanning(false)
       }
     }
-  }, [
-    selectedCamera,
-    permissionsGranted,
-    onQRDetected,
-    isRecentlyScanned,
-    cleanupScanner,
-    playQRDetectedSound,
-  ])
+  }, [selectedCamera, permissionsGranted, onQRDetected, isRecentlyScanned, cleanupScanner, playQRDetectedSound])
 
   // Toggle scanner
   const toggleScanner = useCallback(
@@ -287,8 +276,8 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
 
   // Función para probar el sonido
   const testSound = useCallback(() => {
-    playQRDetectedSound()
-  }, [playQRDetectedSound])
+    playQRDetectedSound();
+  }, [playQRDetectedSound]);
 
   // Efecto de inicialización
   useEffect(() => {
@@ -321,73 +310,19 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
     return () => {
       isMountedRef.current = false
       cleanupScanner()
-
+      
       // Limpiar AudioContext
       if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-        audioContextRef.current.close()
+        audioContextRef.current.close();
       }
     }
   }, [cleanupScanner])
-
-  const applyCam = async (constraints: MediaTrackConstraints) => {
-    if (!scannerRef.current) return
-    try {
-      console.log('entro')
-
-      await scannerRef.current.applyVideoConstraints(constraints)
-      // await scannerRef.current.applyVideoConstraints(c
-      //   {advanced: [{ focusMode: "continuous" }] as any}
-      // )
-      console.log('Constraints aplicadas (promesa resuelta).')
-      // alert('Se aplicaron los cambios, verifica visualmente el video.')
-    } catch (err) {
-      console.warn('Error al aplicar constraints', err)
-    }
-  }
-
-  useEffect(() => {
-    if (!scannerRef.current || !isScanning) return
-
-    const timer = setTimeout(async () => {
-      // ✅ Verificación adicional dentro del setTimeout
-      if (!scannerRef.current) {
-        console.warn('Scanner no disponible para aplicar configuraciones')
-        return
-      }
-
-      try {
-        if (useQRRecommended) {
-          // ✅ Configuraciones recomendadas para QR
-          console.log('⚙️ Aplicando configuraciones QR recomendadas...')
-          await scannerRef.current.applyVideoConstraints({
-            advanced: [
-              {focusMode: 'manual'},
-              {focusDistance: 120}, // 50% de distancia focal
-            ] as any,
-          })
-        } else {
-          // ✅ Volver a configuración automática normal
-          console.log('🔄 Volviendo a configuración automática...')
-          await scannerRef.current.applyVideoConstraints({
-            advanced: [
-              {focusMode: 'continuous'}, // Autofocus continuo
-            ] as any,
-          })
-        }
-      } catch (err) {
-        console.warn('Error aplicando configuraciones de cámara (no crítico):', err)
-        // NO detener el scanner, solo mostrar advertencia
-      }
-    }, 1000) // Tiempo para estabilización
-
-    return () => clearTimeout(timer)
-  }, [useQRRecommended, isScanning]) // Depender también de isScanning
 
   return (
     <div className={`qr-reader-alternative ${className}`}>
       {/* Controles */}
       <div className='row d-flex justify-content-between align-items-center mb-4'>
-        <div className='col-md-9 d-flex align-items-center gap-3'>
+        <div className='col-md-6 d-flex align-items-center gap-3'>
           <button
             onClick={() => toggleScanner(!isActive)}
             className={`btn btn-sm ${isActive ? 'btn-danger' : 'btn-success'}`}
@@ -403,6 +338,28 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
             </button>
           )}
 
+          {/* Toggle de sonido */}
+          <button
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className={`btn btn-sm ${soundEnabled ? 'btn-info' : 'btn-outline-secondary'}`}
+            title={soundEnabled ? 'Deshabilitar sonido' : 'Habilitar sonido'}
+          >
+            <i className={`bi bi-volume-${soundEnabled ? 'up' : 'mute'} me-2`}></i>
+            {soundEnabled ? 'Sonido ON' : 'Sonido OFF'}
+          </button>
+
+          {/* Botón de prueba de sonido */}
+          {soundEnabled && (
+            <button
+              onClick={testSound}
+              className='btn btn-outline-info btn-sm'
+              title='Probar sonido'
+            >
+              <i className='bi bi-music-note me-2'></i>
+              Probar
+            </button>
+          )}
+
           {isScanning && (
             <div className='d-flex align-items-center text-success'>
               <span className='spinner-border spinner-border-sm me-2'></span>
@@ -413,20 +370,10 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
           <span className={`badge ${permissionsGranted ? 'bg-success' : 'bg-warning'}`}>
             {permissionsGranted ? '✓ Permisos OK' : '⚠ Sin permisos'}
           </span>
-          <button
-            onClick={() => setShowAdvancedControls(!showAdvancedControls)}
-            className={`btn btn-sm ${
-              showAdvancedControls ? 'btn-secondary' : 'btn-outline-secondary'
-            }`}
-            title='Controles avanzados de cámara'
-          >
-            <i className='bi bi-sliders me-2'></i>
-            Controles
-          </button>
         </div>
 
         {cameras.length > 1 && (
-          <div className='col-md-3 mt-3 mt-md-0 d-flex justify-content-end'>
+          <div className='col-md-6 mt-3 mt-md-0 d-flex justify-content-end'>
             <select
               className='form-select form-select-sm'
               style={{width: 'auto'}}
@@ -442,67 +389,6 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
           </div>
         )}
       </div>
-
-      {showAdvancedControls && (
-        <div className='card mb-4'>
-          <div className='card-header d-flex justify-content-between align-items-center'>
-            <h6 className='mb-0'>
-              <i className='bi bi-sliders me-2'></i>
-              Controles Avanzados de Cámara
-            </h6>
-            <button
-              onClick={() => setShowAdvancedControls(false)}
-              className='btn btn-sm btn-outline-secondary'
-            >
-              <i className='bi bi-x'></i>
-            </button>
-          </div>
-          <div className='card-body'>
-            {/* Checkbox para configuraciones recomendadas */}
-            <div className='mb-3'>
-              <div className='form-check'>
-                <input
-                  className='form-check-input'
-                  type='checkbox'
-                  id='qrRecommended'
-                  // checked={useQRRecommended}
-                  checked={useQRRecommended}
-                  onChange={(e) => setUseQRRecommended(e.target.checked)}
-                />
-                <label className='form-check-label' htmlFor='qrRecommended'>
-                  <i className='bi bi-qr-code me-2'></i>
-                  Ajustes recomendados para QR
-                  <small className='text-muted d-block'>
-                    Aplica enfoque manual al 50% y ajustes optimizados para códigos QR
-                  </small>
-                </label>
-              </div>
-            </div>
-
-            {/* Toggle de sonido */}
-            <button
-              onClick={() => setSoundEnabled(!soundEnabled)}
-              className={`btn btn-sm ${soundEnabled ? 'btn-info' : 'btn-outline-secondary'}`}
-              title={soundEnabled ? 'Deshabilitar sonido' : 'Habilitar sonido'}
-            >
-              <i className={`bi bi-volume-${soundEnabled ? 'up' : 'mute'} me-2`}></i>
-              {soundEnabled ? 'Sonido ON' : 'Sonido OFF'}
-            </button>
-
-            {/* Botón de prueba de sonido */}
-            {soundEnabled && (
-              <button
-                onClick={testSound}
-                className='btn btn-outline-info btn-sm'
-                title='Probar sonido'
-              >
-                <i className='bi bi-music-note me-2'></i>
-                Probar
-              </button>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Área del scanner */}
       <div className='scanner-area'>
@@ -619,11 +505,7 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
             <small className='text-muted'>Detección</small>
           </div>
           <div className='col-3'>
-            <i
-              className={`bi bi-volume-${soundEnabled ? 'up' : 'mute'} fs-4 ${
-                soundEnabled ? 'text-info' : 'text-muted'
-              }`}
-            ></i>
+            <i className={`bi bi-volume-${soundEnabled ? 'up' : 'mute'} fs-4 ${soundEnabled ? 'text-info' : 'text-muted'}`}></i>
             <br />
             <small className='text-muted'>Audio</small>
           </div>
@@ -654,10 +536,7 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
         <div className='row mt-1'>
           <div className='col-6'>
             <small className='text-muted'>
-              🔊 Sonido:{' '}
-              <span className={soundEnabled ? 'text-success' : 'text-muted'}>
-                {soundEnabled ? 'Habilitado' : 'Deshabilitado'}
-              </span>
+              🔊 Sonido: <span className={soundEnabled ? 'text-success' : 'text-muted'}>{soundEnabled ? 'Habilitado' : 'Deshabilitado'}</span>
             </small>
           </div>
           <div className='col-6'>
