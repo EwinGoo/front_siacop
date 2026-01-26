@@ -8,6 +8,7 @@ export type DeclaratoriaComision = {
   id_unidad_sede: number | null
   fecha_elaboracion?: string
   nota_interna: string | null
+  nro_correlativo?: number
   rrhh_hoja_ruta_numero?: string
   rrhh_hoja_ruta_fecha?: string
   tipo_viatico: boolean | TipoViatico

@@ -10,7 +10,7 @@ import {getTiposPermiso} from '../core/_requests'
 
 // Mapeo de iconos por nombre de tipo de permiso
 const iconMapping: Record<string, string> = {
-  PERSONAL: 'briefcase',
+  COMISIÓN: 'briefcase',
   TRANSPORTE: 'truck',
   'CAJA SALUD': 'hospital', // FontAwesome icon para hospitales
   FISIOTERAPIA: 'hand-holding-medical',
@@ -35,7 +35,6 @@ const EditModal = () => {
   const {data: tiposPermiso, isLoading} = useQuery('comision-tipos-permiso', getTiposPermiso, {
     staleTime: 1000 * 60 * 5, // 5 minutos de cache
   })
-
   // Extraer el array de tipos de permiso de la respuesta
   // const tiposPermiso = tiposPermisoResponse?.data || []
 
@@ -218,6 +217,7 @@ const EditModal = () => {
               onClose={handleClose}
               initialType={selectedType}
               setSelectedType={setSelectedType}
+              tiposPermiso={tiposPermiso}
             />
           </>
         )}

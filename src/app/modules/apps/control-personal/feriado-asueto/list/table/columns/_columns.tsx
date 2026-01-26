@@ -1,10 +1,7 @@
-// @ts-nocheck
 import {Column} from 'react-table'
 import {InfoCell} from './InfoCell' // Asegúrate de adaptar este componente
 import {ActionsCell} from './ActionsCell'
 import {CustomHeader} from './CustomHeader'
-import {SelectionCell} from './SelectionCell'
-import {SelectionHeader} from './SelectionHeader'
 import {FeriadoAsueto} from '../../core/_models' // Usamos el tipo FeriadoAsueto que definimos antes
 import {DateCell} from './DateCell'
 import HorarioCell from './HorarioCell'

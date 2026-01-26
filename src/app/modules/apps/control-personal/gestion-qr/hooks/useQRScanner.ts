@@ -33,7 +33,7 @@ export const useQRScanner = () => {
       // Usar el tipo detectado si se proporciona, sino usar el del estado
       const typeToUse = detectedType || tipoPermiso
 
-      console.log('📝 Actualizando historial:', {code, timestamp, tipo: typeToUse})
+      // console.log('📝 Actualizando historial:', {code, timestamp, tipo: typeToUse})
 
       setLastScanned({code, timestamp, tipoPermiso: typeToUse})
       setScannedHistory((prev) => [{code, timestamp, tipoPermiso: typeToUse}, ...prev.slice(0, 9)])
@@ -77,7 +77,7 @@ export const useQRScanner = () => {
             onUpdatedScannedHistory(code, timestamp, detectedTipoPermiso),
         })
 
-        console.log('✅ Procesamiento exitoso')
+        // console.log('✅ Procesamiento exitoso')
       } catch (error) {
         console.error('❌ Error en procesamiento:', error)
       } finally {

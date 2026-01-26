@@ -1,7 +1,6 @@
 import React from 'react'
 import Select from 'react-select'
 import clsx from 'clsx'
-import {useThemeMode} from 'src/_metronic/partials/layout/theme-mode/ThemeModeProvider'
 import {getSelectStyles} from './selectStyles'
 import {ID} from 'src/_metronic/helpers'
 import {useEffectiveTheme} from 'src/app/hooks/useEffectiveTheme'

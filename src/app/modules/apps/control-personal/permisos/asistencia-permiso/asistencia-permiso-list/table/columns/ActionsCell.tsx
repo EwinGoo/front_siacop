@@ -6,7 +6,6 @@ import {ID, KTIcon, QUERIES} from 'src/_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
 import {
-  ASISTENCIA_PERMISO_URL,
   deleteAsistenciaPermiso,
   procesarEstadoPermiso,
 } from '../../core/_requests'
@@ -16,9 +15,8 @@ import {showConfirmDialog} from 'src/app/utils/swalHelpers.ts'
 import {getPermisosComision} from 'src/app/modules/auth/core/permissions'
 import {EstadoType} from '../../core/_models'
 import {API_ROUTES} from 'src/app/config/apiRoutes'
-import { usePermissions } from 'src/app/modules/auth/hooks/usePermissions'
-import { useAuth } from 'src/app/modules/auth'
-import { canManageComisiones } from 'src/app/modules/auth/core/roles/roleDefinitions'
+import {useAuth} from 'src/app/modules/auth'
+import {canManageComisiones} from 'src/app/modules/auth/core/roles/roleDefinitions'
 
 type Props = {
   id: ID
@@ -176,7 +174,7 @@ const ActionsCell: FC<Props> = ({id, estado, hash = null}) => {
     <>
       <a
         href='#'
-        className='btn btn-light btn-active-light-primary btn-sm'
+        className='btn btn-outline btn-outline-primary  btn-sm'
         data-kt-menu-trigger='click'
         data-kt-menu-placement='bottom-end'
       >

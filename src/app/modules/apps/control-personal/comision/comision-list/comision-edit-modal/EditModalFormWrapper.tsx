@@ -2,11 +2,12 @@ import {useQuery} from 'react-query'
 import {EditModalForm} from './EditModalForm'
 import {isNotEmpty, QUERIES} from '../../../../../../../_metronic/helpers'
 import {useListView} from '../core/ListViewProvider'
-import {getComisionById, getTiposPermiso} from '../core/_requests'
+import {getComisionById, getTiposPermiso, getCajaSaludSucursales} from '../core/_requests'
 import Spinner from 'react-bootstrap/Spinner'
 import {toast} from 'react-toastify'
 import {initialComision} from '../core/_models'
 import {useEffect, useMemo} from 'react'
+import {TipoPermiso} from '../../../permisos/tipos-permisos/list/core/_models'
 
 interface Props {
   onClose: () => void
@@ -15,15 +16,26 @@ interface Props {
     tipoPermiso?: string | null
   }
   setSelectedType: (type: any) => void
+  tiposPermiso?: TipoPermiso[]
 }
 
-const EditModalFormWrapper = ({onClose, initialType, setSelectedType}: Props) => {
+const EditModalFormWrapper = ({onClose, initialType, setSelectedType, tiposPermiso}: Props) => {
   const {itemIdForUpdate, setItemIdForUpdate} = useListView()
   const enabledQuery: boolean = isNotEmpty(itemIdForUpdate)
 
-  // Query para obtener los tipos de permiso
-  const {data: tiposPermiso} = useQuery('tipos-permiso', getTiposPermiso, {
+  // Query para sucursales de caja de salud - solo se ejecuta cuando es necesario
+  const esTipoCajaSalud = useMemo(() => {
+    if (itemIdForUpdate && tiposPermiso) {
+      // En modo edición, verificar el tipo de la comisión cargada
+      return false // Se determinará cuando se cargue la comisión
+    }
+    // En modo creación, verificar el tipo inicial
+    return initialType?.id_tipo_permiso === '9' || initialType?.tipoPermiso === 'CAJA SALUD' || initialType?.tipoPermiso === 'FISIOTERAPIA'
+  }, [itemIdForUpdate, initialType, tiposPermiso])
+
+  const {data: cajaSaludSucursales} = useQuery('caja-salud-sucursales', getCajaSaludSucursales, {
     staleTime: 1000 * 60 * 5, // 5 minutos de cache
+    enabled: esTipoCajaSalud, // Solo ejecutar si es tipo caja salud
   })
 
   // Query para obtener la comisión específica (solo en modo edición)
@@ -45,7 +57,6 @@ const EditModalFormWrapper = ({onClose, initialType, setSelectedType}: Props) =>
         onClose()
         console.error(err)
 
-        // Mostrar toast de error
         toast.error('Error al cargar la comisión. Intente nuevamente.', {
           position: 'top-right',
           autoClose: 5000,
@@ -56,7 +67,6 @@ const EditModalFormWrapper = ({onClose, initialType, setSelectedType}: Props) =>
           progress: undefined,
         })
       },
-      // Optional: Add metadata for the query
       meta: {
         entity: 'comision',
         action: 'getById',
@@ -70,6 +80,24 @@ const EditModalFormWrapper = ({onClose, initialType, setSelectedType}: Props) =>
     return tiposPermiso.find((tipo: any) => tipo.id_tipo_permiso === idTipoPermiso) || null
   }
 
+  // Determinar si es tipo caja salud en modo edición
+  const esComisionCajaSalud = useMemo(() => {
+    if (comision?.id_tipo_permiso) {
+      return comision.id_tipo_permiso.toString() === '9'
+    }
+    return esTipoCajaSalud
+  }, [comision, esTipoCajaSalud])
+
+  // Query adicional para sucursales si se detecta que es caja salud en edición
+  // const {data: cajaSaludSucursalesEdit} = useQuery(
+  //   'caja-salud-sucursales-edit',
+  //   getCajaSaludSucursales,
+  //   {
+  //     staleTime: 1000 * 60 * 5,
+  //     enabled: esComisionCajaSalud && !cajaSaludSucursales, // Solo si no las tenemos ya
+  //   }
+  // )
+
   // Efecto para establecer el tipo cuando se carga una comisión existente
   useEffect(() => {
     if (comision?.id_tipo_permiso && tiposPermiso) {
@@ -77,7 +105,7 @@ const EditModalFormWrapper = ({onClose, initialType, setSelectedType}: Props) =>
       if (tipoCompleto) {
         setSelectedType({
           id_tipo_permiso: tipoCompleto.id_tipo_permiso,
-          tipoPermiso: tipoCompleto.nombre
+          tipoPermiso: tipoCompleto.nombre,
         })
       }
     }
@@ -95,6 +123,8 @@ const EditModalFormWrapper = ({onClose, initialType, setSelectedType}: Props) =>
     return null
   }, [itemIdForUpdate, comision, initialType, tiposPermiso])
 
+  // Combinar sucursales (de creación o edición)
+
   // Modo creación (nuevo registro)
   if (!itemIdForUpdate) {
     return (
@@ -104,10 +134,11 @@ const EditModalFormWrapper = ({onClose, initialType, setSelectedType}: Props) =>
         comision={{
           ...initialComision,
           id_comision: undefined,
-          tipo_comision: initialType?.tipoPermiso || 'PERSONAL',
+          tipo_comision: initialType?.tipoPermiso || 'COMISIÓN',
           id_tipo_permiso: parseInt(initialType?.id_tipo_permiso!),
         }}
         tipoPermiso={tipoPermisoCompleto}
+        sucursalesCajaSalud={cajaSaludSucursales}
       />
     )
   }
@@ -136,11 +167,12 @@ const EditModalFormWrapper = ({onClose, initialType, setSelectedType}: Props) =>
   // Modo edición - Datos cargados correctamente
   if (!isLoading && !error && comision) {
     return (
-      <EditModalForm 
-        onClose={onClose} 
-        isLoading={isLoading} 
+      <EditModalForm
+        onClose={onClose}
+        isLoading={isLoading}
         comision={comision}
         tipoPermiso={tipoPermisoCompleto}
+        sucursalesCajaSalud={cajaSaludSucursales}
       />
     )
   }

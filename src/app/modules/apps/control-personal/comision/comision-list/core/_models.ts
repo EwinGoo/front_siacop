@@ -20,6 +20,7 @@ export type Comision = {
   id_tipo_permiso?: ID
   tipo_comision?: string
   tipo_documento?: string
+  nro_correlativo?: number
   created_at?: string
   updated_at?: string
   deleted_at?: string | null
@@ -31,6 +32,13 @@ export type Comision = {
   unidad: string | null
   hash: string | undefined
   tipo_personal?: string | null
+  id_caja_salud_sucursal?: ID
+}
+
+export type SucursalCajaSalud = {
+  id_caja_salud_sucursal: ID
+  nombre_sucursal: string
+
 }
 
 // Respuesta del Backend para Comisiones

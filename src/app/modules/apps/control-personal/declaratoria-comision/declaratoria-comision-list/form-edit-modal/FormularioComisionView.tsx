@@ -7,7 +7,7 @@ import Modal from 'react-bootstrap/Modal'
 type Props = {
   onClose: () => void
   onVolver: () => void
-  tipoComision?: 'TRANSPORTE' | 'PERSONAL'
+  tipoComision?: 'TRANSPORTE' | 'COMISIÓN'
   esNuevo: boolean
 }
 

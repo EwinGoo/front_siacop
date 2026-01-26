@@ -15,6 +15,7 @@ export class DataAdapter {
     return {
       tipo_documento: 'comision',
       id: comision.id_comision,
+      nro_correlativo: comision.nro_correlativo,
       ci: comision.ci || '',
       codigo: comision.id_comision,
       nombre_generador: comision.nombre_generador,
@@ -79,11 +80,8 @@ export class DataAdapter {
         color: 'primary',
       }
     } else {
-      const textTitle = this.isComision(data.tipo_permiso)
-        ? 'COMISIÓN'
-        : 'JUSTIFICATIVO DE AUSENCIA DE TRABAJO'
       return {
-        titulo: textTitle,
+        titulo: 'PERMISO POR HORA',
         subtitulo: 'TIPO: ' + data.tipo_permiso,
         icono: 'bi-briefcase',
         color: 'info',
@@ -92,7 +90,7 @@ export class DataAdapter {
   }
 
   static isComision(tipo: string): boolean {
-    const tipos = ['PERSONAL', 'TRANSPORTE']
+    const tipos = ['COMISIÓN', 'TRANSPORTE']
     return tipos.includes(tipo)
   }
 }

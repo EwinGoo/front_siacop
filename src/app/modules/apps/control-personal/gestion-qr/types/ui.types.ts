@@ -1,5 +1,5 @@
 export type ModoRecepcion = 'automatico' | 'manual'
-export type TipoPermiso = 'hora' | 'dia'
+export type TipoPermiso = 'hora' | 'dia' | 'vacacion'
 
 export interface ControlPanelProps {
   modoRecepcion: ModoRecepcion

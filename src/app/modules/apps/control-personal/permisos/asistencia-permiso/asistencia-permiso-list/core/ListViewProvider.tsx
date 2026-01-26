@@ -4,7 +4,6 @@ import {
   calculatedGroupingIsDisabled,
   calculateIsAllDataSelected,
   groupingOnSelect,
-  groupingOnSelectAll,
   WithChildren,
 } from 'src/_metronic/helpers'
 import {useQueryResponse, useQueryResponseData} from './QueryResponseProvider'

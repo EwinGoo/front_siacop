@@ -181,7 +181,8 @@ const ActionsCell: FC<Props> = ({id, estado, hash, tipo}) => {
     <>
       <a
         href='#'
-        className='btn btn-light btn-active-light-primary btn-sm'
+        // className='btn btn-light btn-active-light-primary btn-sm'
+        className='btn btn-outline btn-outline-primary btn-sm'
         data-kt-menu-trigger='click'
         data-kt-menu-placement='bottom-end'
       >

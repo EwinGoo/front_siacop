@@ -1,5 +1,5 @@
 import { ID } from "src/_metronic/helpers";
-import { ModalidadPermiso } from "../modules/apps/control-personal/gestion-qr";
+import { ModalidadPermiso, TipoPermiso } from "../modules/apps/control-personal/gestion-qr";
 
 interface ParseIDOptions {
   validate_numeric?: boolean;  // Validar que el resultado sea numérico
@@ -58,7 +58,7 @@ export function parseIDNumeric(id: string): number {
  * @param code Código QR completo
  * @returns Tipo de permiso basado en el primer carácter
  */
-export function parseCode(code: string): 'hora' | 'dia' {
+export function parseCode(code: string): TipoPermiso{
   const firstChar = code[0]; // 🔧 CAMBIO: usar primer carácter en lugar del último
   
   // Si el primer carácter es una letra
@@ -69,6 +69,8 @@ export function parseCode(code: string): 'hora' | 'dia' {
         return 'hora';
       case 'P':
         return 'dia';
+      case 'V':
+        return 'vacacion';
       default:
         return 'hora'; // Por defecto
     }

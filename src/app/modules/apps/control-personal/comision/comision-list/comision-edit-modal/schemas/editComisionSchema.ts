@@ -43,6 +43,13 @@ export const editComisionSchema = ({isAdmin, tipoPermiso}: {isAdmin: boolean, ti
     // ID tipo permiso
     id_tipo_permiso: Yup.string().required('Tipo de permiso es requerido'),
 
+    // 🆕 Sucursal Caja Salud - solo requerida para tipo CAJA SALUD
+    id_caja_salud_sucursal: Yup.string().when([], {
+      is: () => tipoPermiso === 'CAJA SALUD' || tipoPermiso === 'FISIOTERAPIA',
+      then: (schema) => schema.required('La sucursal de caja de salud es requerida'),
+      otherwise: (schema) => schema.nullable().notRequired(),
+    }),
+
     // Descripción - requerida para todos los tipos
     descripcion_comision: Yup.string()
       .min(10, 'Mínimo 10 caracteres')
@@ -74,7 +81,7 @@ export const editComisionSchema = ({isAdmin, tipoPermiso}: {isAdmin: boolean, ti
     id_usuario_generador: Yup.string().nullable().notRequired(),
   })
 
-// Función auxiliar para obtener mensajes personalizados según el tipo
+// Función auxiliar para obtener mensajes COMISIÓNizados según el tipo
 export const getMensajesValidacion = (tipoPermiso: string) => {
   const mensajes = {
     'PERSONAL': {
@@ -95,7 +102,8 @@ export const getMensajesValidacion = (tipoPermiso: string) => {
       descripcion: 'Describa la razón de la atención médica',
       hora_salida: 'Hora de salida para la atención médica',
       hora_retorno: 'Hora estimada de retorno',
-      fecha_comision: 'Fecha de la atención médica'
+      fecha_comision: 'Fecha de la atención médica',
+      sucursal: 'Seleccione la sucursal de caja de salud donde será atendido'
     },
     'FISIOTERAPIA': {
       descripcion: 'Describa el motivo de la fisioterapia',
@@ -105,6 +113,5 @@ export const getMensajesValidacion = (tipoPermiso: string) => {
       fecha_comision_fin: 'Fecha fin del tratamiento'
     }
   }
-
   return mensajes[tipoPermiso] || mensajes['PERSONAL']
 }

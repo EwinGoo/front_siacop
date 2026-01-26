@@ -1,7 +1,6 @@
 import {useEffect} from 'react'
 import {Outlet, useLocation} from 'react-router-dom'
 import {HeaderWrapper} from './components/header'
-import {RightToolbar} from '../partials/layout/RightToolbar'
 import {ScrollTop} from './components/scroll-top'
 import {Content} from './components/content'
 import {FooterWrapper} from './components/footer'

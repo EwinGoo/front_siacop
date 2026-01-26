@@ -1,5 +1,3 @@
-// components/Process/UnifiedModal.tsx (CORREGIDO)
-import React from 'react'
 import Swal from 'sweetalert2'
 import {ComisionActionResponse, estadoStyles, UnifiedData} from '../../types'
 import {DataAdapter} from '../../services/dataAdapter'
@@ -129,33 +127,36 @@ export class UnifiedModalService {
             : ''
         }
         ${
-          data.hora ?
-          `
+          data.hora
+            ? `
         <div class="row mb-2 text-start">
           <div class="col-3 fw-bold">Hora</div>
           <div class="col-9">: 
             <span class="badge bg-secondary">${data.hora}</span>
           </div>
         </div>
-        `:''
+        `
+            : ''
         }
         ${
-          data.recorrido_de ?
-          `
+          data.recorrido_de
+            ? `
         <div class="row mb-2 text-start">
           <div class="col-3 fw-bold">De</div>
           <div class="col-9">: ${data.recorrido_de}</div>
         </div>
-        `:''
+        `
+            : ''
         }
         ${
-          data.recorrido_a ?
-          `
+          data.recorrido_a
+            ? `
         <div class="row mb-2 text-start">
           <div class="col-3 fw-bold">A</div>
           <div class="col-9">: ${data.recorrido_a}</div>
         </div>
-        `:''
+        `
+            : ''
         }
         
             
@@ -169,7 +170,7 @@ export class UnifiedModalService {
             : ''
         }
          ${
-           !isMobile && data.observacion && data.estado == 'RECEPCIONADO'
+           !isMobile && data.observacion && data.estado === 'RECEPCIONADO'
              ? ` <div class="row mb-2 text-start">
               <div class="col-3 fw-bold">Observación</div>
               <div class="col-9">: ${data.observacion}</div>
@@ -202,7 +203,11 @@ export class UnifiedModalService {
     const displayInfo = DataAdapter.getDisplayInfo(data)
 
     const swalConfig: any = {
-      title: `<div class="text-uppercase"><h3 class="text-${displayInfo.color} fw-bold"><i class="${displayInfo.icono} me-2"></i>${displayInfo.titulo}</h3><h4>${displayInfo.subtitulo}</h4></div>`,
+      title: `<div class="text-uppercase"><h3 class="text-${displayInfo.color} fw-bold"><i class="${
+        displayInfo.icono
+      } me-2"></i>${displayInfo.titulo}</h3><h4>${displayInfo.subtitulo}</h4>${
+        data.nro_correlativo ? `<h6>N° CORRELATIVO.: ${data.nro_correlativo}</h6>` : ''
+      }</div>`,
       html: this.getUnifiedHtmlContent(data, formatToBolivianDate),
       icon: 'info',
       width: '600px',
@@ -255,7 +260,6 @@ export class UnifiedModalService {
     config: any,
     data: UnifiedData
   ): Promise<ComisionActionResponse> {
-    const displayInfo = DataAdapter.getDisplayInfo(data)
     const documentType = data.tipo_documento === 'permiso' ? 'Permiso' : 'Comisión'
 
     Object.assign(config, {
@@ -281,7 +285,6 @@ export class UnifiedModalService {
     config: any,
     data: UnifiedData
   ): Promise<ComisionActionResponse> {
-    const displayInfo = DataAdapter.getDisplayInfo(data)
     const documentType = data.tipo_documento === 'permiso' ? 'Permiso' : 'Comisión'
     const isMobile = DeviceDetector.isMobile()
     const type = !isMobile ? documentType : ''

@@ -10,6 +10,7 @@ import {
   ProcesarComisionParams,
   ApiResponse,
   AutocompleteResponse,
+  SucursalCajaSalud,
 } from './_models'
 import {API_ROUTES} from 'src/app/config/apiRoutes'
 import {ValidationError} from 'src/app/utils/httpErrors'
@@ -125,6 +126,17 @@ const getTiposPermiso = async (): Promise<TipoPermiso[]> => {
     return []
   }
 }
+const getCajaSaludSucursales = async (): Promise<SucursalCajaSalud[]> => {
+  try {
+    const response: AxiosResponse<ApiResponseT<SucursalCajaSalud[]>> = await axiosClient.get(
+      `${COMISION_URL}/caja-salud-sucursales`
+    )
+    return response.data.data
+  } catch (error) {
+    console.error('Error fetching sucursales caja salud:', error)
+    return []
+  }
+}
 
 const getPersonaAutocomplete = async (termino: string): Promise<AutocompleteResponse> => {
   try {
@@ -197,5 +209,6 @@ export {
   aprobarComisiones,
   getPersonaAutocomplete,
   verficarAsignacion,
-  getTiposPermiso
+  getTiposPermiso,
+  getCajaSaludSucursales
 }

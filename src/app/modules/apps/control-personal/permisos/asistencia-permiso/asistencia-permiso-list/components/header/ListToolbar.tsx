@@ -12,7 +12,6 @@ import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {initialQueryState} from 'src/_metronic/helpers'
 import {showAlert} from 'src/app/utils/swalHelpers.ts'
 import {useAuth} from 'src/app/modules/auth'
-import {usePermissions} from 'src/app/modules/auth/hooks/usePermissions'
 import { canManageComisiones } from 'src/app/modules/auth/core/roles/roleDefinitions'
 
 const textApproveHTML = `
@@ -24,7 +23,7 @@ const textApproveHTML = `
 const ListToolbar = () => {
   const {setItemIdForUpdate, setIsShow, setAccion} = useListView()
   const queryClient = useQueryClient()
-  const {query, refetch} = useQueryResponse()
+  const {query} = useQueryResponse()
   const {updateState} = useQueryRequest()
   const {currentUser} = useAuth()
   const canManage = currentUser?.groups ? canManageComisiones(currentUser.groups) : false
@@ -140,7 +139,7 @@ const ListToolbar = () => {
       <div className='col-12 col-md-auto'>
         <Button variant='primary' className='w-100' onClick={openAddModal}>
           <KTIcon iconName='plus' className='fs-2' />
-          Agregar Comisión
+          Agregar Permiso
         </Button>
       </div>
     </div>

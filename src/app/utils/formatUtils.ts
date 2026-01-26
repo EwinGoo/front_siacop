@@ -61,6 +61,14 @@ export const formatUtils = {
   /**
    * Para casos donde el ID es el value y nombre es el label
    */
+  cajaSaludSucursales: <T>(data: T[]) =>
+    formatToSelectOptions(data, {
+      valueField: 'id_caja_salud_sucursal',
+      labelField: 'nombre_sucursal',
+    }),
+  /**
+   * Para casos donde el ID es el value y nombre es el label
+   */
   idNombre: <T>(data: T[]) =>
     formatToSelectOptions(data, {
       labelField: 'nombre',

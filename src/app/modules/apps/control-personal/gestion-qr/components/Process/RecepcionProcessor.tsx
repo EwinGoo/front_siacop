@@ -1,6 +1,5 @@
-import React from 'react'
 import Swal from 'sweetalert2'
-import {TipoDocumento, TipoPermiso, UnifiedData} from '../../types'
+import {TipoPermiso, UnifiedData} from '../../types'
 import {DataAdapter} from '../../services/dataAdapter'
 
 export class RecepcionProcessorService {
@@ -34,10 +33,11 @@ export class RecepcionProcessorService {
 
   static async showRecepcionSuccess(
     codigo: string,
-    message: string,
+    response: {message: string; nro_correlativo: number},
     tipoPermiso: TipoPermiso,
     fechaHora: string,
-    data: UnifiedData
+    data: UnifiedData,
+    nro_correlativo?: number
   ): Promise<void> {
     const fecha = new Date(fechaHora)
     const fechaFormateada = fecha.toLocaleDateString('es-BO', {
@@ -69,6 +69,10 @@ export class RecepcionProcessorService {
               <div class="col-8">: ${codigo}</div>
             </div>
             <div class="row text-start mb-2">
+              <div class="col-4 fw-bold">Nro. Correl.</div>
+              <div class="col-8">: ${response.nro_correlativo}</div>
+            </div>
+            <div class="row text-start mb-2">
               <div class="col-4 fw-bold">Tipo</div>
               <div class="col-8">: 
                 <span class="badge ${
@@ -89,7 +93,7 @@ export class RecepcionProcessorService {
             </div>
           </div>
           <p class="text-muted mb-0">
-            ${message || 'La comisión ha sido recepcionada exitosamente en el sistema'}
+            ${response.message || 'La comisión ha sido recepcionada exitosamente en el sistema'}
           </p>
         </div>
       `,

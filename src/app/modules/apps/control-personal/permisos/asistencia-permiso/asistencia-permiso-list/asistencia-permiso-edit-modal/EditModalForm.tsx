@@ -1,8 +1,8 @@
-import {FC, useState, useRef, useEffect} from 'react'
+import {FC, useState, useEffect} from 'react'
 import {useFormik} from 'formik'
 import {toast} from 'react-toastify'
 
-import {ID, isNotEmpty} from 'src/_metronic/helpers'
+import {isNotEmpty} from 'src/_metronic/helpers'
 
 import {useListView} from '../core/ListViewProvider'
 import {useQueryResponse} from '../core/QueryResponseProvider'
@@ -26,10 +26,7 @@ import {DatePickerField} from 'src/app/modules/components/DatePickerField'
 import AsyncSelectField from '../../../../comision/comision-list/comision-edit-modal/components/AsyncSelectField'
 import {useAuth} from 'src/app/modules/auth'
 import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
-import {usePermissions} from 'src/app/modules/auth/hooks/usePermissions'
-import { canManageComisiones } from 'src/app/modules/auth/core/roles/roleDefinitions'
-
-// import AsyncSelectFieldDebug from '../../../../comision/comision-list/comision-edit-modal/components/AsyncSelectFieldDebug'
+import {canManageComisiones} from 'src/app/modules/auth/core/roles/roleDefinitions'
 
 type Props = {
   isAsistenciaPermisoLoading: boolean
@@ -52,7 +49,6 @@ const EditModalForm: FC<Props> = ({
 }) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const {currentUser} = useAuth()
   const canManage = currentUser?.groups ? canManageComisiones(currentUser.groups) : false
 
@@ -126,20 +122,22 @@ const EditModalForm: FC<Props> = ({
     tipoSeleccionado?.nombre?.toLowerCase().includes('cumpleanos')
 
   useEffect(() => {
+    const idTipoPermiso = formik.values.id_tipo_permiso
+    const setFieldValue = formik.setFieldValue
+
     const permiso = tiposPermisos.find(
-      (tipo) => tipo.id_tipo_permiso?.toString() === formik.values.id_tipo_permiso?.toString()
+      (tipo) => tipo.id_tipo_permiso?.toString() === idTipoPermiso?.toString()
     )
     if (permiso) {
       setLimiteDias(permiso.limite_dias ?? null)
     } else {
       setLimiteDias(null)
     }
-
     // Limpiar el campo turno si no es cumpleaños
     if (!esCumpleanos) {
-      formik.setFieldValue('turno_permiso', '')
+      setFieldValue('turno_permiso', '')
     }
-  }, [formik.values.id_tipo_permiso, tiposPermisos])
+  }, [esCumpleanos, formik.values.id_tipo_permiso, tiposPermisos, formik.setFieldValue])
 
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null)
 
@@ -174,7 +172,7 @@ const EditModalForm: FC<Props> = ({
 
     if (isDocente) {
       // Solo Baja Médica para docentes
-      return tiposPermisos.filter((tipo) => tipo.id_tipo_permiso == 4)
+      return tiposPermisos.filter((tipo) => Number(tipo.id_tipo_permiso) === 4)
     }
     return tiposPermisos
 

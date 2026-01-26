@@ -1,12 +1,10 @@
 import clsx from 'clsx'
-import {KTIcon, toAbsoluteUrl} from '../../../helpers'
-import {HeaderNotificationsMenu, HeaderUserMenu, Search, ThemeModeSwitcher} from '../../../partials'
+import {KTIcon} from '../../../helpers'
+import {HeaderUserMenu, Search, ThemeModeSwitcher} from '../../../partials'
 import {useLayout} from '../../core'
 import {useAuth} from '../../../../app/modules/auth'
 
 const itemClass = 'ms-1 ms-md-4'
-const btnClass =
-  'btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px'
 const userAvatarClass = 'symbol-35px'
 const btnIconClass = 'fs-2'
 

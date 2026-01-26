@@ -6,7 +6,7 @@ import { DataAdapter } from './dataAdapter'
 export class PermisoService {
   async getPermisoById(id: number): Promise<UnifiedData | null> {
     try {
-      console.log(`Obteniendo permiso con ID: ${id}`)
+      // console.log(`Obteniendo permiso con ID: ${id}`)
       
       const response = await getAsistenciaPermisoById(id)
       
@@ -18,7 +18,7 @@ export class PermisoService {
       // Convertir al formato unificado
       const unifiedData = DataAdapter.fromPermiso(response)
       
-      console.log(`Permiso obtenido: ${unifiedData.tipo_permiso_nombre}`)
+      // console.log(`Permiso obtenido: ${unifiedData.tipo_permiso_nombre}`)
       return unifiedData
     } catch (error) {
       console.error('Error al obtener permiso:', error)
@@ -28,17 +28,16 @@ export class PermisoService {
 
   async procesarRecepcion(codigo: string, fechaHora: string, tipoPermiso: TipoPermiso) {
     try {
-      // console.log(`Procesando recepción de permiso: ${codigo}`)
       
-      // Aquí deberías tener tu endpoint específico para permisos
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       const response = await procesarEstadoPermiso({
         code: parseIDNumeric(codigo),
         action: 'receive',
         fecha: fechaHora,
       })
 
-      // Simulación temporal - reemplazar con tu API real
       return {
+        nro_correlativo: response.data.data,
         message: `Permiso recepcionado correctamente el ${new Date(fechaHora).toLocaleDateString('es-BO')}`
       }
     } catch (error) {
@@ -49,7 +48,7 @@ export class PermisoService {
 
   async aprobarPermiso(codigo: string) {
     try {
-      console.log(`Aprobando permiso: ${codigo}`)
+      // console.log(`Aprobando permiso: ${codigo}`)
       
       const response = await procesarEstadoPermiso({
         code: parseIDNumeric(codigo),
@@ -67,13 +66,14 @@ export class PermisoService {
 
   async registrarObservacion(codigo: string, observacion: string) {
     try {
-      console.log(`Registrando observación para permiso: ${codigo}`)
+      // console.log(`Registrando observación para permiso: ${codigo}`)
       
       const response = await procesarEstadoPermiso({
         code: parseIDNumeric(codigo),
         action: 'observe',
         observacion: observacion
       })
+
 
       return {
         message: `Observación registrada para permiso ${codigo}`

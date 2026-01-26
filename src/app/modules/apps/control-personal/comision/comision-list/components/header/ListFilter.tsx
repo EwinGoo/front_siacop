@@ -3,13 +3,7 @@ import {MenuComponent} from '../../../../../../../../_metronic/assets/ts/compone
 import {initialQueryState, KTIcon} from '../../../../../../../../_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
-import {SelectField} from 'src/app/modules/components/SelectField'
 import { useFormik } from 'formik'
-import { estadoOptions } from '../../core/_models'
-
-
-
-
 
 const ListFilter = () => {
   const {updateState} = useQueryRequest()
@@ -37,10 +31,6 @@ const ListFilter = () => {
       filter: {estado, last_login: lastLogin},
       ...initialQueryState,
     })
-  }
-
-  const isFieldValid = (fieldName: string) => {
-    return true;
   }
 
   return (

@@ -7,9 +7,6 @@ import {SelectionHeader} from './SelectionHeader'
 import {AsistenciaPermiso} from '../../core/_models'
 import {DateCell} from './DateCell'
 import {EstadoBadge} from 'src/app/modules/apps/control-personal/comision/comision-list/table/components/EstadoBadge'
-import {DetallesCell} from './DetallesCell'
-// import {DetallesCell} from './DetallesCell'
-// import {EstadoBadge} from '../components/EstadoBadge'
 
 type GetColumnsProps = {
   isAdmin: boolean

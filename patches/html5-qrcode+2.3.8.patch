@@ -1,0 +1,9 @@
+--- a/node_modules/html5-qrcode/package.json
++++ b/node_modules/html5-qrcode/package.json
+@@ -1,6 +1,5 @@
+ {
+   "name": "html5-qrcode",
+-  "source": true,
+   "version": "2.3.8",
+   "description": "A cross-platform HTML5 QR Code & bar code scanner",
+   "main": "./cjs/index.js",}

@@ -3,7 +3,6 @@ import {InfoCell} from './InfoCell'
 import {ActionsCell} from './ActionsCell'
 import {CustomHeader} from './CustomHeader'
 import {TipoPermiso} from '../../core/_models'
-import {DescripcionCell} from './DescripcionCell'
 
 const Columns: ReadonlyArray<Column<TipoPermiso>> = [
   {
@@ -46,18 +45,10 @@ const Columns: ReadonlyArray<Column<TipoPermiso>> = [
         <span className='text-muted'>No definido</span>
       ),
   },
-  // {
-  //   Header: (props) => <CustomHeader tableProps={props} title='Creado' className='min-w-150px' />,
-  //   accessor: 'created_at',
-  //   Cell: ({value}) => (value ? new Date(value).toLocaleString() : '-'),
-  // },
-  // {
-  //   Header: (props) => (
-  //     <CustomHeader tableProps={props} title='Actualizado' className='min-w-150px' />
-  //   ),
-  //   accessor: 'updated_at',
-  //   Cell: ({value}) => (value ? new Date(value).toLocaleString() : '-'),
-  // },
+  {
+    Header: (props) => <CustomHeader tableProps={props} title='Max. Sol.' className='min-w-100px' />,
+    accessor: 'max_solicitudes_diarias',
+  },
 ]
 
 export {Columns}

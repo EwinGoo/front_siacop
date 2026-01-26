@@ -1,4 +1,3 @@
-// core/Auth.tsx (versión actualizada)
 import {
   FC,
   useState,
@@ -9,6 +8,7 @@ import {
   Dispatch,
   SetStateAction,
   useMemo,
+  useCallback,
 } from 'react'
 import {LayoutSplashScreen} from '../../../../_metronic/layout/core'
 import {AuthModel, UserModel} from './_models'
@@ -17,8 +17,8 @@ import {getUserBySession} from './_requests'
 import {WithChildren} from '../../../../_metronic/helpers'
 import {APP_ROLES, PERMISSION_GROUPS, RoleKey} from './roles'
 import {useNavigate} from 'react-router-dom'
-import { Permission } from './roles/permissions'
-import { ROLE_PERMISSIONS } from './roles/roleDefinitions'
+import {Permission} from './roles/permissions'
+import {ROLE_PERMISSIONS} from './roles/roleDefinitions'
 
 type AuthContextProps = {
   auth: AuthModel | undefined
@@ -60,7 +60,7 @@ const useAuth = () => {
 const AuthProvider: FC<WithChildren> = ({children}) => {
   const [auth, setAuth] = useState<AuthModel | undefined>(authHelper.getAuth())
   const [currentUser, setCurrentUser] = useState<UserModel | undefined>()
-  
+
   const saveAuth = (auth: AuthModel | undefined) => {
     setAuth(auth)
     if (auth) {
@@ -92,16 +92,16 @@ const AuthProvider: FC<WithChildren> = ({children}) => {
   // Memoizar los permisos del usuario para optimizar
   const userPermissions = useMemo(() => {
     if (!currentUser?.groups?.length) return new Set<Permission>()
-    
+
     const permissions = new Set<Permission>()
-    
-    currentUser.groups.forEach(role => {
+
+    currentUser.groups.forEach((role) => {
       const rolePermissions = ROLE_PERMISSIONS[role]
       if (rolePermissions) {
-        rolePermissions.forEach(permission => permissions.add(permission))
+        rolePermissions.forEach((permission) => permissions.add(permission))
       }
     })
-    
+
     return permissions
   }, [currentUser?.groups])
 
@@ -111,11 +111,11 @@ const AuthProvider: FC<WithChildren> = ({children}) => {
   }
 
   const hasAllSpecificPermissions = (permissions: Permission[]): boolean => {
-    return permissions.every(permission => userPermissions.has(permission))
+    return permissions.every((permission) => userPermissions.has(permission))
   }
 
   const hasAnySpecificPermission = (permissions: Permission[]): boolean => {
-    return permissions.some(permission => userPermissions.has(permission))
+    return permissions.some((permission) => userPermissions.has(permission))
   }
 
   return (
@@ -140,7 +140,7 @@ const AuthProvider: FC<WithChildren> = ({children}) => {
 }
 
 const AuthInit: FC<WithChildren> = ({children}) => {
-  const {auth, logout, setCurrentUser} = useAuth()
+  const {logout, setCurrentUser} = useAuth()
   const didRequest = useRef(false)
   const [showSplashScreen, setShowSplashScreen] = useState(true)
   const navigate = useNavigate()
@@ -177,6 +177,7 @@ const AuthInit: FC<WithChildren> = ({children}) => {
     }
 
     requestUser()
+  // }, [logout, navigate, setCurrentUser])
   }, [])
 
   return showSplashScreen ? <LayoutSplashScreen /> : <>{children}</>

@@ -1,9 +1,5 @@
 import {parseIDNumeric} from 'src/app/utils/parseID'
-import {
-  getComisionById,
-  procesarEstadoComision,
-  aprobarComisionPorQR,
-} from '../../comision/comision-list/core/_requests' // Ajustar ruta según tu estructura
+import {getComisionById, procesarEstadoComision} from '../../comision/comision-list/core/_requests' // Ajustar ruta según tu estructura
 import {TipoPermiso} from '../types'
 
 export class ComisionService {
@@ -26,6 +22,7 @@ export class ComisionService {
         // tipoPermiso: tipoPermiso
       })
       return {
+        nro_correlativo: response.data.data,
         message: `Solicitud recepcionado correctamente el ${new Date(fechaHora).toLocaleDateString(
           'es-BO'
         )}`,

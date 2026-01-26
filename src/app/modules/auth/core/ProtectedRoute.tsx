@@ -25,7 +25,7 @@ export const ProtectedRoute: FC<ProtectedRouteProps> = memo(
     fallbackPath = '/acceso-denegado',
     excludeDocenteAdministrativo = false,
   }) => {
-    const {hasPermission, hasAllSpecificPermissions, hasAnySpecificPermission, currentUser} =
+    const {hasAllSpecificPermissions, hasAnySpecificPermission} =
       useAuth()
 
     // Si usa el sistema legacy

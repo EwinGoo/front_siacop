@@ -28,21 +28,14 @@ const ListToolbar = () => {
   const {updateState} = useQueryRequest()
   const {currentUser} = useAuth()
 
-  // ✅ Lógica corregida para verificar permisos de gestión
   const canManage = currentUser?.groups 
     ? canManageComisiones(currentUser.groups) 
     : false
 
-  // ✅ Verificar si es docente administrativo (para bloquear completamente)
   const isDocenteAdministrativo = 
     currentUser?.personal?.tipo_personal === 'DOCENTE' && 
     currentUser?.groups?.includes(APP_ROLES.ADMINISTRATIVO)
 
-
-  // ✅ Si es docente administrativo, no mostrar nada (ya debería estar bloqueado en la ruta)
-  // if (isDocenteAdministrativo) {
-  //   return null
-  // }
 
   const openAddModal = async () => {
     if (!currentUser) {

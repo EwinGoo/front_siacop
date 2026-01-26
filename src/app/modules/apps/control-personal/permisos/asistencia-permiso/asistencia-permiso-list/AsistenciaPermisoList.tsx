@@ -1,5 +1,4 @@
-import {useState} from 'react'
-import {ListViewProvider, useListView} from './core/ListViewProvider'
+import {ListViewProvider} from './core/ListViewProvider'
 import {QueryRequestProvider} from './core/QueryRequestProvider'
 import {QueryResponseProvider} from './core/QueryResponseProvider'
 import {ListHeader} from './components/header/ListHeader'
@@ -10,7 +9,6 @@ import { ObservarModal } from './asistencia-permiso-observar-modal/ObservarModal
 import { ReportModal } from './comision-report-modal/ReportModal'
 
 const AsistenciaPermisoList = () => {
-  const {itemIdForUpdate} = useListView()
 
   return (
     <>

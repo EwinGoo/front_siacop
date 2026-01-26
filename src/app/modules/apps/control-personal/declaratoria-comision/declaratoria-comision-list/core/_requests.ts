@@ -10,7 +10,7 @@ import {
 import axiosClient from 'src/app/services/axiosClient'
 import {ValidationError} from 'src/app/utils/httpErrors'
 import {API_ROUTES} from 'src/app/config/apiRoutes'
-import { AxiosResponse } from 'axios'
+import {AxiosResponse} from 'axios'
 
 export const DECLARATORIA_URL = API_ROUTES.CONTROL_PERSONAL + '/declaratoria-comision'
 
@@ -92,6 +92,26 @@ const deleteDeclaratoriaComision = (declaratoriaId: ID): Promise<void> => {
   return axiosClient.delete(`${DECLARATORIA_URL}/${declaratoriaId}`).then(() => {})
 }
 
+// const anularDeclaratoriaComision = (declaratoriaId: ID): Promise<AxiosResponse<ApiResponse>> => {
+//   return axiosClient.post<ApiResponse>(`${DECLARATORIA_URL}/anular/${declaratoriaId}`).then(() => {})
+// }
+const anularDeclaratoriaComision = async (
+  declaratoriaId: ID
+): Promise<AxiosResponse<ApiResponse>> => {
+  try {
+    const response = await axiosClient.put(`${DECLARATORIA_URL}/anular/${declaratoriaId}`)
+    return response
+  } catch (error: any) {
+    if (error.response?.status === 422 || error.response?.status === 400) {
+      throw new ValidationError(
+        error.response.data.validation_errors || {},
+        error.response.data.message
+      )
+    }
+    throw error
+  }
+}
+
 const getUnidades = async (): Promise<Unidad[]> => {
   try {
     const response: AxiosResponse<ApiResponse<Unidad[]>> = await axiosClient.get(
@@ -130,6 +150,7 @@ const imprimirDeclaratoriaComision = async (id: ID): Promise<PDFResponse> => {
 export {
   getDeclaratoriasComision,
   deleteDeclaratoriaComision,
+  anularDeclaratoriaComision,
   getDeclaratoriaComisionById,
   createDeclaratoriaComision,
   updateDeclaratoriaComision,

@@ -1,4 +1,3 @@
-import {useThemeMode} from 'src/_metronic/partials/layout/theme-mode/ThemeModeProvider'
 import { useEffectiveTheme } from 'src/app/hooks/useEffectiveTheme'
 
 const ListLoading = () => {

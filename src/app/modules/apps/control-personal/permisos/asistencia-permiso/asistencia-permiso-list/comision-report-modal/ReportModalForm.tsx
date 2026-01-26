@@ -1,18 +1,7 @@
 import {FormikProps} from 'formik'
-import Flatpickr from 'react-flatpickr'
-import {Spanish} from 'flatpickr/dist/l10n/es'
 import {SelectField} from 'src/app/modules/components/SelectField'
 import {TipoPermiso} from '../../../tipos-permisos/list/core/_models'
 import {DatePickerField} from 'src/app/modules/components/DatePickerField'
-
-const estadoOptions = [
-  {value: 'TODO', label: 'Todo'},
-  {value: 'GENERADO', label: 'Generado'},
-  {value: 'ENVIADO', label: 'Enviado'},
-  {value: 'RECEPCIONADO', label: 'Recepcionado'},
-  {value: 'APROBADO', label: 'Aprobado'},
-  {value: 'OBSERVADO', label: 'Observado'},
-]
 
 export const ReportModalForm = ({
   formik,

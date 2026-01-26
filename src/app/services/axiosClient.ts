@@ -13,6 +13,8 @@ axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error?.response?.status
+    // console.log(error.response);
+    
 
     if (status === 401) {
     //   toast.error('Sesión expirada. Por favor inicia sesión nuevamente.')

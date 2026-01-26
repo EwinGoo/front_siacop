@@ -15,7 +15,6 @@ export const ObservarModal: FC = () => {
   const {
     data: asistenciaPermiso,
     isLoading,
-    error,
   } = useQuery(
     `${QUERIES.ASISTENCIAS_PERMISO_LIST}-observar-${itemIdForUpdate}`,
     () => getAsistenciaPermisoById(itemIdForUpdate),
@@ -44,7 +43,7 @@ export const ObservarModal: FC = () => {
 
   useEffect(() => {
     if (show) resetForm()
-  }, [show])
+  }, [show, resetForm])
 
   if (!show) return null
 

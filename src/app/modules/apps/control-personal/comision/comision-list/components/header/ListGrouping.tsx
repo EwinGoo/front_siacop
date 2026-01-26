@@ -16,10 +16,6 @@ const ListGrouping = () => {
 
   const aprobarSelectedItems = useMutation(
     () => {
-      // Simular error 50% de las veces
-      // if (Math.random() > 0.5) {
-      //   return Promise.reject(new Error('Error simulado: Fallo en el servidor'))
-      // }
       return aprobarSelectedComisiones(selected.map((id) => Number(id)))
     },
     {

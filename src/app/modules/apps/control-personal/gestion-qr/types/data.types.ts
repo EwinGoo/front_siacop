@@ -1,10 +1,7 @@
 import {ID} from 'src/_metronic/helpers'
 import {Comision} from '../../comision/comision-list/core/_models'
 import {TipoPermiso} from '../../permisos/tipos-permisos/list/core/_models'
-import {AsistenciaPermisoDetails} from '../../permisos/asistencia-permiso/asistencia-permiso-list/asistencia-permiso-observar-modal/components/AsistenciaPermisoDetails'
-import {AsistenciaPermiso} from '../../permisos/asistencia-permiso/asistencia-permiso-list/core/_models'
 
-// }
 export type TipoDocumento = 'comision' | 'permiso'
 export interface ComisionActionResponse {
   confirmed: boolean
@@ -42,6 +39,7 @@ export interface UnifiedData {
   descripcion?: string | null
   tipo_documento: TipoDocumento
   tipo_permiso: string
+  nro_correlativo?: number
   hora?: string
   // Campos específicos de comisión
   nombre_cargo?: string | null

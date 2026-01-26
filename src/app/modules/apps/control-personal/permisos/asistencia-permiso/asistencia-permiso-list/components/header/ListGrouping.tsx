@@ -2,7 +2,7 @@ import {useQueryClient, useMutation} from 'react-query'
 import {QUERIES, initialQueryState} from '../../../../../../../../../_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
-import {aprobarSelectedPermisos, deleteAsistenciaPermiso} from '../../core/_requests'
+import {aprobarSelectedPermisos} from '../../core/_requests'
 import Tooltip from '@mui/material/Tooltip'
 import {showAxiosError} from 'src/app/utils/showAxiosErrorToast'
 import {toast} from 'react-toastify'
@@ -12,7 +12,7 @@ const ListGrouping = () => {
   const {selected, clearSelected} = useListView()
   const {updateState} = useQueryRequest()
   const queryClient = useQueryClient()
-  const {query, refetch} = useQueryResponse()
+  const {query} = useQueryResponse()
 
   const aprobarSelectedItems = useMutation(
     () => aprobarSelectedPermisos(selected.map((id) => Number(id))),

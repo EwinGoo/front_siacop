@@ -6,7 +6,6 @@ import useDateFormatter from 'src/app/hooks/useDateFormatter'
 import Swal from 'sweetalert2'
 import {UnifiedModalService} from '../components/Process/UnifiedModal'
 import {buildCode, parseIDNumeric} from 'src/app/utils/parseID'
-import { DataAdapter } from '../services/dataAdapter'
 
 interface ProcessQRCodeParams {
   code: string
@@ -62,10 +61,10 @@ export const useProcessor = () => {
             // `${response.message} (${typeConfig.serviceName})`,
             await RecepcionProcessorService.showRecepcionSuccess(
               code,
-              `${response.message}`,
+              response as any,
               tipoPermiso,
               fechaHora,
-              unifiedData
+              unifiedData,
             )
             onUpdatedScannedHistory(code, Date.now())
           } catch (error) {
@@ -92,7 +91,7 @@ export const useProcessor = () => {
 
                 await RecepcionProcessorService.showRecepcionSuccess(
                   code,
-                  `${result.message}`,
+                  result as any,
                   tipoPermiso,
                   fechaHora,
                   unifiedData

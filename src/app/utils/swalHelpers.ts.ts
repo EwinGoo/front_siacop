@@ -12,7 +12,7 @@ interface SwalConfirmOptions {
   title: string
   text?: string
   html?: string
-  icon?: 'question' | 'warning'
+  icon?: 'question' | 'warning' | 'info'
   confirmButtonText?: string
   cancelButtonText?: string
   confirmButtonColor?: string

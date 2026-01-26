@@ -5,7 +5,6 @@ import {
   AsistenciaPermisoQueryResponse,
   BackendResponse,
   AsistenciaPermisoBackendData,
-  AsistenciaTipoPermisoQueryResponseData,
   ProcesarComisionParams,
   AutocompleteResponse,
 } from './_models'

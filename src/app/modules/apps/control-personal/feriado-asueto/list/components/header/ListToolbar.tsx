@@ -31,7 +31,7 @@ const ListToolbar = () => {
 
       <Button variant='primary' onClick={openAddModal}>
         <KTIcon iconName='plus' className='fs-2' />
-        Agrega Nuevo
+        Agregar Nuevo
       </Button>
       {/* end::Add user */}
     </div>

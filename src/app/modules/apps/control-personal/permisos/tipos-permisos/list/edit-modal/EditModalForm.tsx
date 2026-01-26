@@ -1,15 +1,13 @@
 import {FC, useState} from 'react'
 import * as Yup from 'yup'
 import {useFormik} from 'formik'
-import {isNotEmpty, KTIcon} from '../../../../../../../../_metronic/helpers'
-import {initialTipoPermiso, TipoPermiso, TipoPermisoPayload} from '../core/_models'
+import {isNotEmpty} from '../../../../../../../../_metronic/helpers'
+import {initialTipoPermiso, TipoPermiso} from '../core/_models'
 import clsx from 'clsx'
 import {useListView} from '../core/ListViewProvider'
 import {createTipoPermiso, updateTipoPermiso} from '../core/_requests'
 import {useQueryResponse} from '../core/QueryResponseProvider'
-import Swal from 'sweetalert2'
 import {toast} from 'react-toastify'
-import {Button} from 'react-bootstrap'
 import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
 import {CKEditor} from '@ckeditor/ckeditor5-react'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
@@ -39,21 +37,20 @@ const editTipoPermisoSchema = Yup.object().shape({
     .max(1000, 'Máximo 1000 caracteres')
     .required('Los requisitos son obligatorios'),
   limite_dias: Yup.number().min(0, 'El límite no puede ser negativo').nullable(),
+  max_solicitudes_diarias: Yup.number().min(0, 'El maximo de solicitudes no puede ser negativo').nullable(),
 })
 
 const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
-  const {apiErrors, setApiErrors, getFieldError, clearFieldError} = useApiFieldErrors()
+  const {setApiErrors, getFieldError, clearFieldError} = useApiFieldErrors()
 
   const [tipoPermisoForEdit] = useState<TipoPermiso>({
     ...tipoPermiso,
     nombre: tipoPermiso.nombre || initialTipoPermiso.nombre,
     descripcion: tipoPermiso.descripcion || initialTipoPermiso.descripcion,
     tipo_permiso: tipoPermiso.tipo_permiso || initialTipoPermiso.tipo_permiso,
-    // requiere_hoja_ruta:
-    //   tipoPermiso.requiere_hoja_ruta === '1' ||
-    //   (tipoPermiso.requiere_hoja_ruta == null && initialTipoPermiso.requiere_hoja_ruta),
+    max_solicitudes_diarias: tipoPermiso.max_solicitudes_diarias || initialTipoPermiso.max_solicitudes_diarias,
     instruccion: tipoPermiso.instruccion || initialTipoPermiso.instruccion,
     limite_dias: tipoPermiso.limite_dias || initialTipoPermiso.limite_dias,
   })
@@ -68,20 +65,10 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
   const formik = useFormik({
     initialValues: tipoPermisoForEdit,
     validationSchema: editTipoPermisoSchema,
-    // validationSchema: null,
-    // validateOnBlur: false,
-    // validateOnChange: false,
     onSubmit: async (values, {setSubmitting}) => {
       setSubmitting(true)
       setApiErrors({})
-
       try {
-        // const preparePayload = (values: TipoPermiso): TipoPermisoPayload => ({
-        //   ...values,
-        //   requiere_hoja_ruta: values.requiere_hoja_ruta ? '1' : '0',
-        // })
-        // const payload = preparePayload(values)
-
         if (isNotEmpty(values.id_tipo_permiso)) {
           await updateTipoPermiso(values)
           toast.success('Tipo de permiso actualizado correctamente', {
@@ -132,7 +119,7 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
                 'is-invalid': !isFieldValid('nombre'),
                 'is-valid': formik.touched.nombre && isFieldValid('nombre'),
               })}
-              disabled={formik.isSubmitting}
+              disabled={formik.isSubmitting || ( formik.values.tipo_permiso == 'COMISION')}
             />
             {!isFieldValid('nombre') && (
               <div className='fv-plugins-message-container'>
@@ -225,7 +212,7 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
                 'is-valid': formik.touched.limite_dias && isFieldValid('limite_dias'),
               })}
               min='0'
-              placeholder='Ej: 5'
+              placeholder='Ej: 1'
               disabled={formik.isSubmitting}
             />
             {!isFieldValid('limite_dias') && (
@@ -234,12 +221,34 @@ const EditModalForm: FC<Props> = ({tipoPermiso, isLoading, onClose}) => {
               </div>
             )}
           </div>
+          {/* Maximo de solicitudes díarias */}
+          <div className='fv-row mb-7 px-1'>
+            <label className='fw-bold fs-6 mb-2'>Maximo Solicitudes Diarias</label>
+            <input
+              type='number'
+              {...formik.getFieldProps('max_solicitudes_diarias')}
+              value={formik.values.max_solicitudes_diarias ?? ''}
+              className={clsx('form-control form-control-solid', {
+                'is-invalid': !isFieldValid('max_solicitudes_diarias'),
+                'is-valid': formik.touched.max_solicitudes_diarias && isFieldValid('max_solicitudes_diarias'),
+              })}
+              min='0'
+              placeholder='Ej: 1'
+              disabled={formik.isSubmitting}
+            />
+            {!isFieldValid('max_solicitudes_diarias') && (
+              <div className='fv-plugins-message-container'>
+                <span role='alert'>{getFieldError(formik.errors, 'max_solicitudes_diarias')}</span>
+              </div>
+            )}
+          </div>
         </div>
         {/* Actions */}
         <FormActions
           onClose={onClose}
           isSubmitting={formik.isSubmitting}
-          isValid={formik.isValid}
+          // isValid={formik.isValid}
+          isValid={true}
           isEdit={!!tipoPermiso.id_tipo_permiso}
         />
       </form>

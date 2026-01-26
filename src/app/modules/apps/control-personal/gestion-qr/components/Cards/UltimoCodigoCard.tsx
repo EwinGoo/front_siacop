@@ -34,7 +34,7 @@ export const UltimoCodigoCard: React.FC<UltimoCodigoCardProps> = ({lastScanned})
             </div>
           </div>
           {/* {tipoPermiso} */}
-          {lastScanned.tipoPermiso == 'dia' ? (
+          {lastScanned.tipoPermiso === 'dia' ? (
             <div className='badge badge-light-primary fs-8'>Permiso Día</div>
           ) : (
             <div className='badge badge-light-info fs-8'>Permiso Hora</div>

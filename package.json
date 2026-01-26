@@ -69,6 +69,7 @@
     "css-loader": "6.7.1",
     "del": "7.0.0",
     "mini-css-extract-plugin": "2.6.1",
+    "patch-package": "^8.0.0",
     "prettier": "2.6.2",
     "rtlcss-webpack-plugin": "4.0.7",
     "sass": "1.55.0",
@@ -84,7 +85,8 @@
     "eject": "react-scripts eject",
     "lint": "prettier --check .",
     "format": "prettier --write .",
-    "rtl": "webpack --config=rtl.config.js"
+    "rtl": "webpack --config=rtl.config.js",
+    "postinstall": "patch-package"
   },
   "eslintConfig": {
     "extends": [

@@ -21,21 +21,13 @@ const PrivateRoutes = () => {
   const ChatPage = lazy(() => import('../modules/apps/chat/ChatPage'))
   const UsersPage = lazy(() => import('../modules/apps/user-management/UsersPage'))
 
-  const PersonPage = lazy(() => import('../modules/apps/person-management/PersonPage'))
   const ComisionPage = lazy(() => import('../modules/apps/control-personal/comision/ComisionPage'))
-  const AsistenciaPermisoPage = lazy(
-    () =>
-      import('../modules/apps/control-personal/permisos/asistencia-permiso/AsistenciaPermisoPage')
-  )
-  const DeclaratoriaComisionPage = lazy(
-    () => import('../modules/apps/control-personal/declaratoria-comision/DeclaratoriaComisionPage')
-  )
-  const TipoPermisoPage = lazy(
-    () => import('../modules/apps/control-personal/permisos/tipos-permisos/TipoPermisoPage')
-  )
-  const FeriadoAsuetoPage = lazy(
-    () => import('../modules/apps/control-personal/feriado-asueto/FeriadoAsuetoPage')
-  )
+  const AsistenciaPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/asistencia-permiso/AsistenciaPermisoPage'))
+  const DeclaratoriaComisionPage = lazy(() => import('../modules/apps/control-personal/declaratoria-comision/DeclaratoriaComisionPage'))
+  const TipoPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/tipos-permisos/TipoPermisoPage'))
+  const FeriadoAsuetoPage = lazy(() => import('../modules/apps/control-personal/feriado-asueto/FeriadoAsuetoPage'))
+
+  const BiometricoPage = lazy(() => import('../modules/apps/administrador/biometrico/BiometricoPage'))
 
   const enviroment = process.env.REACT_APP_ENVIRONMENT || ''
 
@@ -100,23 +92,23 @@ const PrivateRoutes = () => {
                 </SuspensedView>
               }
             />
-            {/* Mantienes compatibilidad con el sistema anterior durante la migración */}
-            <Route
-              path='apps/gestion-persona/*'
-              element={
-                <SuspensedView>
-                  <ProtectedRoute requiredPermissions={['CONTROL_PERSONAL']}>
-                    <PersonPage />
-                  </ProtectedRoute>
-                </SuspensedView>
-              }
-            />
           </>
         )}
 
         {/* RUTAS ACTUALIZADAS CON NUEVO SISTEMA DE PERMISOS */}
         
         {/* Feriados y Asuetos - requiere permiso específico */}
+        <Route
+          path='apps/biometricos/*'
+          element={
+            <SuspensedView>
+              <ProtectedRoute requiredSpecificPermissions={[PERMISSIONS.FERIADO_ASUETO.VIEW]}>
+                <BiometricoPage />
+              </ProtectedRoute>
+            </SuspensedView>
+          }
+        />
+
         <Route
           path='apps/feriados-asuetos/*'
           element={

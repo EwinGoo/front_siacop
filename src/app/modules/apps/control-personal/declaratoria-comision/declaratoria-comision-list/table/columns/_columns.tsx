@@ -52,6 +52,12 @@ const getColumns = ({
     accessor: 'nombre_generador',
   },
   {
+    Header: (props) => (
+      <CustomHeader tableProps={props} title='N° Correl.' className='w-actions' />
+    ),
+    accessor: 'nro_correlativo',
+  },
+  {
     Header: (props) => <CustomHeader tableProps={props} title='CI' className='min-w-100px' />,
     accessor: 'ci',
   },

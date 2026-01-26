@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import clsx from 'clsx'
 import {FC} from 'react'
 import {KTIcon} from '../../../../../../../../../_metronic/helpers'
 import {AsistenciaPermiso} from '../../core/_models'
@@ -11,10 +9,6 @@ type Props = {
 
 const InfoCell: FC<Props> = ({asistenciaPermiso}) => {
   // Status badge classes
-  const statusClass = asistenciaPermiso.estado_permiso === 'APROBADO' 
-    ? 'badge-light-success' 
-    : 'badge-light-warning'
-
   return (
     <div className='d-flex align-items-center'>
       {/* Icon for permiso */}
@@ -40,9 +34,9 @@ const InfoCell: FC<Props> = ({asistenciaPermiso}) => {
       </Tooltip>
 
       <div className='d-flex flex-column'>
-        <a href='#' className='text-gray-800 text-hover-primary fw-bolder mb-1 fs-6 text-uppercase'>
+        <p className='text-gray-800 text-hover-primary fw-bolder mb-1 fs-6 text-uppercase'>
           {asistenciaPermiso.tipo_permiso_nombre || 'Comisión sin descripción'}
-        </a>
+        </p>
       </div>
     </div>
   )

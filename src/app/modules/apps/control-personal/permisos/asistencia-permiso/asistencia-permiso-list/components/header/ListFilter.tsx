@@ -8,7 +8,7 @@ const ListFilter = () => {
   const {updateState} = useQueryRequest()
   const {isLoading} = useQueryResponse()
   const [estado, setEstado] = useState<string | undefined>()
-  const [lastLogin, setLastLogin] = useState<string | undefined>()
+  const [lastLogin] = useState<string | undefined>()
 
   useEffect(() => {
     MenuComponent.reinitialization()

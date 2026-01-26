@@ -62,7 +62,7 @@ export const HistorialCard: React.FC<HistorialCardProps> = ({scannedHistory}) =>
               <div className='flex-grow-1'>
                 <div className='d-flex align-items-center justify-content-between'>
                   <div className='fw-semibold text-gray-800 fs-7'>#{item.code}</div>
-                  {item.tipoPermiso == 'dia' ? (
+                  {item.tipoPermiso === 'dia' ? (
                     <div className='badge badge-light-primary fs-8'>
                       Permiso Día
                     </div>

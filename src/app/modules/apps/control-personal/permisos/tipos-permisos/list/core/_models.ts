@@ -1,16 +1,16 @@
-import { ID, Response, PaginationState } from '../../../../../../../../_metronic/helpers';
+import { ID, PaginationState } from '../../../../../../../../_metronic/helpers';
 
 export type TipoPermiso = {
-  id_tipo_permiso?: ID;
-  nombre: string;
-  descripcion?: string | null;
-  tipo_permiso?: 'COMISION' | 'PERMISO';  // Nuevo campo enum
-  // requiere_hoja_ruta?: boolean | '0' | '1';  // Nuevo campo (puede ser boolean o string)
-  instruccion?: string | null;  // Nuevo campo
-  limite_dias?: number | null;  // Nuevo campo
-  created_at?: string | null;
-  updated_at?: string | null;
-  deleted_at?: string | null;
+  id_tipo_permiso?: ID
+  nombre: string
+  descripcion?: string | null
+  tipo_permiso?: 'COMISION' | 'PERMISO'  
+  instruccion?: string | null
+  limite_dias?: number | null
+  max_solicitudes_diarias?: number
+  created_at?: string | null
+  updated_at?: string | null
+  deleted_at?: string | null
 };
 
 // Respuesta del Backend para TipoPermiso

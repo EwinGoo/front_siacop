@@ -1,5 +1,5 @@
 import {Dispatch, SetStateAction} from 'react'
-import {ID, Response, PaginationState} from '../../../../../../../../_metronic/helpers'
+import {ID, PaginationState} from 'src/_metronic/helpers'
 
 export type EstadoType = 'GENERADO' | 'ENVIADO' | 'RECEPCIONADO' | 'APROBADO' | 'OBSERVADO'
 
@@ -12,6 +12,7 @@ export type AsistenciaPermiso = {
   id_usuario_aprobador?: number | null
   nombre_generador?: string | null
   estado_permiso: EstadoType
+  nro_correlativo?: number
   hoja_ruta: string
   fecha_inicio_permiso: string // Date en formato ISO
   fecha_fin_permiso: string // Date en formato ISO
@@ -87,7 +88,6 @@ export type AsistenciaPermisoBackendData = {
   }
 }
 
-// Respuesta del Frontend (Query)
 export type AsistenciaPermisoQueryResponse = {
   data?: AsistenciaPermiso[]
   payload?: {
@@ -116,8 +116,6 @@ export type AutocompleteResponse = {
   tiempo_respuesta: number
 }
 
-
-
 // Valores iniciales para un formulario de AsistenciaPermiso
 export const initialAsistenciaPermiso: AsistenciaPermiso = {
   id_asistencia_permiso: undefined,
@@ -135,24 +133,6 @@ export const initialAsistenciaPermiso: AsistenciaPermiso = {
   id_multimedia: null,
   archivo_adjunto: null,
 }
-// export const initialAsistenciaPermiso: AsistenciaPermiso = {
-//   id_persona_administrativo: 0,
-//   // id_tipo_permiso: null,
-//   id_tipo_permiso: 10,
-//   id_usuario_generador: 0,
-//   id_usuario_aprobador: null,
-//   estado_permiso: 'GENERADO',
-//   numero_documento: '1234',
-//   // numero_documento: '',
-//   fecha_inicio_permiso: new Date().toISOString().split('T')[0],
-//   fecha_fin_permiso: new Date().toISOString().split('T')[0],
-//   detalle_permiso: 'test',
-//   id_multimedia: null,
-//   archivo_adjunto: null,
-//   created_at: new Date().toISOString(),
-//   updated_at: new Date().toISOString(),
-//   deleted_at: null,
-// }
 
 export interface ApiResponse<T> {
   status: number

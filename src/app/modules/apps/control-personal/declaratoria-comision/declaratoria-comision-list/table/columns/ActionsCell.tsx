@@ -5,25 +5,29 @@ import {MenuComponent} from '../../../../../../../../_metronic/assets/ts/compone
 import {KTIcon, QUERIES} from '../../../../../../../../_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
-import {deleteDeclaratoriaComision, imprimirDeclaratoriaComision} from '../../core/_requests'
+import {
+  anularDeclaratoriaComision,
+  deleteDeclaratoriaComision,
+  imprimirDeclaratoriaComision,
+} from '../../core/_requests'
 import {showConfirmDialog} from 'src/app/utils/swalHelpers.ts'
 import {showToast} from 'src/app/utils/toastHelper'
-import { PDFData } from './_columns'
+import {PDFData} from './_columns'
 
 interface ActionsProps {
-  declaratoria: any;
-  onShowPDF: (pdfData: PDFData) => void;
-  onShowData: (declaratoria: any) => void;
-  onSetLoading: (declaratoriaId: string, isLoading: boolean) => void;
-  isLoading: boolean;
+  declaratoria: any
+  onShowPDF: (pdfData: PDFData) => void
+  onShowData: (declaratoria: any) => void
+  onSetLoading: (declaratoriaId: string, isLoading: boolean) => void
+  isLoading: boolean
 }
 
 const ActionsCell: FC<ActionsProps> = ({
-  declaratoria, 
-  onShowPDF, 
-  onShowData, 
+  declaratoria,
+  onShowPDF,
+  onShowData,
   onSetLoading,
-  isLoading
+  isLoading,
 }) => {
   const {setItemIdForUpdate, setIsShow} = useListView()
   const {query} = useQueryResponse()
@@ -57,38 +61,58 @@ const ActionsCell: FC<ActionsProps> = ({
     }
   )
 
-  const printMutation = useMutation(
-    () => imprimirDeclaratoriaComision(declaratoria.hash),
+  const anularItem = useMutation(
+    () => anularDeclaratoriaComision(declaratoria.id_declaratoria_comision),
     {
-      onMutate: () => {
-        onSetLoading(declaratoria.id_declaratoria_comision, true)
-      },
       onSuccess: (response) => {
-        onSetLoading(declaratoria.id_declaratoria_comision, false)
-        onShowPDF({
-          base64: response.pdf_base64,
-          filename: response.filename,
-          declaratoria: declaratoria
+        // Axios retorna un objeto con { data, status, headers, ... }
+        const {message} = response.data
+
+        showToast({
+          message: message || 'Declaratoria comisión anulada correctamente',
+          type: 'success',
         })
-        
-        // Si el estado era GENERADO, actualizar la lista
-        if (declaratoria.estado === 'GENERADO') {
-          queryClient.invalidateQueries([`${QUERIES.DECLARATORIA_COMISION_LIST}-${query}`])
-          showToast({
-            message: 'Declaratoria emitida correctamente',
-            type: 'success'
-          })
-        }
+
+        queryClient.invalidateQueries([`${QUERIES.DECLARATORIA_COMISION_LIST}-${query}`])
       },
       onError: (error: any) => {
-        onSetLoading(declaratoria.id_declaratoria_comision, false)
         showToast({
-          message: error.response?.data?.message || 'Error al generar el PDF',
-          type: 'error'
+          message: error.response?.data?.message || 'Error al anular la declaratoria comisión',
+          type: 'error',
         })
-      }
+      },
     }
   )
+
+  const printMutation = useMutation(() => imprimirDeclaratoriaComision(declaratoria.hash), {
+    onMutate: () => {
+      onSetLoading(declaratoria.id_declaratoria_comision, true)
+    },
+    onSuccess: (response) => {
+      onSetLoading(declaratoria.id_declaratoria_comision, false)
+      onShowPDF({
+        base64: response.pdf_base64,
+        filename: response.filename,
+        declaratoria: declaratoria,
+      })
+
+      // Si el estado era GENERADO, actualizar la lista
+      if (declaratoria.estado === 'GENERADO') {
+        queryClient.invalidateQueries([`${QUERIES.DECLARATORIA_COMISION_LIST}-${query}`])
+        showToast({
+          message: 'Declaratoria emitida correctamente',
+          type: 'success',
+        })
+      }
+    },
+    onError: (error: any) => {
+      onSetLoading(declaratoria.id_declaratoria_comision, false)
+      showToast({
+        message: error.response?.data?.message || 'Error al generar el PDF',
+        type: 'error',
+      })
+    },
+  })
 
   const handlePrintConfirm = async () => {
     try {
@@ -99,14 +123,13 @@ const ActionsCell: FC<ActionsProps> = ({
           icon: 'warning',
           confirmButtonText: 'Sí, imprimir',
         })
-        
+
         if (!result?.isConfirmed) {
           return
         }
       }
 
       printMutation.mutate()
-      
     } catch (error) {
       showToast({message: 'Error al procesar la impresión', type: 'error'})
     }
@@ -129,6 +152,23 @@ const ActionsCell: FC<ActionsProps> = ({
     }
   }
 
+  const handleAnular = async () => {
+    try {
+      const result = await showConfirmDialog({
+        title: '¿Deseas anular este registro?',
+        text: 'Esta acción dejará el registro sin efecto y no podrás revertirla.',
+        icon: 'warning',
+        confirmButtonText: 'Sí, anular',
+      })
+
+      if (result.isConfirmed) {
+        await anularItem.mutateAsync()
+      }
+    } catch (error) {
+      // Error is already handled in onError
+    }
+  }
+
   const handleShowData = () => {
     onShowData(declaratoria)
   }
@@ -137,14 +177,14 @@ const ActionsCell: FC<ActionsProps> = ({
     <>
       <a
         href='#'
-        className='btn btn-light btn-active-light-primary btn-sm'
+        className='btn btn-outline btn-outline-primary btn-sm'
         data-kt-menu-trigger='click'
         data-kt-menu-placement='bottom-end'
       >
         Acciones
         <KTIcon iconName='down' className='fs-5 m-0' />
       </a>
-      
+
       {/* begin::Menu */}
       <div
         className='menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-150px py-4'
@@ -152,16 +192,16 @@ const ActionsCell: FC<ActionsProps> = ({
       >
         {/* Imprimir action */}
         <div className='menu-item px-3'>
-          <a 
-            href='#' 
-            className='menu-link px-3' 
+          <a
+            href='#'
+            className='menu-link px-3'
             onClick={handlePrintConfirm}
-            style={{ opacity: isLoading ? 0.6 : 1 }}
+            style={{opacity: isLoading ? 0.6 : 1}}
           >
             {isLoading ? (
               <>
-                <div className="spinner-border spinner-border-sm me-2" role="status">
-                  <span className="visually-hidden">Cargando...</span>
+                <div className='spinner-border spinner-border-sm me-2' role='status'>
+                  <span className='visually-hidden'>Cargando...</span>
                 </div>
                 Generando...
               </>
@@ -185,6 +225,15 @@ const ActionsCell: FC<ActionsProps> = ({
           <div className='menu-item px-3'>
             <a className='menu-link px-3' onClick={openEditModal}>
               <i className='las la-edit fs-5 me-2'></i> Editar
+            </a>
+          </div>
+        )}
+
+        {/* Edit action */}
+        {declaratoria.estado === 'EMITIDO' && (
+          <div className='menu-item px-3'>
+            <a className='menu-link px-3' onClick={handleAnular}>
+              <i className='las la-ban fs-5 me-2'></i> Anular
             </a>
           </div>
         )}

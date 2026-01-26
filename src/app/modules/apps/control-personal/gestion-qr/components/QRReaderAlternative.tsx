@@ -232,7 +232,7 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
       )
 
       const currentValues = scannerRef.current!.getRunningTrackSettings()
-      console.log(currentValues)
+      // console.log(currentValues)
 
       if (isMountedRef.current) {
         setIsScanning(true)
@@ -329,22 +329,6 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
     }
   }, [cleanupScanner])
 
-  const applyCam = async (constraints: MediaTrackConstraints) => {
-    if (!scannerRef.current) return
-    try {
-      console.log('entro')
-
-      await scannerRef.current.applyVideoConstraints(constraints)
-      // await scannerRef.current.applyVideoConstraints(c
-      //   {advanced: [{ focusMode: "continuous" }] as any}
-      // )
-      console.log('Constraints aplicadas (promesa resuelta).')
-      // alert('Se aplicaron los cambios, verifica visualmente el video.')
-    } catch (err) {
-      console.warn('Error al aplicar constraints', err)
-    }
-  }
-
   useEffect(() => {
     if (!scannerRef.current || !isScanning) return
 
@@ -358,7 +342,7 @@ export const QRReaderAlternative: React.FC<QRReaderAlternativeProps> = ({
       try {
         if (useQRRecommended) {
           // ✅ Configuraciones recomendadas para QR
-          console.log('⚙️ Aplicando configuraciones QR recomendadas...')
+          // console.log('⚙️ Aplicando configuraciones QR recomendadas...')
           await scannerRef.current.applyVideoConstraints({
             advanced: [
               {focusMode: 'manual'},

@@ -1,4 +1,3 @@
-import {useThemeMode} from 'src/_metronic/partials/layout/theme-mode/ThemeModeProvider'
 import Flatpickr from 'react-flatpickr'
 import {Spanish} from 'flatpickr/dist/l10n/es'
 import clsx from 'clsx'

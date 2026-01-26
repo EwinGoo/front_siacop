@@ -1,4 +1,4 @@
-import {FC, useEffect, useState} from 'react'
+import {FC, useState} from 'react'
 import * as Yup from 'yup'
 import {useFormik} from 'formik'
 import {isNotEmpty} from 'src/_metronic/helpers'
@@ -21,10 +21,9 @@ import {parseTipoViaticoFromApi, parseTipoViaticoToApi} from '../helpers/viatico
 import AsyncSelectField from '../../../comision/comision-list/comision-edit-modal/components/AsyncSelectField'
 import {getPersonaAutocomplete} from '../../../comision/comision-list/core/_requests'
 import {ListLoading} from 'src/app/modules/components/loading/ListLoading'
-import { SelectField } from 'src/app/modules/components/SelectField'
-import { formatUtils } from 'src/app/utils/formatUtils'
-import { useAuth } from 'src/app/modules/auth/core/Auth'
-import { usePermissions } from 'src/app/modules/auth/core/usePermissions1'
+import {SelectField} from 'src/app/modules/components/SelectField'
+import {formatUtils} from 'src/app/utils/formatUtils'
+import {usePermissions} from 'src/app/modules/auth/core/usePermissions1'
 
 type Props = {
   isDeclaratoriaLoading: boolean
@@ -70,21 +69,22 @@ const declaratoriaComisionSchema = Yup.object().shape({
     .required('Motivo es requerido')
     .min(10, 'Mínimo 10 caracteres')
     .max(555, 'Máximo 555 caracteres'),
-  nota_interna: Yup.number()
-    .typeError('Nota interna debe ser numérico')
-    .min(1, 'Nota interna debe tener al menos 1 dígito')
-    .notRequired(), // Opcional
+  id_unidad_sede: Yup.string().required('La unidad solicitante es requerido'),
+  nota_interna: Yup.string()
+    .min(1, 'Nota interna debe tener al menos 1 carácter')
+    .max(55, 'Máximo 55 caracteres')
+    .notRequired(),
 })
 
 const EditModalForm: FC<Props> = ({declaratoria, unidades, isDeclaratoriaLoading, onClose}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
-  const {currentUser} = useAuth()
-  const {apiErrors, setApiErrors, getFieldError, clearFieldError} = useApiFieldErrors()
+  const {setApiErrors, getFieldError, clearFieldError} = useApiFieldErrors()
   const {isAdminComision} = usePermissions()
   const [declaratoriaForEdit] = useState<DeclaratoriaComision>({
     ...declaratoria,
-    id_asignacion_administrativo: declaratoria.id_asignacion_administrativo || initialData.id_asignacion_administrativo,
+    id_asignacion_administrativo:
+      declaratoria.id_asignacion_administrativo || initialData.id_asignacion_administrativo,
     id_unidad_sede: declaratoria.id_unidad_sede || initialData.id_unidad_sede,
     fecha_elaboracion: declaratoria.fecha_elaboracion || initialData.fecha_elaboracion,
     rrhh_hoja_ruta_numero: declaratoria.rrhh_hoja_ruta_numero || initialData.rrhh_hoja_ruta_numero,

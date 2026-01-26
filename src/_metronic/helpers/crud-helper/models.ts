@@ -63,7 +63,7 @@ export type Response<T> = {
   }
 }
 
-export interface ApiResponse<T> {
+export interface ApiResponse<T = null> {
   status: number
   error: boolean
   message: string

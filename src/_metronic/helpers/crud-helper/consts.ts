@@ -6,6 +6,7 @@ const QUERIES = {
   FERIADOS_ASUETOS_LIST: 'feriado-asueto-list',
   TIPOS_PERMISOS_LIST: 'tipo-permiso-list',
   ASISTENCIAS_PERMISO_LIST: 'asistencia-permiso-list',
+  DISPOSITIVOS_BIOMETRICOS_LIST: 'dispositivo-biometrico',
 }
 
 export {QUERIES}

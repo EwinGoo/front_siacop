@@ -1,8 +1,6 @@
-import {useEffect, useState} from 'react'
 import {EditModalHeader} from './EditModalHeader'
 import {EditModalFormWrapper} from './EditModalFormWrapper'
 import Modal from 'react-bootstrap/Modal'
-import Button from 'react-bootstrap/Button'
 import {useListView} from '../core/ListViewProvider'
 
 const EditModal = () => {

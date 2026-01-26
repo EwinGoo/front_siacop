@@ -9,12 +9,6 @@ type Props = {
 
 const InfoCell: FC<Props> = ({tipoPermiso}) => {
   // Format created date if exists
-  const formattedDate = tipoPermiso.created_at
-    ? new Date(tipoPermiso.created_at).toLocaleDateString()
-    : 'Sin fecha'
-
-  // Status badge classes
-  const statusClass = tipoPermiso.deleted_at ? 'badge-light-danger' : 'badge-light-success'
 
   return (
     <div className='d-flex align-items-center'>
@@ -42,9 +36,9 @@ const InfoCell: FC<Props> = ({tipoPermiso}) => {
 
       <div className='d-flex flex-column'>
         {/* Main name */}
-        <a href='#' className='text-gray-800 text-hover-primary fw-bolder mb-1 fs-6'>
+      <p className='text-gray-800 text-hover-primary fw-bolder mb-1 fs-6'>
           {tipoPermiso.nombre || 'Tipo de permiso sin nombre'}
-        </a>
+        </p>
       </div>
     </div>
   )

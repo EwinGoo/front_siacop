@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-import {useIntl} from 'react-intl'
 import {PageLink, PageTitle} from 'src/_metronic/layout/core'
 import {QRScannerPanel} from './components/QRScanner'
 import {ControlPanel} from './components/ControlPanel'
@@ -7,7 +6,6 @@ import {UltimoCodigoCard, HistorialCard} from './components/Cards'
 import {useQRScanner} from './hooks'
 
 const GestionQrPage: React.FC = () => {
-  const intl = useIntl()
   const gestionQRBreadcrumbs: Array<PageLink> = [
     {
       title: 'Control Personal',
@@ -34,7 +32,6 @@ const GestionQrPage: React.FC = () => {
     setFechaHora,
     setIsPaused,
     actualizarTiempo,
-    onUpdatedScannedHistory 
   } = useQRScanner()
 
   // Efecto para manejar el atajo de teclado Ctrl + M
