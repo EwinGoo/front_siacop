@@ -140,15 +140,43 @@ const getDeviceInfo = async (): Promise<DeviceInfoResponse> => {
 
 // Obtener un usuario específico del dispositivo
 const getDeviceUser = async (uid: number): Promise<{success: boolean; data: DeviceUser}> => {
-  try {
-    const {data} = await axiosClient.get<{success: boolean; data: DeviceUser}>(
-      `${ZKTECO_URL}/users/${uid}`
-    )
-    return data
-  } catch (error: any) {
-    console.error('Error al obtener usuario del dispositivo:', error)
-    throw new Error(error.response?.data?.message || 'Error al obtener usuario del dispositivo')
-  }
+  const {data} = await axiosClient.get<{success: boolean; data: DeviceUser}>(
+    `${ZKTECO_URL}/users/${uid}`
+  )
+  return data
+}
+
+// Verificar si la sesión con el dispositivo sigue activa
+const getSessionStatus = async (): Promise<{
+  success: boolean
+  authenticated: boolean
+  session: any | null
+}> => {
+  const {data} = await axiosClient.get(`${ZKTECO_URL}/session-status`)
+  return data
+}
+
+// Agregar usuario al dispositivo
+const addDeviceUser = async (userData: {
+  id_number: string
+  name: string
+  department_id?: number
+  privilege_value?: number
+  password?: string
+  card?: string
+}): Promise<{success: boolean; message: string}> => {
+  const {data} = await axiosClient.post(`${ZKTECO_URL}/users`, userData)
+  return data
+}
+
+// Eliminar usuarios del dispositivo (batch)
+const deleteDeviceUsers = async (uids: number[]): Promise<{
+  success: boolean
+  message: string
+  data: {success: number[]; errors: any[]; total: number}
+}> => {
+  const {data} = await axiosClient.post(`${ZKTECO_URL}/users/delete`, {uids})
+  return data
 }
 
 export {
@@ -165,4 +193,7 @@ export {
   getDeviceUsers,
   getDeviceInfo,
   getDeviceUser,
+  getSessionStatus,
+  addDeviceUser,
+  deleteDeviceUsers,
 }

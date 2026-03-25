@@ -117,6 +117,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             >
               <option value='hora'>⏰ Permisos por hora</option>
               <option value='dia'>📅 Permisos por día</option>
+              <option value='vacacion'>🏖️ Vacaciones</option>
             </select>
           </div>
         </div>
@@ -235,10 +236,18 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                   <span className='text-muted'>Tipo:</span>
                   <span
                     className={`badge ${
-                      tipoPermiso === 'hora' ? 'badge-light-info' : 'badge-light-primary'
+                      tipoPermiso === 'hora'
+                        ? 'badge-light-info'
+                        : tipoPermiso === 'dia'
+                        ? 'badge-light-primary'
+                        : 'badge-light-success'
                     }`}
                   >
-                    {tipoPermiso === 'hora' ? 'Permiso Hora' : 'Permisos Día'}
+                    {tipoPermiso === 'hora'
+                      ? 'Permiso Hora'
+                      : tipoPermiso === 'dia'
+                      ? 'Permiso Día'
+                      : 'Vacación'}
                   </span>
                 </div>
               </div>

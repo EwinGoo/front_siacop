@@ -28,6 +28,8 @@ const PrivateRoutes = () => {
   const FeriadoAsuetoPage = lazy(() => import('../modules/apps/control-personal/feriado-asueto/FeriadoAsuetoPage'))
 
   const BiometricoPage = lazy(() => import('../modules/apps/administrador/biometrico/BiometricoPage'))
+  const BiometricoAdminPage = lazy(() => import('../modules/apps/administrador/biometrico/admin/BiometricoAdminPage'))
+  const VacacionReportePage = lazy(() => import('../modules/apps/control-personal/vacaciones/reporte/VacacionReportePage'))
 
   const enviroment = process.env.REACT_APP_ENVIRONMENT || ''
 
@@ -110,6 +112,17 @@ const PrivateRoutes = () => {
         />
 
         <Route
+          path='apps/biometricos/:id/administrar'
+          element={
+            <SuspensedView>
+              <ProtectedRoute requiredSpecificPermissions={[PERMISSIONS.FERIADO_ASUETO.VIEW]}>
+                <BiometricoAdminPage />
+              </ProtectedRoute>
+            </SuspensedView>
+          }
+        />
+
+        <Route
           path='apps/feriados-asuetos/*'
           element={
             <SuspensedView>
@@ -163,6 +176,18 @@ const PrivateRoutes = () => {
             <SuspensedView>
               <ProtectedRoute requiredSpecificPermissions={[PERMISSIONS.GESTION_QR.VIEW]}>
                 <GestionQrPage />
+              </ProtectedRoute>
+            </SuspensedView>
+          }
+        />
+
+        {/* Reporte de Vacaciones */}
+        <Route
+          path='apps/vacaciones-reporte/*'
+          element={
+            <SuspensedView>
+              <ProtectedRoute requiredSpecificPermissions={[PERMISSIONS.VACACION.VIEW]}>
+                <VacacionReportePage />
               </ProtectedRoute>
             </SuspensedView>
           }

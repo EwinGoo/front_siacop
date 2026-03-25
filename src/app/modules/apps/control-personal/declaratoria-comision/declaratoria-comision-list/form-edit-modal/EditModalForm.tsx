@@ -46,18 +46,18 @@ const declaratoriaComisionSchema = Yup.object().shape({
     .min(1, 'Número de hoja de ruta debe tener al menos 1 dígito'),
   rrhh_hoja_ruta_fecha: Yup.date().required('Fecha de hoja de ruta es requerida'),
   fecha_inicio: Yup.date()
-    .required('Fecha de inicio es requerida')
-    .test(
-      'fecha-no-anterior',
-      'Fecha inicio no puede ser anterior a la fecha de elaboración',
-      function (value) {
-        const {fecha_elaboracion} = this.parent
-        if (!value || !fecha_elaboracion) return true
-        const inicio = new Date(value).setHours(0, 0, 0, 0)
-        const elaboracion = new Date(fecha_elaboracion).setHours(0, 0, 0, 0)
-        return inicio >= elaboracion
-      }
-    ),
+    .required('Fecha de inicio es requerida'),
+    // .test(
+    //   'fecha-no-anterior',
+    //   'Fecha inicio no puede ser anterior a la fecha de elaboración',
+    //   function (value) {
+    //     const {fecha_elaboracion} = this.parent
+    //     if (!value || !fecha_elaboracion) return true
+    //     const inicio = new Date(value).setHours(0, 0, 0, 0)
+    //     const elaboracion = new Date(fecha_elaboracion).setHours(0, 0, 0, 0)
+    //     return inicio >= elaboracion
+    //   }
+    // ),
   fecha_fin: Yup.date()
     .required('Fecha de fin es requerida')
     .min(Yup.ref('fecha_inicio'), 'Fecha fin no puede ser anterior a fecha inicio'),

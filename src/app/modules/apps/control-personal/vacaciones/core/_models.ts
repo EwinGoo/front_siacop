@@ -6,6 +6,8 @@ export type Vacacion = {
   id_asignacion_administrativo: ID
   id_persona_administrativo: ID
   numero_tramite: string | null
+  nro_correlativo?: number | null
+  correlativo?: string | null
   fecha_vacacion_inicio: string
   fecha_vacacion_fin: string
   dias_solicitado: string | number
@@ -13,7 +15,11 @@ export type Vacacion = {
   dias_saldo: string | number | null
   fecha_solicitud: string
   tipo_solicitud: string
-  estado_vacacion: 'GENERADO' | 'APROBADO' | 'RECEPCIONADO' | 'OBSERVADO'
+  estado_vacacion: 'GENERADO' | 'ENVIADO' | 'APROBADO' | 'RECEPCIONADO' | 'OBSERVADO'
+  // Campos de persona (desde la vista, disponibles en show())
+  nombre_generador?: string
+  ci?: string
+  nombre_cargo?: string
 };
 
 // Tipo genérico para respuestas estándar del backend

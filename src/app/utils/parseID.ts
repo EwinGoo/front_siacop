@@ -1,5 +1,4 @@
 import { ID } from "src/_metronic/helpers";
-import { ModalidadPermiso, TipoPermiso } from "../modules/apps/control-personal/gestion-qr";
 
 interface ParseIDOptions {
   validate_numeric?: boolean;  // Validar que el resultado sea numérico
@@ -52,59 +51,87 @@ export function parseIDNumeric(id: string): number {
 }
 
 /**
- * Extrae el primer carácter del código y determina el tipo de permiso
- * C = hora, P = dia
+ * Extrae el prefijo del código QR
  * 
- * @param code Código QR completo
- * @returns Tipo de permiso basado en el primer carácter
+ * @param code Código QR completo (ej: 'P123', 'C456', 'V789')
+ * @returns Prefijo en mayúscula ('P', 'C', 'V')
  */
-export function parseCode(code: string): TipoPermiso{
-  const firstChar = code[0]; // 🔧 CAMBIO: usar primer carácter en lugar del último
-  
-  // Si el primer carácter es una letra
-  if (/^[a-zA-Z]$/.test(firstChar)) {
-    const upperChar = firstChar.toUpperCase();
-    switch (upperChar) {
-      case 'C':
-        return 'hora';
-      case 'P':
-        return 'dia';
-      case 'V':
-        return 'vacacion';
-      default:
-        return 'hora'; // Por defecto
-    }
-  }
-  
-  // Si es un dígito, usar lógica numérica (opcional)
-  if (/^[0-9]$/.test(firstChar)) {
-    const digit = parseInt(firstChar, 10);
-    // Ejemplo: pares = hora, impares = dia
-    return digit % 2 === 0 ? 'hora' : 'dia';
-  }
-  
-  // Por defecto retorna 'hora'
-  return 'hora';
+export function extractPrefix(code: string): string {
+  const firstChar = code[0]?.toUpperCase() ?? '';
+  return /^[A-Z]$/.test(firstChar) ? firstChar : '';
 }
 
 /**
- * Convierte un ID numérico de vuelta a su formato con prefijo según el tipo
+ * ⭐ NUEVO: Determina el tipo de permiso basado en el prefijo del código
  * 
- * @param id ID numérico (ej: 6)
- * @param tipoPermiso Tipo de permiso ('hora' o 'dia')
- * @returns Código con prefijo (ej: 'C6' o 'P6')
+ * C = hora (Comisiones)
+ * P = dia (Permisos)
+ * V = vacacion (Vacaciones)
+ * 
+ * @param code Código QR completo (ej: 'C123', 'P456', 'V789')
+ * @returns Tipo de permiso ('hora', 'dia', 'vacacion')
  */
-export function buildCode(id: string | number | ID, tipoPermiso: ModalidadPermiso): string {
-  const numericId = typeof id === 'string' ? id : id!.toString();
+export function parseCode(code: string): 'hora' | 'dia' | 'vacacion' {
+  const prefix = extractPrefix(code);
   
-  switch (tipoPermiso) {
-    case 'hora':
-      return `C${numericId}`;
-    case 'dia':
-      return `P${numericId}`;
+  switch (prefix) {
+    case 'C':
+      return 'hora';
+    case 'P':
+      return 'dia';
+    case 'V':
+      return 'vacacion';
     default:
-      return `C${numericId}`; // Por defecto usa C
+      // Por defecto retorna 'hora' si no reconoce el prefijo
+      return 'hora';
   }
+}
+
+/**
+ * ⭐ NUEVO: Extrae el código limpio de una URL o texto
+ * 
+ * Ejemplos:
+ * - 'https://app.com/qr/C123' → 'C123'
+ * - 'C123?param=value' → 'C123'
+ * - 'C123' → 'C123'
+ * 
+ * @param input URL o texto que contiene el código
+ * @returns Código limpio
+ */
+export function extractCodeFromURL(input: string): string {
+  try {
+    let code = input.trim();
+    
+    // Si contiene '/', obtener la última parte
+    if (code.includes('/')) {
+      const parts = code.split('/');
+      code = parts[parts.length - 1];
+    }
+    
+    // Si contiene '?', obtener solo la parte antes de los parámetros
+    if (code.includes('?')) {
+      code = code.split('?')[0];
+    }
+    
+    return code.trim();
+  } catch (error) {
+    console.error('Error al extraer código:', error);
+    return input;
+  }
+}
+
+/**
+ * Convierte un ID numérico a código con prefijo
+ * 
+ * @param id ID numérico (ej: 123)
+ * @param prefix Prefijo ('P', 'C', 'V', 'p', 'c', 'v')
+ * @returns Código con prefijo (ej: 'P123', 'C456', 'V789')
+ */
+export function buildCode(id: string | number | ID, prefix: string): string {
+  const numericId = typeof id === 'string' ? id : id!.toString();
+  const upperPrefix = prefix.toUpperCase();
+  
+  return `${upperPrefix}${numericId}`;
 }
 
 /**
@@ -113,27 +140,3 @@ export function buildCode(id: string | number | ID, tipoPermiso: ModalidadPermis
 function isNumeric(value: string): boolean {
   return !isNaN(Number(value)) && !isNaN(parseFloat(value));
 }
-
-// Para usar en tu hook, importa así:
-// import { parseID, parseIDNumeric, parseCode, buildCode } from './utils/parseID';
-
-// Ejemplos de uso parseCode (ACTUALIZADOS):
-/*
-console.log(parseCode("C123"));    // "hora" ✅
-console.log(parseCode("P456"));    // "dia" ✅  
-console.log(parseCode("c789"));    // "hora" (case insensitive)
-console.log(parseCode("p012"));    // "dia" (case insensitive)
-console.log(parseCode("2345"));    // "hora" (dígito par al inicio)
-console.log(parseCode("3456"));    // "dia" (dígito impar al inicio)
-console.log(parseCode("X123"));    // "hora" (letra desconocida, default)
-
-// Casos de tus logs:
-console.log(parseCode("P1"));      // "dia" ✅
-console.log(parseCode("C1"));      // "hora" ✅ (ahora correcto)
-
-// Ejemplos de uso buildCode:
-console.log(buildCode("6", "hora"));    // "C6" ✅
-console.log(buildCode("6", "dia"));     // "P6" ✅
-console.log(buildCode(123, "hora"));    // "C123" ✅
-console.log(buildCode(456, "dia"));     // "P456" ✅
-*/

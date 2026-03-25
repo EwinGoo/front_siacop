@@ -105,7 +105,7 @@ const ThemeModeProvider = ({children}: {children: React.ReactNode}) => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme={mode === 'dark' ? 'dark' : 'light'}
+        theme="colored"
         transition={Bounce}
       />
     </ThemeModeContext.Provider>

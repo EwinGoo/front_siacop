@@ -1,11 +1,10 @@
 import {useCallback} from 'react'
+import {toast} from 'react-toastify'
 import {ModoRecepcion, TipoPermiso} from '../types'
-import {unifiedService} from '../services/unifiedService'
-import {RecepcionProcessorService, ObservacionProcessorService} from '../components/Process'
+import {moduleRegistry} from '../modules'
+import {showModal} from '../utils/showModal'
 import useDateFormatter from 'src/app/hooks/useDateFormatter'
-import Swal from 'sweetalert2'
-import {UnifiedModalService} from '../components/Process/UnifiedModal'
-import {buildCode, parseIDNumeric} from 'src/app/utils/parseID'
+import {parseIDNumeric} from 'src/app/utils/parseID'
 
 interface ProcessQRCodeParams {
   code: string
@@ -15,6 +14,14 @@ interface ProcessQRCodeParams {
   onUpdatedScannedHistory: (code: string, timestamp: number) => void
 }
 
+function parseErrorMessage(error: any): string {
+  if (error?.response?.status === 404) return 'Solicitud no encontrada en el sistema'
+  if (error?.response?.data?.message) return error.response.data.message
+  if (error?.response?.data?.messages?.error) return error.response.data.messages.error
+  if (error?.message) return error.message
+  return 'Ocurrió un error inesperado'
+}
+
 export const useProcessor = () => {
   const {formatToBolivianDate} = useDateFormatter()
 
@@ -22,199 +29,97 @@ export const useProcessor = () => {
     async (params: ProcessQRCodeParams) => {
       const {code, modoRecepcion, tipoPermiso, fechaHora, onUpdatedScannedHistory} = params
 
+      if (!moduleRegistry.has(tipoPermiso)) {
+        toast.error(`Tipo de documento no soportado: ${tipoPermiso}`)
+        return
+      }
+
+      const module = moduleRegistry.get(tipoPermiso)
+
       try {
-        // Obtener configuración del tipo
-        const typeConfig = unifiedService.getTypeConfig(tipoPermiso)
-        // console.log(`Procesando con ${typeConfig.serviceName}`)
-        
-        // Obtener datos usando el servicio unificado (YA DEVUELVE UnifiedData)
-        
-        const unifiedData = await unifiedService.getDataByType(parseIDNumeric(code), tipoPermiso)
-        if (unifiedData) {
-          unifiedData.codigo = buildCode(unifiedData.id, tipoPermiso)
-        }
+        const unifiedData = await module.getById(parseIDNumeric(code))
 
         if (!unifiedData) {
-          await RecepcionProcessorService.showRecepcionError({
-            response: {
-              status: 404,
-              data: {
-                message: `No se encontraron datos en ${typeConfig.serviceName} para este código QR`,
-              },
-            },
-          })
+          toast.warning(
+            `No se encontró registro en ${module.config.label} para el código: ${code}`
+          )
+          // toast.warning(
+          //   `No se encontró registro en ${module.config.label} para el código: ${code}`,
+          //   {icon: '🔍'}
+          // )
           return
         }
 
-        // Procesamiento automático para estados específicos
-        const estadoNormalizado = unifiedData.estado.toUpperCase()
-        if (modoRecepcion === 'automatico' && ['GENERADO', 'ENVIADO'].includes(estadoNormalizado)) {
-          await RecepcionProcessorService.showRecepcionProgress(code)
+        // Asignar código con prefijo correcto para mostrar (ej: V1, C5, P3)
+        unifiedData.codigo = `${module.config.prefijo}${unifiedData.id}`
 
+        const estado = unifiedData.estado.toUpperCase()
+        const acciones = module.getAccionesPorEstado(estado)
+
+        // Modo automático: recepcionar directamente sin mostrar modal
+        if (modoRecepcion === 'automatico' && acciones.includes('reception')) {
           try {
-            const response = await unifiedService.procesarRecepcionByType(
-              code,
-              fechaHora,
-              tipoPermiso
-            )
-
-            // `${response.message} (${typeConfig.serviceName})`,
-            await RecepcionProcessorService.showRecepcionSuccess(
-              code,
-              response as any,
-              tipoPermiso,
-              fechaHora,
-              unifiedData,
+            const result = await module.recepcionar(code, fechaHora)
+            toast.success(
+              `${module.config.label}: ${unifiedData.codigo} recepcionado` +
+                (result.nro_correlativo ? ` | Correlativo: ${result.nro_correlativo}` : ''),
+              {autoClose: 4000}
             )
             onUpdatedScannedHistory(code, Date.now())
           } catch (error) {
-            await RecepcionProcessorService.showRecepcionError(error)
+            toast.error(`Error al recepcionar: ${parseErrorMessage(error)}`)
           }
           return
         }
 
-        const response = await UnifiedModalService.showUnifiedModal({
+        // Modo manual: mostrar modal específico del módulo
+        const result = await showModal(module.Modal, {
           data: unifiedData,
+          accionesDisponibles: acciones,
           formatToBolivianDate,
         })
 
-        if (response.confirmed) {
-          switch (response.action) {
-            case 'reception':
-              await RecepcionProcessorService.showRecepcionProgress(code)
-              try {
-                const result = await unifiedService.procesarRecepcionByType(
-                  code,
-                  fechaHora,
-                  tipoPermiso
-                )
+        if (!result.confirmed || !result.action) return
 
-                await RecepcionProcessorService.showRecepcionSuccess(
-                  code,
-                  result as any,
-                  tipoPermiso,
-                  fechaHora,
-                  unifiedData
-                )
+        switch (result.action) {
+          case 'reception':
+            try {
+              const recepResult = await module.recepcionar(code, fechaHora)
+              toast.success(
+                `${unifiedData.codigo} recepcionado` +
+                  (recepResult.nro_correlativo ? ` | N° ${recepResult.nro_correlativo}` : ''),
+                {autoClose: 4000}
+              )
+              onUpdatedScannedHistory(code, Date.now())
+            } catch (error) {
+              toast.error(`Error al recepcionar: ${parseErrorMessage(error)}`)
+            }
+            break
 
-                // ✅ Actualizar historial después del proceso exitoso
-                onUpdatedScannedHistory(code, Date.now())
-              } catch (error) {
-                await RecepcionProcessorService.showRecepcionError(error)
-              }
-              break
+          case 'approve':
+            try {
+              await module.aprobar(code, {numero_tramite: result.numero_tramite})
+              toast.success(`Aprobado correctamente: ${unifiedData.codigo}`)
+              onUpdatedScannedHistory(code, Date.now())
+            } catch (error) {
+              toast.error(`Error al aprobar: ${parseErrorMessage(error)}`)
+            }
+            break
 
-            case 'approve':
-              try {
-                await unifiedService.aprobarComisionByType(code, tipoPermiso)
-
-                const displayInfo =
-                  unifiedData.tipo_documento === 'permiso'
-                    ? {tipo: 'Permiso', icono: 'bi-calendar-check'}
-                    : {tipo: 'Comisión', icono: 'bi-briefcase'}
-
-                await Swal.fire({
-                  icon: 'success',
-                  title: `¡${displayInfo.tipo} Aprobado!`,
-                  html: `
-                    <div class="alert alert-success">
-                      <h6 class="alert-heading">
-                        <i class="${displayInfo.icono} me-2"></i>
-                        Aprobación Exitosa
-                      </h6>
-                      <hr>
-                      <div class="row text-start mb-2">
-                        <div class="col-4 fw-bold">Código:</div>
-                        <div class="col-8">${code}</div>
-                      </div>
-                      <div class="row text-start mb-2">
-                        <div class="col-4 fw-bold">Tipo:</div>
-                        <div class="col-8">${displayInfo.tipo}</div>
-                      </div>
-                      <div class="row text-start mb-2">
-                        <div class="col-4 fw-bold">Empleado:</div>
-                        <div class="col-8">${unifiedData.nombre_generador}</div>
-                      </div>
-                      <small class="text-muted">
-                        <i class="bi bi-gear me-1"></i>
-                        Procesado en: ${typeConfig.serviceName}
-                      </small>
-                    </div>
-                  `,
-                  confirmButtonText: '<i class="bi bi-arrow-right me-2"></i>Continuar',
-                  timer: 4000,
-                  timerProgressBar: true,
-                  customClass: {
-                    confirmButton: 'btn btn-success',
-                    title: 'text-success fw-bold',
-                  },
-                })
-
-                // ✅ Actualizar historial después del proceso exitoso
-                onUpdatedScannedHistory(code, Date.now())
-              } catch (error) {
-                await Swal.fire({
-                  icon: 'error',
-                  title: `Error de Aprobación`,
-                  html: `
-                    <div class="alert alert-danger">
-                      <p class="mb-2">No se pudo aprobar en ${typeConfig.serviceName}</p>
-                      <small class="text-muted">Si el problema persiste, contacte al administrador del sistema.</small>
-                    </div>
-                  `,
-                  confirmButtonText: '<i class="bi bi-arrow-clockwise me-2"></i>Entendido',
-                  customClass: {
-                    confirmButton: 'btn btn-danger',
-                    title: 'text-danger fw-bold',
-                  },
-                })
-              }
-              break
-
-            case 'observe':
-              if (response.observacion) {
-                await ObservacionProcessorService.showObservacionProgress(
-                  code,
-                  response.observacion
-                )
-                try {
-                  await unifiedService.registrarObservacionByType(
-                    code,
-                    response.observacion,
-                    tipoPermiso
-                  )
-
-                  await ObservacionProcessorService.showObservacionSuccess(
-                    code,
-                    response.observacion
-                  )
-
-                  // ✅ Actualizar historial después del proceso exitoso
-                  onUpdatedScannedHistory(code, Date.now())
-                } catch (error) {
-                  await Swal.fire({
-                    icon: 'error',
-                    title: 'Error al Registrar Observación',
-                    html: `
-                      <div class="alert alert-danger">
-                        <p class="mb-2">No se pudo registrar la observación en ${typeConfig.serviceName}</p>
-                        <small class="text-muted">Intente nuevamente o contacte soporte</small>
-                      </div>
-                    `,
-                    confirmButtonText: '<i class="bi bi-arrow-clockwise me-2"></i>Entendido',
-                    customClass: {
-                      confirmButton: 'btn btn-danger',
-                      title: 'text-danger fw-bold',
-                    },
-                  })
-                }
-              }
-              break
-          }
+          case 'observe':
+            if (!result.observacion || !module.observar) break
+            try {
+              await module.observar(code, result.observacion)
+              toast.warning(`Observación registrada para ${unifiedData.codigo}`)
+              onUpdatedScannedHistory(code, Date.now())
+            } catch (error) {
+              toast.error(`Error al registrar observación: ${parseErrorMessage(error)}`)
+            }
+            break
         }
       } catch (error) {
-        await RecepcionProcessorService.showRecepcionError(error)
-        console.error('Error al procesar QR:', error)
+        toast.error(`Error al procesar QR: ${parseErrorMessage(error)}`)
+        console.error('Error en processQRCode:', error)
       }
     },
     [formatToBolivianDate]

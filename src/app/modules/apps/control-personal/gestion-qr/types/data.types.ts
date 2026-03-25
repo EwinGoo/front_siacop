@@ -2,7 +2,7 @@ import {ID} from 'src/_metronic/helpers'
 import {Comision} from '../../comision/comision-list/core/_models'
 import {TipoPermiso} from '../../permisos/tipos-permisos/list/core/_models'
 
-export type TipoDocumento = 'comision' | 'permiso'
+export type TipoDocumento = 'comision' | 'permiso' | 'vacacion'
 export interface ComisionActionResponse {
   confirmed: boolean
   action?: string
@@ -54,6 +54,12 @@ export interface UnifiedData {
   tipo_personal?: string
   instruccion?: string
   ci?: string
+
+  // Campos específicos de vacación
+  dias_solicitado?: number | string
+  dias_disponible?: number | string | null
+  dias_saldo?: number | string | null
+  numero_tramite?: string | null
 }
 
 export const estadoStyles: Record<string, string> = {

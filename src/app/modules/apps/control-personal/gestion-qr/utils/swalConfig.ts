@@ -56,9 +56,9 @@ export const showIngresoManualModal = async (): Promise<string | null> => {
       }
 
       // Validar formato C23 o P23 (C o P seguido de números)
-      if (!/^[CP]\d+$/.test(value)) {
+      if (!/^[CPV]\d+$/.test(value)) {
         Swal.showValidationMessage(
-          'El código debe empezar con C o P seguido de números (ej: C23, P456)'
+          'El código debe empezar con C, P o V seguido de números (ej: C23, P456, V789)'
         )
         return false
       }

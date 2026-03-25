@@ -21,6 +21,8 @@ export const API_ROUTES = {
     DECLARATORIA_COMISION: {
       FORMULARIO: (hash: string) => `${API_BASE_URL}/reporte/declaratoria-comision/${hash}`,
     },
-    // Otros grupos de reportes si tienes más
+    VACACION: {
+      GENERAL: `${API_BASE_URL}/reporte/vacacion/reporte-general`,
+    },
   },
 }

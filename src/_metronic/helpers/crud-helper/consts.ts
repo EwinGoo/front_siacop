@@ -7,6 +7,7 @@ const QUERIES = {
   TIPOS_PERMISOS_LIST: 'tipo-permiso-list',
   ASISTENCIAS_PERMISO_LIST: 'asistencia-permiso-list',
   DISPOSITIVOS_BIOMETRICOS_LIST: 'dispositivo-biometrico',
+  VACACIONES_LIST: 'vacacion-list',
 }
 
 export {QUERIES}

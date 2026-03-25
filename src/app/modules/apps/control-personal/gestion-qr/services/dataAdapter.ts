@@ -1,6 +1,7 @@
 import { formatTimeFromString } from 'src/app/utils/dateTimeFormater'
 import {Comision} from '../../comision/comision-list/core/_models'
 import {AsistenciaPermiso} from '../../permisos/asistencia-permiso/asistencia-permiso-list/core/_models'
+import {Vacacion} from '../../vacaciones/core/_models'
 import {UnifiedData} from '../types'
 import { truncateText } from 'src/app/utils/textUtils'
 
@@ -60,6 +61,30 @@ export class DataAdapter {
   }
 
   /**
+   * Convierte datos de vacación al formato unificado
+   */
+  static fromVacacion(vacacion: Vacacion): UnifiedData {
+    return {
+      tipo_documento: 'vacacion',
+      id: vacacion.id_vacacion_solicitado,
+      codigo: vacacion.id_vacacion_solicitado,
+      nombre_generador: vacacion.nombre_generador || null,
+      ci: vacacion.ci,
+      nombre_cargo: vacacion.nombre_cargo || null,
+      estado: vacacion.estado_vacacion,
+      fecha_inicio: vacacion.fecha_vacacion_inicio,
+      fecha_fin: vacacion.fecha_vacacion_fin,
+      tipo_permiso: vacacion.tipo_solicitud || '',
+      nro_correlativo: vacacion.nro_correlativo ?? undefined,
+      numero_tramite: vacacion.numero_tramite,
+      dias_solicitado: vacacion.dias_solicitado,
+      dias_disponible: vacacion.dias_disponible,
+      dias_saldo: vacacion.dias_saldo,
+      observacion: '',
+    }
+  }
+
+  /**
    * Obtiene el estado normalizado
    */
   static getEstadoNormalizado(data: UnifiedData): string {
@@ -70,14 +95,19 @@ export class DataAdapter {
    * Obtiene información de visualización según el tipo
    */
   static getDisplayInfo(data: UnifiedData) {
-    // console.log(data)
-
     if (data.tipo_documento === 'permiso') {
       return {
         titulo: 'LICENCIA ESPECIAL',
         subtitulo: 'PERMISO: ' + data.tipo_permiso || 'Permiso',
         icono: 'bi-calendar-check',
         color: 'primary',
+      }
+    } else if (data.tipo_documento === 'vacacion') {
+      return {
+        titulo: 'VACACIÓN',
+        subtitulo: 'TIPO: ' + data.tipo_permiso,
+        icono: 'bi-umbrella',
+        color: 'success',
       }
     } else {
       return {

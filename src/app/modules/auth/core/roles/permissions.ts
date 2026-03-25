@@ -31,6 +31,9 @@ export const PERMISSIONS = {
   GESTION_QR: {
     VIEW: 'gestion_qr.view',
   },
+  VACACION: {
+    VIEW: 'vacacion.view',
+  },
 } as const
 
 export type Permission =
@@ -40,3 +43,4 @@ export type Permission =
   | typeof PERMISSIONS.FERIADO_ASUETO[keyof typeof PERMISSIONS.FERIADO_ASUETO]
   | typeof PERMISSIONS.COMISION[keyof typeof PERMISSIONS.COMISION]
   | typeof PERMISSIONS.GESTION_QR[keyof typeof PERMISSIONS.GESTION_QR]
+  | typeof PERMISSIONS.VACACION[keyof typeof PERMISSIONS.VACACION]

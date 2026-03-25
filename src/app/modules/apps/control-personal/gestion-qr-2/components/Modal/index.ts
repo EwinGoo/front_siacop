@@ -1,0 +1,7 @@
+export { DocumentModal } from './DocumentModal'
+export { ModalHeader } from './ModalHeader'
+export { ModalBody } from './ModalBody'
+export { ModalFooter } from './ModalFooter'
+export { useModalManager } from './useModalManager'
+export { ObservacionModal } from './ObservacionModal'
+export { LoadingModal, SuccessModal, ErrorModal, IngresoManualModal } from './FeedbackModals'

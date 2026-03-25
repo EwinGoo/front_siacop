@@ -143,8 +143,8 @@ export const showIngresoManualModal = async () => {
       // if (!/^\d+$/.test(value)) {
       //   return 'El código debe ser un número entero positivo'
       // }
-      if (!/^[CP]\d+$/.test(value)) {
-        return 'El código debe empezar con C o P seguido de números (ej: C23, P456)'
+      if (!/^[CPV]\d+$/.test(value)) {
+        return 'El código debe empezar con C, P o V seguido de números (ej: C23, P456, V789)'
       }
       if (value.length < 2 || value.length > 11) {
         return 'El código debe tener entre 2 y 11 caracteres (ej: C1 hasta P1234567890)'
