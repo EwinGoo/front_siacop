@@ -1,6 +1,7 @@
-import {useMemo} from 'react'
+import {useEffect, useMemo} from 'react'
 import {useTable, ColumnInstance, Row} from 'react-table'
-import {useQueryResponseData, useQueryResponseLoading} from '../core/QueryResponseProvider'
+import {toast} from 'react-toastify'
+import {useQueryResponseData, useQueryResponseLoading, useQueryResponseWarning} from '../core/QueryResponseProvider'
 import {Comision} from '../core/_models'
 import {getColumns} from './columns/_columns'
 import {CustomRow} from './columns/CustomRow'
@@ -15,7 +16,19 @@ import {canManageComisiones} from 'src/app/modules/auth/core/roles/roleDefinitio
 const ComisionTable = () => {
   const comisiones = useQueryResponseData()
   const isLoading = useQueryResponseLoading()
+  const warning = useQueryResponseWarning()
   const data = useMemo(() => comisiones, [comisiones])
+
+  useEffect(() => {
+    if (warning) {
+      toast.warning(warning, {
+        position: 'top-right',
+        autoClose: 6000,
+        hideProgressBar: false,
+        closeOnClick: true,
+      })
+    }
+  }, [warning])
   // const {isAdminComision} = usePermissions()
   const {comision} = usePermissions()
 

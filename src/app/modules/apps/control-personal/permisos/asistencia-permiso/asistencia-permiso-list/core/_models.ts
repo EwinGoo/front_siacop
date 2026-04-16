@@ -80,12 +80,18 @@ export type AsistenciaPermisoBackendResponse = {
 }
 
 // Tipo específico para el endpoint de asistencias/permisos
+export type EnrichmentMeta = {
+  enrichment_failed: boolean
+  message: string
+}
+
 export type AsistenciaPermisoBackendData = {
   data: AsistenciaPermiso[]
   payload?: {
     pagination?: PaginationState
     errors?: Record<string, string[]>
   }
+  meta?: EnrichmentMeta
 }
 
 export type AsistenciaPermisoQueryResponse = {
@@ -95,6 +101,7 @@ export type AsistenciaPermisoQueryResponse = {
     errors?: Record<string, string[]>
     pagination?: PaginationState
   }
+  warning?: string
 }
 
 export type AsistenciaTipoPermisoQueryResponseData = {
@@ -113,6 +120,7 @@ type AutocompleteItem = {
 export type AutocompleteResponse = {
   type_respond: 'query' | 'cache'
   sugerencias: AutocompleteItem[]
+  data: AutocompleteItem[]
   tiempo_respuesta: number
 }
 

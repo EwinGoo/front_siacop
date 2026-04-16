@@ -22,6 +22,7 @@ const PrivateRoutes = () => {
   const UsersPage = lazy(() => import('../modules/apps/user-management/UsersPage'))
 
   const ComisionPage = lazy(() => import('../modules/apps/control-personal/comision/ComisionPage'))
+  const GestionGuardiasPage = lazy(() => import('../modules/apps/control-personal/guardias-seguridad/GestionGuardiasPage'))
   const AsistenciaPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/asistencia-permiso/AsistenciaPermisoPage'))
   const DeclaratoriaComisionPage = lazy(() => import('../modules/apps/control-personal/declaratoria-comision/DeclaratoriaComisionPage'))
   const TipoPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/tipos-permisos/TipoPermisoPage'))
@@ -176,6 +177,18 @@ const PrivateRoutes = () => {
             <SuspensedView>
               <ProtectedRoute requiredSpecificPermissions={[PERMISSIONS.GESTION_QR.VIEW]}>
                 <GestionQrPage />
+              </ProtectedRoute>
+            </SuspensedView>
+          }
+        />
+
+        {/* Guardias de Seguridad */}
+        <Route
+          path='apps/guardias-seguridad/*'
+          element={
+            <SuspensedView>
+              <ProtectedRoute requiredSpecificPermissions={[PERMISSIONS.GUARDIA_SEGURIDAD.VIEW]}>
+                <GestionGuardiasPage />
               </ProtectedRoute>
             </SuspensedView>
           }

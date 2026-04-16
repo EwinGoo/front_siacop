@@ -10,55 +10,58 @@ type Props = {
 }
 
 // Mapeo de iconos por nombre de tipo de permiso
-const iconMapping: Record<string, {icon: string, color: string, bgColor: string, isKTIcon: boolean}> = {
-  'PERSONAL': {
-    icon: 'briefcase',
+const iconMapping: Record<
+  string,
+  {icon: string; color: string; bgColor: string; isKTIcon: boolean}
+> = {
+  PERSONAL: {
+    icon: 'user',
     color: 'text-info',
     bgColor: 'bg-light-info',
-    isKTIcon: true
+    isKTIcon: true,
   },
-  'TRANSPORTE': {
+  TRANSPORTE: {
     icon: 'truck',
     color: 'text-primary',
     bgColor: 'bg-light-primary',
-    isKTIcon: true
+    isKTIcon: true,
   },
   'CAJA SALUD': {
     icon: 'hospital',
     color: '#f3779eff',
     bgColor: 'bg-light-danger',
-    isKTIcon: false
+    isKTIcon: false,
   },
-  'FISIOTERAPIA': {
+  FISIOTERAPIA: {
     icon: 'hand-holding-medical',
     color: '#f3779eff',
     bgColor: 'bg-light-danger',
-    isKTIcon: false
+    isKTIcon: false,
   },
-  'CAPACITACION': {
+  CAPACITACION: {
     icon: 'graduation-cap',
     color: 'text-success',
     bgColor: 'bg-light-success',
-    isKTIcon: true
+    isKTIcon: true,
   },
-  'REUNION': {
+  REUNION: {
     icon: 'users',
     color: 'text-dark',
     bgColor: 'bg-light-dark',
-    isKTIcon: true
+    isKTIcon: true,
   },
-  'TRAMITE': {
+  TRAMITE: {
     icon: 'file-text',
     color: 'text-warning',
     bgColor: 'bg-light-warning',
-    isKTIcon: true
+    isKTIcon: true,
   },
-  'OTROS': {
+  OTROS: {
     icon: 'gear',
     color: 'text-secondary',
     bgColor: 'bg-light-secondary',
-    isKTIcon: true
-  }
+    isKTIcon: true,
+  },
 }
 
 const InfoCell: FC<Props> = ({comision}) => {
@@ -73,26 +76,16 @@ const InfoCell: FC<Props> = ({comision}) => {
 
   // Get the permission type name (usar nombre_permiso en lugar de tipo_comision)
   const tipoPermiso = comision.tipo_comision || 'OTROS'
-  
+
   // Get icon configuration for the permission type
   const iconConfig = iconMapping[tipoPermiso.toUpperCase()] || iconMapping['OTROS']
 
   // Function to render the appropriate icon
   const renderIcon = () => {
     if (iconConfig.isKTIcon) {
-      return (
-        <KTIcon 
-          iconName={iconConfig.icon} 
-          className={`fs-2 ${iconConfig.color}`} 
-        />
-      )
+      return <KTIcon iconName={iconConfig.icon} className={`fs-2 ${iconConfig.color}`} />
     } else {
-      return (
-        <i 
-          className={`fas fa-${iconConfig.icon} fs-2`}
-          style={{ color: iconConfig.color }}
-        />
-      )
+      return <i className={`fas fa-${iconConfig.icon} fs-2`} style={{color: iconConfig.color}} />
     }
   }
 
@@ -111,9 +104,7 @@ const InfoCell: FC<Props> = ({comision}) => {
         }}
       >
         <div className='symbol symbol-50px me-5'>
-          <span className={`symbol-label ${iconConfig.bgColor}`}>
-            {renderIcon()}
-          </span>
+          <span className={`symbol-label ${iconConfig.bgColor}`}>{renderIcon()}</span>
         </div>
       </Tooltip>
 

@@ -1,8 +1,9 @@
 import {useEffect, useMemo} from 'react'
 import {useTable, ColumnInstance, Row} from 'react-table'
+import {toast} from 'react-toastify'
 import {CustomHeaderColumn} from './columns/CustomHeaderColumn'
 import {CustomRow} from './columns/CustomRow'
-import {useQueryResponseData, useQueryResponseLoading} from '../core/QueryResponseProvider'
+import {useQueryResponseData, useQueryResponseLoading, useQueryResponseWarning} from '../core/QueryResponseProvider'
 import {getColumns, ModalHandlers} from './columns/_columns' // Cambiar a columnas de Persona
 import {DeclaratoriaComision} from '../core/_models'
 import {ListPagination} from '../components/pagination/ListPagination'
@@ -19,7 +20,19 @@ const DeclaratoriaComisionTable: React.FC<DeclaratoriaComisionTableProps> = ({
 }) => {
   const declaratoria = useQueryResponseData()
   const isLoading = useQueryResponseLoading()
-    const data = useMemo(() => declaratoria, [declaratoria]);
+  const warning = useQueryResponseWarning()
+  const data = useMemo(() => declaratoria, [declaratoria])
+
+  useEffect(() => {
+    if (warning) {
+      toast.warning(warning, {
+        position: 'top-right',
+        autoClose: 6000,
+        hideProgressBar: false,
+        closeOnClick: true,
+      })
+    }
+  }, [warning])
   const columns = useMemo(
     () =>
       getColumns({

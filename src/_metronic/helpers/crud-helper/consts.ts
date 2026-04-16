@@ -8,6 +8,12 @@ const QUERIES = {
   ASISTENCIAS_PERMISO_LIST: 'asistencia-permiso-list',
   DISPOSITIVOS_BIOMETRICOS_LIST: 'dispositivo-biometrico',
   VACACIONES_LIST: 'vacacion-list',
+  // Guardias de Seguridad
+  GUARDIA_TURNOS_LIST: 'guardia-turno-list',
+  GUARDIA_BLOQUES_LIST: 'guardia-bloque-list',
+  GUARDIA_GRUPOS_LIST: 'guardia-grupo-list',
+  GUARDIA_ASIGNACIONES_LIST: 'guardia-asignacion-list',
+  GUARDIA_HORARIO: 'guardia-horario',
 }
 
 export {QUERIES}

@@ -20,6 +20,7 @@ export type Vacacion = {
   nombre_generador?: string
   ci?: string
   nombre_cargo?: string
+  fechas_vacacion?: string 
 };
 
 // Tipo genérico para respuestas estándar del backend

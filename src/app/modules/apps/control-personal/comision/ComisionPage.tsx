@@ -1,8 +1,6 @@
 import {Route, Routes, Outlet, Navigate} from 'react-router-dom'
 import {ComisionListWrapper} from './comision-list/ComisionList'
-import {RecepcionPorQrView} from './RecepcionPorQrView'
 import {PageLink, PageTitle} from '../../../../../_metronic/layout/core'
-import { GestionComisionQR } from './comision-gestion-qr'
 
 const usersBreadcrumbs: Array<PageLink> = [
   {
@@ -49,9 +47,6 @@ const ComisionPage = () => {
           element={
             <>
               <PageTitle breadcrumbs={gestionQRBreadcrumbs}>Gestión por QR</PageTitle> {/* Actualiza el título */}
-              <RecepcionPorQrView />
-              {/* <GestionComisionQR /> */}
-              {/* <CameraTestComponent /> */}
             </>
           }
         />

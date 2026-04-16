@@ -30,13 +30,19 @@ const getComisiones = (query: string): Promise<ComisionQueryResponse> => {
         throw new Error('Estructura de datos inválida')
       }
 
-      return {
-        data: backendData.data, // Array de comisiones
+      const result: ComisionQueryResponse = {
+        data: backendData.data,
         payload: {
           message: response.data.message,
           pagination: backendData.payload?.pagination,
         },
       }
+
+      if (backendData.meta?.enrichment_failed) {
+        result.warning = backendData.meta.message
+      }
+
+      return result
     })
     .catch((error) => {
       console.error('Error fetching comisiones:', error)

@@ -10,7 +10,7 @@ const EmpleadoInfo: React.FC<Props> = ({data}) => (
     <h6 className='text-gray-700 mb-2 fw-semibold'>
       <i className='bi bi-person-badge me-2'></i>Información del Empleado
     </h6>
-    <div className='row g-1 small'>
+    <div className='row g-1'>
       <div className='col-4 fw-bold'>Nombre</div>
       <div className='col-8'>: {data.nombre_generador}</div>
 

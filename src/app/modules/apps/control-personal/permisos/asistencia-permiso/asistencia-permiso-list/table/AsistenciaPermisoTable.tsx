@@ -1,8 +1,9 @@
-import {useMemo} from 'react'
+import {useEffect, useMemo} from 'react'
 import {useTable, ColumnInstance, Row} from 'react-table'
+import {toast} from 'react-toastify'
 import {CustomHeaderColumn} from './columns/CustomHeaderColumn'
 import {CustomRow} from './columns/CustomRow'
-import {useQueryResponseData, useQueryResponseLoading} from '../core/QueryResponseProvider'
+import {useQueryResponseData, useQueryResponseLoading, useQueryResponseWarning} from '../core/QueryResponseProvider'
 import {getColumns} from './columns/_columns' // Asegúrate de tener las columnas adecuadas para TipoPermiso
 import {AsistenciaPermiso} from '../core/_models'
 import {ListPagination} from '../components/pagination/ListPagination'
@@ -14,7 +15,19 @@ import { canManageComisiones } from 'src/app/modules/auth/core/roles/roleDefinit
 const AsistenciaPermisoTable = () => {
   const tiposPermiso = useQueryResponseData()
   const isLoading = useQueryResponseLoading()
+  const warning = useQueryResponseWarning()
   const data = useMemo(() => tiposPermiso, [tiposPermiso])
+
+  useEffect(() => {
+    if (warning) {
+      toast.warning(warning, {
+        position: 'top-right',
+        autoClose: 6000,
+        hideProgressBar: false,
+        closeOnClick: true,
+      })
+    }
+  }, [warning])
   const {currentUser} = useAuth()
   const canManage = currentUser?.groups ? canManageComisiones(currentUser.groups) : false
   const columns = useMemo(() => getColumns({isAdmin: canManage}), [canManage])

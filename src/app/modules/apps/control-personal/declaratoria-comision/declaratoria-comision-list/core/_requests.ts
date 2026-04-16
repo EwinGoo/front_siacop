@@ -9,6 +9,7 @@ import {
 } from './_models'
 import axiosClient from 'src/app/services/axiosClient'
 import {ValidationError} from 'src/app/utils/httpErrors'
+import {toast} from 'react-toastify'
 import {API_ROUTES} from 'src/app/config/apiRoutes'
 import {AxiosResponse} from 'axios'
 
@@ -24,13 +25,20 @@ const getDeclaratoriasComision = (query: string): Promise<DeclaratoriaComisionQu
         throw new Error('Estructura de datos inválida')
       }
 
-      return {
-        data: backendData.data, // Array de declaratorias
+      const result: DeclaratoriaComisionQueryResponse = {
+        data: backendData.data,
         payload: {
           message: response.data.message,
           pagination: backendData.payload?.pagination,
         },
       }
+
+      // Si el microservicio de personal no respondió, propagar el aviso al componente
+      if (backendData.meta?.enrichment_failed) {
+        result.warning = backendData.meta.message
+      }
+
+      return result
     })
     .catch((error) => {
       console.error('Error fetching declaratorias:', error)
@@ -119,7 +127,12 @@ const getUnidades = async (): Promise<Unidad[]> => {
     )
     return response.data.data
   } catch (error) {
-    console.error('Error fetching tipos permiso:', error)
+    console.error('Error fetching unidades:', error)
+    toast.warning('No se pudieron cargar las unidades. Intente recargar.', {
+      position: 'top-right',
+      autoClose: 6000,
+      closeOnClick: true,
+    })
     return []
   }
 }

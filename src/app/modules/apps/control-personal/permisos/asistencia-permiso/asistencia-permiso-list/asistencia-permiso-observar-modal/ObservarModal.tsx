@@ -43,7 +43,8 @@ export const ObservarModal: FC = () => {
 
   useEffect(() => {
     if (show) resetForm()
-  }, [show, resetForm])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show])
 
   if (!show) return null
 

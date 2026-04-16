@@ -3,6 +3,11 @@ import clsx from 'clsx'
 
 export const DateCell = ({row}) => {
   const {formatLongDate} = useDateFormatter()
+  
+  const {fecha_inicio_permiso, fecha_fin_permiso, tipo_permiso_nombre} = row.original
+
+  // Verificamos si es el mismo día o si el tipo es Cumpleaños
+  const esFechaUnica = fecha_inicio_permiso === fecha_fin_permiso || tipo_permiso_nombre === 'Cumpleaños'
 
   return (
     <div
@@ -16,14 +21,27 @@ export const DateCell = ({row}) => {
         'min-w-100px'
       )}
     >
-      <div className='mb-2'>
-        <i className='fas fa-calendar-alt text-primary me-2' />
-        Inicio: <span className='fw-bold'>{formatLongDate(row.original.fecha_inicio_permiso)}</span>
-      </div>
-      <div>
-        <i className='fas fa-calendar-check text-primary me-2' />
-        Fin: <span className='fw-bold'>{formatLongDate(row.original.fecha_fin_permiso)}</span>
-      </div>
+      {esFechaUnica ? (
+        // Diseño para fecha única (Cumpleaños o mismo día)
+        <div className='d-flex align-items-center'>
+          <i className='fas fa-calendar-alt text-primary me-2' /> 
+          <div>
+            <span className='fw-bold'>{formatLongDate(fecha_inicio_permiso)}</span>
+          </div>
+        </div>
+      ) : (
+        // Diseño original para rangos
+        <>
+          <div className='mb-2'>
+            <i className='fas fa-calendar-alt text-primary me-2' />
+            Inicio: <span className='fw-bold'>{formatLongDate(fecha_inicio_permiso)}</span>
+          </div>
+          <div>
+            <i className='fas fa-calendar-check text-primary me-2' />
+            Fin: <span className='fw-bold'>{formatLongDate(fecha_fin_permiso)}</span>
+          </div>
+        </>
+      )}
     </div>
   )
 }

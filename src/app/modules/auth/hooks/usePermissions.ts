@@ -89,6 +89,12 @@ export const usePermissions = () => {
     // Gestión QR
     gestionQr: {
       canView: userPermissions.has(PERMISSIONS.GESTION_QR.VIEW)
+    },
+
+    // Guardias de Seguridad
+    guardiaSeguridad: {
+      canView:   userPermissions.has(PERMISSIONS.GUARDIA_SEGURIDAD.VIEW),
+      canManage: userPermissions.has(PERMISSIONS.GUARDIA_SEGURIDAD.MANAGE),
     }
   }), [userPermissions])
 

@@ -73,10 +73,16 @@ const useQueryResponseLoading = (): boolean => {
   return isLoading
 }
 
+const useQueryResponseWarning = (): string | undefined => {
+  const {response} = useQueryResponse()
+  return (response as any)?.warning
+}
+
 export {
   QueryResponseProvider,
   useQueryResponse,
   useQueryResponseData,
   useQueryResponsePagination,
   useQueryResponseLoading,
+  useQueryResponseWarning,
 }

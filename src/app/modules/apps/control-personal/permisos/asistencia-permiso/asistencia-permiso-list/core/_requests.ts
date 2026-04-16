@@ -25,13 +25,19 @@ const getAsistenciasPermiso = (query: string): Promise<AsistenciaPermisoQueryRes
         throw new Error('Estructura de datos inválida')
       }
 
-      return {
+      const result: AsistenciaPermisoQueryResponse = {
         data: backendData.data,
         payload: {
           message: response.data.message,
           pagination: backendData.payload?.pagination,
         },
       }
+
+      if (backendData.meta?.enrichment_failed) {
+        result.warning = backendData.meta.message
+      }
+
+      return result
     })
     .catch((error) => {
       console.error('Error fetching asistencias permiso:', error)
@@ -117,7 +123,9 @@ const getTiposPermiso = async (): Promise<TipoPermiso[]> => {
   }
 }
 const aprobarComisiones = async (): Promise<ApiResponse<any>> => {
-  const response = await axiosClient.post(`${ASISTENCIA_PERMISO_URL}/aprobar-comisiones-recepcionados`)
+  const response = await axiosClient.post(
+    `${ASISTENCIA_PERMISO_URL}/aprobar-comisiones-recepcionados`
+  )
   return response.data // <- Esto es lo que espera useMutation
 }
 
@@ -149,8 +157,7 @@ const procesarEstadoPermiso = (
   return axiosClient.post(`${ASISTENCIA_PERMISO_URL}/procesar-estado`, requestData)
 }
 
-
-const aprobarSelectedPermisos= async (
+const aprobarSelectedPermisos = async (
   comisionIds: ID[]
 ): Promise<{success: boolean; message: string}> => {
   try {
@@ -166,19 +173,21 @@ const aprobarSelectedPermisos= async (
 
 const getPersonaAutocomplete = async (termino: string): Promise<AutocompleteResponse> => {
   try {
-    const response = await axiosClient.get(`${ASISTENCIA_PERMISO_URL}/autocompletar?termino=${termino}`)
+    const response = await axiosClient.get(
+      `${ASISTENCIA_PERMISO_URL}/autocompletar?termino=${termino}`
+    )
 
-    const data = response.data
+    const res = response.data
 
-    if (data.error) {
-      throw new Error(data.message || 'Error desconocido al obtener la comisión')
+    if (res.status !== 'success') {
+      throw new Error(res.message || 'Error en la respuesta del servidor')
     }
 
-    if (!data.sugerencias) {
+    if (!res.data || res.data.length === 0) {
       throw new Error('No se encontraron sugerencias')
     }
 
-    return data as AutocompleteResponse
+    return res as AutocompleteResponse
   } catch (error: any) {
     console.error('Error en getPersonaAutocomplete:', error)
     throw new Error(error.message || 'Error al obtener datos de autocompletado')
@@ -199,5 +208,5 @@ export {
   procesarEstadoPermiso,
   aprobarComisiones,
   aprobarSelectedPermisos,
-  getPersonaAutocomplete
+  getPersonaAutocomplete,
 }

@@ -25,11 +25,11 @@ const VacacionReporteTable = () => {
       <div className='table-responsive'>
         <table
           id='kt_table_vacaciones'
-          className='table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer'
+          className='table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer table_hover'
           {...getTableProps()}
         >
           <thead>
-            <tr className='text-start text-muted fw-bolder fs-7 text-uppercase gs-0'>
+            <tr className='text-start text-muted fw-bolder fs-7 text-uppercase gs-0 align-top'>
               {headers.map((column: ColumnInstance<Vacacion>) => (
                 <CustomHeaderColumn key={column.id} column={column} />
               ))}

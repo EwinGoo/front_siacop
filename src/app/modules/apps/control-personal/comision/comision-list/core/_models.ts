@@ -65,12 +65,18 @@ export type ApiResponse = {
 }
 
 // Tipo específico para el endpoint de comisiones
+export type EnrichmentMeta = {
+  enrichment_failed: boolean
+  message: string
+}
+
 export type ComisionesBackendData = {
   data: Comision[]
   payload?: {
     pagination?: PaginationState
     errors?: Record<string, string[]>
   }
+  meta?: EnrichmentMeta
 }
 
 type AutocompleteItem = {
@@ -95,6 +101,7 @@ export type ComisionQueryResponse = {
     errors?: Record<string, string[]>
     pagination?: PaginationState
   }
+  warning?: string
 }
 
 // Valores iniciales para un formulario de Comisión

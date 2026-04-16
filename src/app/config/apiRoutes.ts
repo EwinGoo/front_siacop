@@ -4,10 +4,11 @@ export const API_BASE_URL = process.env.REACT_APP_API_URL || '' // fallback para
 export const API_URL = process.env.ASISTENCIA_PERMISO || '' // fallback para evitar undefined
 
 export const API_ROUTES = {
-  ADMINISTRADOR: `${API_BASE_URL}/api/administrador`,
-  CONTROL_PERSONAL: `${API_BASE_URL}/api/control-personal`,
-  PERSONA: `${API_BASE_URL}/api/persona`,
-  USUARIOS: `${API_BASE_URL}/api/usuarios`,
+  ADMINISTRADOR: `${API_BASE_URL}/api/v1/administrador`,
+  CONTROL_PERSONAL: `${API_BASE_URL}/api/v1/control-personal`,
+  GUARDIAS: `${API_BASE_URL}/api/v1/control-personal/guardias-seguridad`,
+  PERSONA: `${API_BASE_URL}/api/v1/persona`,
+  USUARIOS: `${API_BASE_URL}/api/v1/usuarios`,
   REPORTES: {
     PERSONAL: {
       FORMULARIO: (hash: string) => `${API_BASE_URL}/reporte/comision/${hash}`,

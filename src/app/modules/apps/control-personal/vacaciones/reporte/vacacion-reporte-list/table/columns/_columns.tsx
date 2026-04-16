@@ -1,21 +1,18 @@
 import {Column} from 'react-table'
 import {Vacacion} from 'src/app/modules/apps/control-personal/vacaciones/core/_models'
 import {CustomHeader} from './CustomHeader'
+import {FechasVacacionCell} from './FechasVacacionCell'
+import {FechaSolicitudCell} from './FechaSolicitudCell'
 
 const ESTADO_BADGE: Record<string, string> = {
-  GENERADO:     'badge-light-primary',
-  ENVIADO:      'badge-light-info',
+  GENERADO: 'badge-light-primary',
+  ENVIADO: 'badge-light-info',
   RECEPCIONADO: 'badge-light-warning',
-  APROBADO:     'badge-light-success',
-  OBSERVADO:    'badge-light-danger',
+  APROBADO: 'badge-light-success',
+  OBSERVADO: 'badge-light-danger',
 }
 
 const Columns: ReadonlyArray<Column<Vacacion>> = [
-  {
-    Header: (props) => <CustomHeader tableProps={props} title='N°' className='w-30px text-center' />,
-    id: 'numero',
-    Cell: ({row}) => <span className='text-center d-block'>{row.index + 1}</span>,
-  },
   {
     Header: (props) => <CustomHeader tableProps={props} title='CI' className='min-w-80px' />,
     accessor: 'ci',
@@ -39,27 +36,14 @@ const Columns: ReadonlyArray<Column<Vacacion>> = [
     Cell: ({value}) => <span className='text-center d-block'>{value}</span>,
   },
   {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='F. Solicitud' className='min-w-110px text-center' />
-    ),
+    Header: (props) => <CustomHeader tableProps={props} title='Fecha' className='min-w-100px' />,
     accessor: 'fecha_solicitud',
-    Cell: ({value}) => (
-      <span className='text-center d-block'>{value ? value.split(' ')[0] : ''}</span>
-    ),
+    Cell: ({row}) => <FechaSolicitudCell row={row.original} />,
   },
   {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='F. Inicio' className='min-w-110px text-center' />
-    ),
-    accessor: 'fecha_vacacion_inicio',
-    Cell: ({value}) => <span className='text-center d-block'>{value}</span>,
-  },
-  {
-    Header: (props) => (
-      <CustomHeader tableProps={props} title='F. Fin' className='min-w-110px text-center' />
-    ),
-    accessor: 'fecha_vacacion_fin',
-    Cell: ({value}) => <span className='text-center d-block'>{value}</span>,
+    Header: (props) => <CustomHeader tableProps={props} title='Fecha' className='min-w-100px' />,
+    accessor: 'fechas_vacacion',
+    Cell: ({row}) => <FechasVacacionCell row={row.original} />,
   },
   {
     Header: (props) => (
@@ -68,13 +52,6 @@ const Columns: ReadonlyArray<Column<Vacacion>> = [
     accessor: 'dias_solicitado',
     Cell: ({value}) => <span className='text-center d-block'>{value}</span>,
   },
-  // {
-  //   Header: (props) => (
-  //     <CustomHeader tableProps={props} title='Saldo' className='min-w-80px text-center' />
-  //   ),
-  //   accessor: 'dias_saldo',
-  //   Cell: ({value}) => <span className='text-center d-block'>{value}</span>,
-  // },
   {
     Header: (props) => (
       <CustomHeader tableProps={props} title='Estado' className='min-w-120px text-center' />

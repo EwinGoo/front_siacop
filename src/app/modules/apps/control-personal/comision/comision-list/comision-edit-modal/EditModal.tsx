@@ -10,7 +10,7 @@ import {getTiposPermiso} from '../core/_requests'
 
 // Mapeo de iconos por nombre de tipo de permiso
 const iconMapping: Record<string, string> = {
-  COMISIÓN: 'briefcase',
+  PERSONAL: 'user',
   TRANSPORTE: 'truck',
   'CAJA SALUD': 'hospital', // FontAwesome icon para hospitales
   FISIOTERAPIA: 'hand-holding-medical',

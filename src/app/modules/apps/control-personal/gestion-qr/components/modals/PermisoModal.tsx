@@ -125,7 +125,7 @@ const PermisoModal: React.FC<ModuleModalProps> = ({
         <h6 className='text-primary mb-2 fw-semibold'>
           <i className='bi bi-calendar-check me-2'></i>Detalles del Permiso
         </h6>
-        <div className='row g-1 small'>
+        <div className='row g-1'>
           <div className='col-4 fw-bold'>Código</div>
           <div className='col-8'>: {data.codigo}</div>
 

@@ -51,7 +51,8 @@ export const SelectField: React.FC<SelectFieldProps> = ({
         },
         className
       )}
-      classNamePrefix='react-select'
+      // classNamePrefix='react-select'
+      classNamePrefix='custom-select'
       value={selectedOption}
       onChange={handleChange}
       onBlur={() => form.setFieldTouched(field.name, true)}

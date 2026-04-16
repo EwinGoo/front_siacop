@@ -8,26 +8,34 @@ export const getSelectStyles = (mode: ThemeModeType, isValid?: boolean) => ({
     borderColor: getBorderColor(mode, isFocused, isValid),
     boxShadow: 'none',
     '&:hover': {
-      borderColor: getHoverBorderColor(mode, isValid)
-    }
+      borderColor: getHoverBorderColor(mode, isValid),
+    },
   }),
   menu: (base: any) => ({
     ...base,
     backgroundColor: mode === 'dark' ? '#1e1e2d' : '#ffffff',
     borderColor: mode === 'dark' ? '#2D2D43' : '#E4E6EF',
-    zIndex: 9999
+    zIndex: 9999,
   }),
   option: (base: any, {isSelected, isFocused}: any) => ({
     ...base,
     backgroundColor: getOptionBgColor(mode, isSelected, isFocused),
     color: getOptionTextColor(mode, isSelected),
     '&:hover': {
-      color: mode === 'dark' ? '#FFFFFF' : '#3F4254'
-    }
+      color: mode === 'dark' ? '#FFFFFF' : '#3F4254',
+    },
   }),
   singleValue: (base: any) => ({
     ...base,
-    color: mode === 'dark' ? '#FFFFFF' : '#3F4254'
+    color: mode === 'dark' ? '#FFFFFF' : '#3F4254',
+  }),
+  input: (base: any) => ({
+    ...base,
+    color: mode === 'dark' ? '#FFFFFF' : '#3F4254',
+  }),
+  placeholder: (base: any) => ({
+    ...base,
+    color: mode === 'dark' ? '#565674' : '#A1A5B7',
   }),
 })
 

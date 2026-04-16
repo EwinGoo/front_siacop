@@ -34,6 +34,10 @@ export const PERMISSIONS = {
   VACACION: {
     VIEW: 'vacacion.view',
   },
+  GUARDIA_SEGURIDAD: {
+    VIEW:   'guardia_seguridad.view',
+    MANAGE: 'guardia_seguridad.manage',
+  },
 } as const
 
 export type Permission =
@@ -44,3 +48,4 @@ export type Permission =
   | typeof PERMISSIONS.COMISION[keyof typeof PERMISSIONS.COMISION]
   | typeof PERMISSIONS.GESTION_QR[keyof typeof PERMISSIONS.GESTION_QR]
   | typeof PERMISSIONS.VACACION[keyof typeof PERMISSIONS.VACACION]
+  | typeof PERMISSIONS.GUARDIA_SEGURIDAD[keyof typeof PERMISSIONS.GUARDIA_SEGURIDAD]

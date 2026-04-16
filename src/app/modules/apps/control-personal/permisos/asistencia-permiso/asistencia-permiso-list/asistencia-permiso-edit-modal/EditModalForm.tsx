@@ -143,8 +143,9 @@ const EditModalForm: FC<Props> = ({
 
   const fetchPersonaOptions = async (input: string): Promise<OptionType[]> => {
     const response = await getPersonaAutocomplete(input)
+    console.log(response.data)
 
-    return response.sugerencias.map((item) => ({
+    return response.data.map((item) => ({
       value: item.id,
       label: item.texto,
       tipo_personal: item.tipo,
@@ -166,20 +167,48 @@ const EditModalForm: FC<Props> = ({
   ]
 
   const getFilteredTiposPermisos = () => {
-    // console.log(tiposPermisos);
+    // Obtenemos el tipo del formulario (puede venir del usuario actual o de la persona buscada)
+    const tipoPersonalActual = formik.values.tipo_personal
 
-    const isDocente = currentUser?.personal?.tipo_personal === 'DOCENTE'
-
-    if (isDocente) {
-      // Solo Baja Médica para docentes
-      return tiposPermisos.filter((tipo) => Number(tipo.id_tipo_permiso) === 4)
+    if (tipoPersonalActual === 'DOCENTE') {
+      // Si la persona seleccionada (o el solicitante) es DOCENTE, solo Baja Médica
+      return tiposPermisos.filter(
+        (tipo) => tipo.nombre?.toLowerCase() === 'Baja Médica'.toLowerCase()
+      )
     }
-    return tiposPermisos
 
-    // Todos los tipos para otros usuarios, con Baja Médica primero
-    // return tiposPermisos.sort((a, b) =>
-    //   a.nombre === 'Baja Médica' ? -1 : b.nombre === 'Baja Médica' ? 1 : 0
-    // )
+    // Para ADMINISTRATIVO u otros, mostrar todos
+    return tiposPermisos
+  }
+
+  // const getFilteredTiposPermisos = () => {
+  //   // console.log(tiposPermisos);
+
+  //   const isDocente = currentUser?.personal?.tipo_personal === 'DOCENTE'
+
+  //   if (isDocente) {
+  //     // Solo Baja Médica para docentes
+  //     return tiposPermisos.filter(
+  //       (tipo) => tipo.nombre?.toLowerCase() === 'Baja Médica'.toLowerCase()
+  //     )
+  //   }
+  //   return tiposPermisos
+
+  //   // Todos los tipos para otros usuarios, con Baja Médica primero
+  //   // return tiposPermisos.sort((a, b) =>
+  //   //   a.nombre === 'Baja Médica' ? -1 : b.nombre === 'Baja Médica' ? 1 : 0
+  //   // )
+  // }
+
+  const handleChangeFechaInicio = (value: any) => {
+    formik.setFieldValue('fecha_inicio_permiso', value)
+    clearFieldError('fecha_inicio_permiso')
+
+    // Si es cumpleaños, sincronizamos automáticamente la fecha fin
+    if (esCumpleanos) {
+      formik.setFieldValue('fecha_fin_permiso', value)
+      clearFieldError('fecha_fin_permiso')
+    }
   }
 
   // useEffect(()=>{
@@ -253,40 +282,64 @@ const EditModalForm: FC<Props> = ({
 
           {/* Fechas con Flatpickr */}
           <div className='row mb-7'>
-            <div className='col-md-6 fv-row  mb-7 mb-md-0'>
-              <label className='required fw-bold fs-6 mb-2'>Fecha Inicio</label>
-              <DatePickerField
-                field={formik.getFieldProps('fecha_inicio_permiso')}
-                form={formik}
-                isFieldValid={isFieldValid('fecha_inicio_permiso')}
-                isSubmitting={formik.isSubmitting}
-                onChange={handleChange('fecha_inicio_permiso')}
-                onBlur={() => formik.setFieldTouched('fecha_inicio_permiso', true)}
-              />
-              {!isFieldValid('fecha_inicio_permiso') && (
-                <div className='fv-plugins-message-container'>
-                  <span role='alert'>{getFieldError(formik.errors, 'fecha_inicio_permiso')}</span>
+            {esCumpleanos ? (
+              /* VISTA PARA CUMPLEAÑOS: Un solo campo que controla ambos */
+              <div className='col-md-12 fv-row'>
+                <label className='required fw-bold fs-6 mb-2'>Fecha del Cumpleaños</label>
+                <DatePickerField
+                  field={formik.getFieldProps('fecha_inicio_permiso')}
+                  form={formik}
+                  isFieldValid={isFieldValid('fecha_inicio_permiso')}
+                  isSubmitting={formik.isSubmitting}
+                  onChange={handleChangeFechaInicio} // Usamos la nueva función
+                  onBlur={() => formik.setFieldTouched('fecha_inicio_permiso', true)}
+                />
+                {!isFieldValid('fecha_inicio_permiso') && (
+                  <div className='fv-plugins-message-container'>
+                    <span role='alert'>{getFieldError(formik.errors, 'fecha_inicio_permiso')}</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* VISTA NORMAL: Dos campos */
+              <>
+                <div className='col-md-6 fv-row mb-7 mb-md-0'>
+                  <label className='required fw-bold fs-6 mb-2'>Fecha Inicio</label>
+                  <DatePickerField
+                    field={formik.getFieldProps('fecha_inicio_permiso')}
+                    form={formik}
+                    isFieldValid={isFieldValid('fecha_inicio_permiso')}
+                    isSubmitting={formik.isSubmitting}
+                    onChange={handleChange('fecha_inicio_permiso')}
+                    onBlur={() => formik.setFieldTouched('fecha_inicio_permiso', true)}
+                  />
+                  {!isFieldValid('fecha_inicio_permiso') && (
+                    <div className='fv-plugins-message-container'>
+                      <span role='alert'>
+                        {getFieldError(formik.errors, 'fecha_inicio_permiso')}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <div className='col-md-6 fv-row'>
-              <label className='required fw-bold fs-6 mb-2'>Fecha Fin</label>
-              <DatePickerField
-                field={formik.getFieldProps('fecha_fin_permiso')}
-                form={formik}
-                isFieldValid={isFieldValid('fecha_fin_permiso')}
-                isSubmitting={formik.isSubmitting}
-                onChange={handleChange('fecha_fin_permiso')}
-                onBlur={() => formik.setFieldTouched('fecha_fin_permiso', true)}
-              />
-              {!isFieldValid('fecha_fin_permiso') && (
-                <div className='fv-plugins-message-container'>
-                  <span role='alert'>{getFieldError(formik.errors, 'fecha_fin_permiso')}</span>
+                <div className='col-md-6 fv-row'>
+                  <label className='required fw-bold fs-6 mb-2'>Fecha Fin</label>
+                  <DatePickerField
+                    field={formik.getFieldProps('fecha_fin_permiso')}
+                    form={formik}
+                    isFieldValid={isFieldValid('fecha_fin_permiso')}
+                    isSubmitting={formik.isSubmitting}
+                    onChange={handleChange('fecha_fin_permiso')}
+                    onBlur={() => formik.setFieldTouched('fecha_fin_permiso', true)}
+                  />
+                  {!isFieldValid('fecha_fin_permiso') && (
+                    <div className='fv-plugins-message-container'>
+                      <span role='alert'>{getFieldError(formik.errors, 'fecha_fin_permiso')}</span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </>
+            )}
           </div>
-
           {/* Campo Turno - Solo visible para cumpleaños */}
           {esCumpleanos && (
             <div className='fv-row mb-7 px-1'>

@@ -45,12 +45,18 @@ export type BackendResponse<T> = {
   data: T
 }
 
+export type EnrichmentMeta = {
+  enrichment_failed: boolean
+  message: string
+}
+
 export type DeclaratoriasComisionBackendData = {
   data: DeclaratoriaComision[]
   payload?: {
     pagination?: PaginationState
     errors?: Record<string, string[]>
   }
+  meta?: EnrichmentMeta
 }
 
 export type DeclaratoriaComisionQueryResponse = {
@@ -60,6 +66,7 @@ export type DeclaratoriaComisionQueryResponse = {
     errors?: Record<string, string[]>
     pagination?: PaginationState
   }
+  warning?: string
 }
 export interface PDFResponse {
   pdf_base64: string;
