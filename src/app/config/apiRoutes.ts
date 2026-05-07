@@ -6,6 +6,7 @@ export const API_URL = process.env.ASISTENCIA_PERMISO || '' // fallback para evi
 export const API_ROUTES = {
   ADMINISTRADOR: `${API_BASE_URL}/api/v1/administrador`,
   CONTROL_PERSONAL: `${API_BASE_URL}/api/v1/control-personal`,
+  PLANILLAS: `${API_BASE_URL}/api/planillas`,
   GUARDIAS: `${API_BASE_URL}/api/v1/control-personal/guardias-seguridad`,
   PERSONA: `${API_BASE_URL}/api/v1/persona`,
   USUARIOS: `${API_BASE_URL}/api/v1/usuarios`,

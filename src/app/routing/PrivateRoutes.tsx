@@ -27,6 +27,7 @@ const PrivateRoutes = () => {
   const DeclaratoriaComisionPage = lazy(() => import('../modules/apps/control-personal/declaratoria-comision/DeclaratoriaComisionPage'))
   const TipoPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/tipos-permisos/TipoPermisoPage'))
   const FeriadoAsuetoPage = lazy(() => import('../modules/apps/control-personal/feriado-asueto/FeriadoAsuetoPage'))
+  const PlanillaControlPage = lazy(() => import('../modules/apps/planillas/PlanillaControlPage'))
 
   const BiometricoPage = lazy(() => import('../modules/apps/administrador/biometrico/BiometricoPage'))
   const BiometricoAdminPage = lazy(() => import('../modules/apps/administrador/biometrico/admin/BiometricoAdminPage'))
@@ -205,6 +206,34 @@ const PrivateRoutes = () => {
             </SuspensedView>
           }
         />
+
+        {['apps/planilla-docente/*', 'apps/planillas-docente/*'].map((path) => (
+          <Route
+            key={path}
+            path={path}
+            element={
+              <SuspensedView>
+                <ProtectedRoute>
+                  <PlanillaControlPage modulo='docente' />
+                </ProtectedRoute>
+              </SuspensedView>
+            }
+          />
+        ))}
+
+        {['apps/planilla-estudiante/*', 'apps/planillas-estudiante/*'].map((path) => (
+          <Route
+            key={path}
+            path={path}
+            element={
+              <SuspensedView>
+                <ProtectedRoute>
+                  <PlanillaControlPage modulo='estudiante' />
+                </ProtectedRoute>
+              </SuspensedView>
+            }
+          />
+        ))}
         
         {/* Declaratoria de Comisión - requiere múltiples permisos alternativos */}
         <Route

@@ -66,7 +66,7 @@ const useDateFormatter = () => {
     return format(adjustedDate, "d 'de' MMMM 'de' yyyy", {locale: es})
   }
 
-  const formatShortDate = (date: string | Date) => {
+  const formatShortDate = (date: string | Date | null) => {
     if (!date) return 'N/A'
     const dateObj = typeof date === 'string' ? new Date(date) : date
     const adjustedDate = adjustToLocalTimezone(dateObj)
