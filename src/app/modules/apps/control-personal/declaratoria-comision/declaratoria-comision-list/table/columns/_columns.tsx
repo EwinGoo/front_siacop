@@ -53,7 +53,7 @@ const getColumns = ({
   },
   {
     Header: (props) => (
-      <CustomHeader tableProps={props} title='N° Correl.' className='w-actions' />
+      <CustomHeader tableProps={props} title='N° Corr.' className='w-actions' />
     ),
     accessor: 'nro_correlativo',
   },
@@ -66,19 +66,19 @@ const getColumns = ({
     id: 'periodo',
     Cell: ({row}) => <DateCell declaratoria={row.original} />,
   },
-  {
-    Header: (props) => <CustomHeader tableProps={props} title='Destino' className='min-w-150px' />,
-    accessor: 'destino',
-  },
-  {
-    Header: (props) => <CustomHeader tableProps={props} title='Viático' className='min-w-100px' />,
-    accessor: 'tipo_viatico',
-    Cell: ({value}) => (
-      <span className={`badge badge-light-${value === 'con_viatico' ? 'success' : 'primary'}`}>
-        {value === 'con_viatico' ? 'Con viático' : 'Sin viático'}
-      </span>
-    ),
-  },
+  // {
+  //   Header: (props) => <CustomHeader tableProps={props} title='Destino' className='min-w-150px' />,
+  //   accessor: 'destino',
+  // },
+  // {
+  //   Header: (props) => <CustomHeader tableProps={props} title='Viático' className='min-w-100px' />,
+  //   accessor: 'tipo_viatico',
+  //   Cell: ({value}) => (
+  //     <span className={`badge badge-light-${value === 'con_viatico' ? 'success' : 'primary'}`}>
+  //       {value === 'con_viatico' ? 'Con viático' : 'Sin viático'}
+  //     </span>
+  //   ),
+  // },
   {
     Header: (props) => <CustomHeader tableProps={props} title='HR N°' className='min-w-100px' />,
     accessor: 'rrhh_hoja_ruta_numero',

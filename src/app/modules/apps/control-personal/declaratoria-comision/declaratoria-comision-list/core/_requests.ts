@@ -15,6 +15,25 @@ import {AxiosResponse} from 'axios'
 
 export const DECLARATORIA_URL = API_ROUTES.CONTROL_PERSONAL + '/declaratoria-comision'
 
+const blobToBase64 = (blob: Blob): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+
+    reader.onloadend = () => {
+      const result = reader.result
+
+      if (typeof result !== 'string') {
+        reject(new Error('No se pudo leer el PDF generado'))
+        return
+      }
+
+      resolve(result.split(',')[1] || '')
+    }
+
+    reader.onerror = () => reject(new Error('No se pudo leer el PDF generado'))
+    reader.readAsDataURL(blob)
+  })
+
 const getDeclaratoriasComision = (query: string): Promise<DeclaratoriaComisionQueryResponse> => {
   return axiosClient
     .get<BackendResponse<DeclaratoriasComisionBackendData>>(`${DECLARATORIA_URL}?${query}`)
@@ -107,7 +126,7 @@ const anularDeclaratoriaComision = async (
   declaratoriaId: ID
 ): Promise<AxiosResponse<ApiResponse>> => {
   try {
-    const response = await axiosClient.put(`${DECLARATORIA_URL}/anular/${declaratoriaId}`)
+    const response = await axiosClient.put(`${DECLARATORIA_URL}/${declaratoriaId}/anular`)
     return response
   } catch (error: any) {
     if (error.response?.status === 422 || error.response?.status === 400) {
@@ -150,10 +169,37 @@ const getUnidades = async (): Promise<Unidad[]> => {
 
 const imprimirDeclaratoriaComision = async (id: ID): Promise<PDFResponse> => {
   try {
-    const response = await axiosClient.get<BackendResponse<PDFResponse>>(
-      `${DECLARATORIA_URL}/reporte/${id}`
-    )
-    return response.data.data
+    const response = await axiosClient.get(`${DECLARATORIA_URL}/reporte/${id}`, {
+      responseType: 'blob',
+    })
+    const contentType = response.headers['content-type'] || 'application/pdf'
+    const filename =
+      response.headers['content-disposition']?.match(/filename="?([^"]+)"?/)?.[1] ||
+      `declaratoria-comision-${id}.pdf`
+
+    if (contentType.includes('application/json')) {
+      const responseText = await response.data.text()
+      const responseData = JSON.parse(responseText) as BackendResponse<PDFResponse> | PDFResponse
+      const pdfData = 'pdf_base64' in responseData ? responseData : responseData.data
+
+      if (!pdfData?.pdf_base64) {
+        throw new Error('La respuesta del reporte no contiene el PDF')
+      }
+
+      return pdfData
+    }
+
+    const pdfBase64 = await blobToBase64(response.data)
+
+    if (!pdfBase64) {
+      throw new Error('La respuesta del reporte no contiene el PDF')
+    }
+
+    return {
+      pdf_base64: pdfBase64,
+      filename,
+      mime_type: contentType,
+    }
   } catch (error: any) {
     console.error('Error al imprimir declaratoria:', error)
     throw error
