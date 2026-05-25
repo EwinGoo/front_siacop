@@ -25,6 +25,7 @@ const PrivateRoutes = () => {
   const GestionGuardiasPage = lazy(() => import('../modules/apps/control-personal/guardias-seguridad/GestionGuardiasPage'))
   const AsistenciaPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/asistencia-permiso/AsistenciaPermisoPage'))
   const DeclaratoriaComisionPage = lazy(() => import('../modules/apps/control-personal/declaratoria-comision/DeclaratoriaComisionPage'))
+  const AsignacionesAdministrativasPage = lazy(() => import('../modules/apps/control-personal/asignaciones-administrativas/AsignacionesAdministrativasPage'))
   const TipoPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/tipos-permisos/TipoPermisoPage'))
   const FeriadoAsuetoPage = lazy(() => import('../modules/apps/control-personal/feriado-asueto/FeriadoAsuetoPage'))
 
@@ -220,6 +221,15 @@ const PrivateRoutes = () => {
               >
                 <DeclaratoriaComisionPage />
               </ProtectedRoute>
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='apps/asignaciones-administrativas/*'
+          element={
+            <SuspensedView>
+              <AsignacionesAdministrativasPage />
             </SuspensedView>
           }
         />
