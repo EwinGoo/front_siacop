@@ -28,6 +28,7 @@ const PrivateRoutes = () => {
   const AsignacionesAdministrativasPage = lazy(() => import('../modules/apps/control-personal/asignaciones-administrativas/AsignacionesAdministrativasPage'))
   const TipoPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/tipos-permisos/TipoPermisoPage'))
   const FeriadoAsuetoPage = lazy(() => import('../modules/apps/control-personal/feriado-asueto/FeriadoAsuetoPage'))
+  const PlanillaAsistenciaPage = lazy(() => import('../modules/apps/control-personal/planilla-asistencia/PlanillaAsistenciaPage'))
 
   const BiometricoPage = lazy(() => import('../modules/apps/administrador/biometrico/BiometricoPage'))
   const BiometricoAdminPage = lazy(() => import('../modules/apps/administrador/biometrico/admin/BiometricoAdminPage'))
@@ -230,6 +231,24 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <AsignacionesAdministrativasPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='apps/planilla-asistencia/*'
+          element={
+            <SuspensedView>
+              <ProtectedRoute
+                requiredSpecificPermissions={[
+                  PERMISSIONS.PLANILLA_ASISTENCIA.VIEW,
+                  PERMISSIONS.PLANILLA_ASISTENCIA.IMPORT,
+                  PERMISSIONS.PLANILLA_ASISTENCIA.REVIEW,
+                ]}
+                requireAllPermissions={false}
+              >
+                <PlanillaAsistenciaPage />
+              </ProtectedRoute>
             </SuspensedView>
           }
         />

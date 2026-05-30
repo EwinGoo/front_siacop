@@ -1,6 +1,6 @@
 import axiosClient from 'src/app/services/axiosClient'
 import {API_ROUTES} from 'src/app/config/apiRoutes'
-import {AsignacionAdministrativa, AsignacionAdministrativaListResponse} from './_models'
+import {AsignacionAdministrativa, AsignacionAdministrativaListResponse, HorarioTipo} from './_models'
 
 const ASIGNACION_ADMINISTRATIVO_URL = API_ROUTES.ASIGNACION_ADMINISTRATIVO
 
@@ -47,9 +47,21 @@ export const crearAsignacionAdministrativa = async (
   return response.data.data
 }
 
+// export const actualizarAsignacionAdministrativa = async (
+//   id: number,
+//   payload: AsignacionAdministrativa
+// ): Promise<AsignacionAdministrativa> => {
+//   const response = await axiosClient.put<BackendEnvelope<AsignacionAdministrativa>>(
+//     `${ASIGNACION_ADMINISTRATIVO_URL}/${id}`,
+//     payload
+//   )
+
+//   return response.data.data
+// }
+
 export const actualizarAsignacionAdministrativa = async (
   id: number,
-  payload: AsignacionAdministrativa
+  payload: Partial<AsignacionAdministrativa>
 ): Promise<AsignacionAdministrativa> => {
   const response = await axiosClient.put<BackendEnvelope<AsignacionAdministrativa>>(
     `${ASIGNACION_ADMINISTRATIVO_URL}/${id}`,
@@ -61,4 +73,12 @@ export const actualizarAsignacionAdministrativa = async (
 
 export const eliminarAsignacionAdministrativa = async (id: number): Promise<void> => {
   await axiosClient.delete(`${ASIGNACION_ADMINISTRATIVO_URL}/${id}`)
+}
+
+export const listarHorariosTipo = async (): Promise<HorarioTipo[]> => {
+  const response = await axiosClient.get<BackendEnvelope<HorarioTipo[]>>(
+    `${ASIGNACION_ADMINISTRATIVO_URL}/horario-tipos`
+  )
+
+  return response.data.data || []
 }

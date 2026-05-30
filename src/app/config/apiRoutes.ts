@@ -8,6 +8,7 @@ export const API_ROUTES = {
   CONTROL_PERSONAL: `${API_BASE_URL}/api/v1/control-personal`,
   ASIGNACION_ADMINISTRATIVO: `${API_BASE_URL}/api/v1/control-personal/asignacion-administrativo`,
   GUARDIAS: `${API_BASE_URL}/api/v1/control-personal/guardias-seguridad`,
+  PLANILLA_ASISTENCIA: `${API_BASE_URL}/api/v1/control-personal/planilla-asistencia`,
   PERSONA: `${API_BASE_URL}/api/v1/persona`,
   USUARIOS: `${API_BASE_URL}/api/v1/usuarios`,
   REPORTES: {

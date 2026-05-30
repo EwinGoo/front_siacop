@@ -3,16 +3,20 @@ import {Navigate, Outlet, Route, Routes} from 'react-router-dom'
 import {KTCard, KTCardBody} from '../../../../../_metronic/helpers'
 import {PageLink, PageTitle} from '../../../../../_metronic/layout/core'
 import {useAuth} from '../../../auth'
+import {APP_ROLES} from '../../../auth/core/roles'
 import {toast} from 'react-toastify'
+import {Tooltip} from 'bootstrap'
 import {
   actualizarAsignacionAdministrativa,
   crearAsignacionAdministrativa,
   eliminarAsignacionAdministrativa,
+  listarHorariosTipo,
   listarAsignacionesAdministrativas,
   obtenerAsignacionAdministrativa,
 } from './core/_requests'
 import {
   AsignacionAdministrativa,
+  HorarioTipo,
   initialAsignacionAdministrativa,
   TipoContratacion,
 } from './core/_models'
@@ -44,6 +48,8 @@ const AsignacionesAdministrativasList = () => {
   const [total, setTotal] = useState(0)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
+  const [horariosTipo, setHorariosTipo] = useState<HorarioTipo[]>([])
+  const [updatingHorarioId, setUpdatingHorarioId] = useState<number | null>(null)
   const [form, setForm] = useState<AsignacionAdministrativa>(initialAsignacionAdministrativa)
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / limit)), [limit, total])
@@ -57,7 +63,8 @@ const AsignacionesAdministrativasList = () => {
       setItems(response.data)
       setTotal(response.pagination.total)
     } catch (err: any) {
-      const message = err?.response?.data?.message || err?.message || 'No se pudieron cargar las asignaciones.'
+      const message =
+        err?.response?.data?.message || err?.message || 'No se pudieron cargar las asignaciones.'
       setError(message)
     } finally {
       setLoading(false)
@@ -67,6 +74,33 @@ const AsignacionesAdministrativasList = () => {
   useEffect(() => {
     cargarAsignaciones()
   }, [page, limit])
+
+  useEffect(() => {
+    const cargarHorariosTipo = async () => {
+      try {
+        const response = await listarHorariosTipo()
+        setHorariosTipo(response)
+      } catch (err: any) {
+        toast.error(
+          err?.response?.data?.message ||
+            err?.message ||
+            'No se pudieron cargar los tipos de horario.'
+        )
+      }
+    }
+
+    void cargarHorariosTipo()
+  }, [])
+
+  useEffect(() => {
+  const tooltipTriggerList = document.querySelectorAll(
+    '[data-bs-toggle="tooltip"]'
+  )
+
+  tooltipTriggerList.forEach((tooltipTriggerEl) => {
+    new Tooltip(tooltipTriggerEl)
+  })
+}, [items])
 
   const openCreateForm = () => {
     setEditingId(null)
@@ -87,7 +121,8 @@ const AsignacionesAdministrativasList = () => {
         id_persona_administrativo: asignacion.id_persona_administrativo ?? '',
         id_poa: asignacion.id_poa ?? '',
         id_nivel: asignacion.id_nivel ?? '',
-        id_tipo_horario: asignacion.id_tipo_horario ?? '',
+        id_horario_tipo: asignacion.id_horario_tipo ?? asignacion.id_tipo_horario ?? '',
+        id_tipo_horario: asignacion.id_horario_tipo ?? asignacion.id_tipo_horario ?? '',
         tipo_contratacion: asignacion.tipo_contratacion ?? 'DESIGNACION',
       })
       setIsFormOpen(true)
@@ -114,7 +149,10 @@ const AsignacionesAdministrativasList = () => {
         id_persona_administrativo: Number(form.id_persona_administrativo),
         id_poa: Number(form.id_poa),
         id_nivel: form.id_nivel === '' ? null : Number(form.id_nivel),
-        id_tipo_horario: form.id_tipo_horario === '' ? null : Number(form.id_tipo_horario),
+        id_horario_tipo:
+          (form.id_horario_tipo ?? form.id_tipo_horario) === ''
+            ? null
+            : Number(form.id_horario_tipo ?? form.id_tipo_horario),
       }
 
       if (editingId) {
@@ -128,7 +166,9 @@ const AsignacionesAdministrativasList = () => {
       closeForm()
       await cargarAsignaciones()
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || err?.message || 'No se pudo guardar la asignación.')
+      toast.error(
+        err?.response?.data?.message || err?.message || 'No se pudo guardar la asignación.'
+      )
     } finally {
       setSaving(false)
     }
@@ -151,7 +191,50 @@ const AsignacionesAdministrativasList = () => {
 
       await cargarAsignaciones()
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || err?.message || 'No se pudo eliminar la asignación.')
+      toast.error(
+        err?.response?.data?.message || err?.message || 'No se pudo eliminar la asignación.'
+      )
+    }
+  }
+
+  const handleHorarioTipoChange = async (item: AsignacionAdministrativa, value: string) => {
+    const id = Number(item.id_asignacion_administrativo)
+    if (!id) {
+      return
+    }
+
+    const horarioActual = item.id_horario_tipo ?? item.id_tipo_horario ?? ''
+    const horarioNuevo = value === '' ? null : Number(value)
+
+    if ((horarioActual === '' ? null : Number(horarioActual)) === horarioNuevo) {
+      return
+    }
+
+    setUpdatingHorarioId(id)
+    try {
+      const actualizado = await actualizarAsignacionAdministrativa(id, {
+        id_horario_tipo: horarioNuevo,
+      })
+
+      setItems((prev) =>
+        prev.map((row) =>
+          Number(row.id_asignacion_administrativo) === id
+            ? {
+                ...row,
+                ...actualizado,
+                id_horario_tipo: actualizado.id_horario_tipo ?? null,
+                id_tipo_horario: actualizado.id_horario_tipo ?? null,
+              }
+            : row
+        )
+      )
+      toast.success('Tipo de horario actualizado correctamente.')
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message || err?.message || 'No se pudo actualizar el tipo de horario.'
+      )
+    } finally {
+      setUpdatingHorarioId(null)
     }
   }
 
@@ -221,7 +304,7 @@ const AsignacionesAdministrativasList = () => {
           {error && <div className='alert alert-danger'>{error}</div>}
 
           <div className='table-responsive'>
-            <table className='table align-middle table-row-dashed gy-4'>
+            <table id='kt_table_hover' className='table align-middle table-row-dashed gy-4' >
               <thead>
                 <tr className='text-start text-muted fw-bold fs-7 text-uppercase gs-0'>
                   <th>Persona</th>
@@ -230,6 +313,7 @@ const AsignacionesAdministrativasList = () => {
                   <th>Tipo</th>
                   <th>Cargo</th>
                   <th>Inicio</th>
+                  <th>Horario</th>
                   <th>Estado</th>
                   <th className='text-end'>Acciones</th>
                 </tr>
@@ -237,13 +321,13 @@ const AsignacionesAdministrativasList = () => {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className='text-center py-10'>
+                    <td colSpan={9} className='text-center py-10'>
                       Cargando asignaciones administrativas...
                     </td>
                   </tr>
                 ) : items.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className='text-center py-10'>
+                    <td colSpan={9} className='text-center py-10'>
                       No se encontraron asignaciones administrativas.
                     </td>
                   </tr>
@@ -257,27 +341,74 @@ const AsignacionesAdministrativasList = () => {
                       <td>{item.codigo_cargo || '-'}</td>
                       <td>{item.fecha_inicio_asignacion_administrativo || '-'}</td>
                       <td>
-                        <span className={`badge ${item.estado_asignacion_administrativo ? 'badge-light-success' : 'badge-light-danger'}`}>
+                        {horariosTipo.find(
+                          (horario) =>
+                            horario.id_horario_tipo ===
+                            Number(item.id_horario_tipo ?? item.id_tipo_horario ?? 0)
+                        )?.nombre_horario_tipo || '-'}
+                      </td>
+                      <td>
+                        <span
+                          className={`badge ${
+                            item.estado_asignacion_administrativo
+                              ? 'badge-light-success'
+                              : 'badge-light-danger'
+                          }`}
+                        >
                           {item.estado_asignacion_administrativo ? 'Activo' : 'Inactivo'}
                         </span>
                       </td>
-                      <td className='text-end'>
-                        <div className='d-flex justify-content-end gap-2'>
+                      <td className='text-end' style={{whiteSpace: 'nowrap'}}>
+                        <div className='d-flex justify-content-end gap-2 align-items-center flex-nowrap'>
+                          <select
+                            className='form-select form-select-sm'
+                            style={{width: '180px'}}
+                            value={String(item.id_horario_tipo ?? item.id_tipo_horario ?? '')}
+                            onChange={(event) =>
+                              void handleHorarioTipoChange(item, event.target.value)
+                            }
+                            disabled={
+                              saving ||
+                              updatingHorarioId === Number(item.id_asignacion_administrativo)
+                            }
+                          >
+                            <option value=''>Sin horario</option>
+                            {horariosTipo.map((horario) => (
+                              <option key={horario.id_horario_tipo} value={horario.id_horario_tipo}>
+                                {horario.nombre_horario_tipo}
+                              </option>
+                            ))}
+                          </select>
+
                           <button
                             type='button'
-                            className='btn btn-sm btn-light-primary'
+                            className='btn btn-icon btn-light-primary btn-sm'
                             onClick={() => openEditForm(Number(item.id_asignacion_administrativo))}
                             disabled={saving}
+                            data-bs-toggle='tooltip'
+                            data-bs-placement='top'
+                            title='Editar asignación'
                           >
-                            Editar
+                            <i className='ki-duotone ki-pencil fs-4'>
+                              <span className='path1'></span>
+                              <span className='path2'></span>
+                            </i>
                           </button>
+
                           <button
                             type='button'
-                            className='btn btn-sm btn-light-danger'
+                            className='btn btn-icon btn-light-danger btn-sm'
                             onClick={() => handleDelete(Number(item.id_asignacion_administrativo))}
                             disabled={saving}
+                            data-bs-toggle='tooltip'
+                            data-bs-placement='top'
+                            title='Eliminar asignación'
                           >
-                            Eliminar
+                            <i className='ki-duotone ki-trash fs-4'>
+                              <span className='path1'></span>
+                              <span className='path2'></span>
+                              <span className='path3'></span>
+                            </i>
                           </button>
                         </div>
                       </td>
@@ -289,9 +420,7 @@ const AsignacionesAdministrativasList = () => {
           </div>
 
           <div className='d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4 pt-4'>
-            <div className='text-muted fs-7'>
-              Total: {total} registro(s)
-            </div>
+            <div className='text-muted fs-7'>Total: {total} registro(s)</div>
             <div className='d-flex align-items-center gap-3'>
               <button
                 type='button'
@@ -322,7 +451,10 @@ const AsignacionesAdministrativasList = () => {
           className='position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center'
           style={{backgroundColor: 'rgba(0, 0, 0, 0.45)', zIndex: 1050, padding: '1rem'}}
         >
-          <div className='card w-100' style={{maxWidth: '900px', maxHeight: '90vh', overflowY: 'auto'}}>
+          <div
+            className='card w-100'
+            style={{maxWidth: '900px', maxHeight: '90vh', overflowY: 'auto'}}
+          >
             <div className='card-header d-flex justify-content-between align-items-center'>
               <h3 className='card-title m-0'>
                 {editingId ? 'Editar asignación administrativa' : 'Nueva asignación administrativa'}
@@ -374,30 +506,47 @@ const AsignacionesAdministrativasList = () => {
                       className='form-control'
                       value={form.id_nivel ?? ''}
                       onChange={(event) =>
-                        setForm((prev) => ({...prev, id_nivel: event.target.value === '' ? '' : Number(event.target.value)}))
+                        setForm((prev) => ({
+                          ...prev,
+                          id_nivel: event.target.value === '' ? '' : Number(event.target.value),
+                        }))
                       }
                     />
                   </div>
                   <div className='col-md-6'>
-                    <label className='form-label'>ID Tipo Horario</label>
-                    <input
-                      type='number'
-                      className='form-control'
-                      value={form.id_tipo_horario ?? ''}
+                    <label className='form-label'>Tipo Horario</label>
+                    <select
+                      className='form-select'
+                      value={String(form.id_horario_tipo ?? form.id_tipo_horario ?? '')}
                       onChange={(event) =>
                         setForm((prev) => ({
                           ...prev,
-                          id_tipo_horario: event.target.value === '' ? '' : Number(event.target.value),
+                          id_horario_tipo:
+                            event.target.value === '' ? '' : Number(event.target.value),
+                          id_tipo_horario:
+                            event.target.value === '' ? '' : Number(event.target.value),
                         }))
                       }
-                    />
+                    >
+                      <option value=''>Sin horario</option>
+                      {horariosTipo.map((horario) => (
+                        <option key={horario.id_horario_tipo} value={horario.id_horario_tipo}>
+                          {horario.nombre_horario_tipo}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className='col-md-6'>
                     <label className='form-label'>Tipo de contratación</label>
                     <select
                       className='form-select'
                       value={form.tipo_contratacion ?? ''}
-                      onChange={(event) => setForm((prev) => ({...prev, tipo_contratacion: event.target.value as TipoContratacion}))}
+                      onChange={(event) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          tipo_contratacion: event.target.value as TipoContratacion,
+                        }))
+                      }
                     >
                       {tiposContratacion.map((tipo) => (
                         <option key={tipo} value={tipo}>
@@ -412,7 +561,9 @@ const AsignacionesAdministrativasList = () => {
                       type='text'
                       className='form-control'
                       value={form.codigo_cargo ?? ''}
-                      onChange={(event) => setForm((prev) => ({...prev, codigo_cargo: event.target.value}))}
+                      onChange={(event) =>
+                        setForm((prev) => ({...prev, codigo_cargo: event.target.value}))
+                      }
                     />
                   </div>
                   <div className='col-md-6'>
@@ -421,7 +572,9 @@ const AsignacionesAdministrativasList = () => {
                       type='text'
                       className='form-control'
                       value={form.numero_memorandum ?? ''}
-                      onChange={(event) => setForm((prev) => ({...prev, numero_memorandum: event.target.value}))}
+                      onChange={(event) =>
+                        setForm((prev) => ({...prev, numero_memorandum: event.target.value}))
+                      }
                     />
                   </div>
                   <div className='col-md-6'>
@@ -430,7 +583,9 @@ const AsignacionesAdministrativasList = () => {
                       type='url'
                       className='form-control'
                       value={form.url_memorandum ?? ''}
-                      onChange={(event) => setForm((prev) => ({...prev, url_memorandum: event.target.value}))}
+                      onChange={(event) =>
+                        setForm((prev) => ({...prev, url_memorandum: event.target.value}))
+                      }
                     />
                   </div>
                   <div className='col-md-4'>
@@ -502,13 +657,20 @@ const AsignacionesAdministrativasList = () => {
                           }))
                         }
                       />
-                      <span className='form-check-label fw-semibold text-gray-700 ms-3'>Asignación activa</span>
+                      <span className='form-check-label fw-semibold text-gray-700 ms-3'>
+                        Asignación activa
+                      </span>
                     </label>
                   </div>
                 </div>
 
                 <div className='d-flex justify-content-end gap-3 mt-8'>
-                  <button type='button' className='btn btn-light' onClick={closeForm} disabled={saving}>
+                  <button
+                    type='button'
+                    className='btn btn-light'
+                    onClick={closeForm}
+                    disabled={saving}
+                  >
                     Cancelar
                   </button>
                   <button type='submit' className='btn btn-primary' disabled={saving}>
@@ -526,9 +688,12 @@ const AsignacionesAdministrativasList = () => {
 
 const AsignacionesAdministrativasPage = () => {
   const {currentUser} = useAuth()
-  const isAdministrador = currentUser?.groups?.includes('administrador')
+  const canAccess = Boolean(
+    currentUser?.groups?.includes(APP_ROLES.ADMINISTRADOR) ||
+      currentUser?.groups?.includes(APP_ROLES.CONTROL_PERSONAL)
+  )
 
-  if (!isAdministrador) {
+  if (!canAccess) {
     return <Navigate to='/acceso-denegado' replace />
   }
 
