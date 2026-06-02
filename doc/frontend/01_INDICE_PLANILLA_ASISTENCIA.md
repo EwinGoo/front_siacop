@@ -12,6 +12,7 @@ La idea es construir el frontend en el mismo orden operativo en el que el usuari
 4. ejecutar proceso
 5. revisar resultados diarios
 6. revisar planilla mensual consolidada
+7. revisar consolidado de bono refrigerio
 
 ## Orden sugerido de construcción
 
@@ -21,6 +22,7 @@ La idea es construir el frontend en el mismo orden operativo en el que el usuari
 4. [05_VISTA_PROCESOS_Y_EJECUCION.md](/C:/Users/az232/Desktop/siacop/client/doc/frontend/05_VISTA_PROCESOS_Y_EJECUCION.md)
 5. [06_VISTA_RESULTADO_DIARIO.md](/C:/Users/az232/Desktop/siacop/client/doc/frontend/06_VISTA_RESULTADO_DIARIO.md)
 6. [07_VISTA_RESULTADO_MENSUAL.md](/C:/Users/az232/Desktop/siacop/client/doc/frontend/07_VISTA_RESULTADO_MENSUAL.md)
+7. [09_VISTA_BONO_REFRIGERIO.md](/C:/Users/az232/Desktop/siacop/client/doc/frontend/09_VISTA_BONO_REFRIGERIO.md)
 
 ## Pantallas mínimas para demo funcional
 
@@ -33,6 +35,8 @@ La idea es construir el frontend en el mismo orden operativo en el que el usuari
 - Vista de detalle diario por persona y fecha
 - Vista de resultados mensuales por proceso
 - Vista de detalle mensual por persona
+- Vista de bono refrigerio por proceso
+- Vista de detalle diario de bono por persona
 
 ## Dependencias funcionales ya existentes en frontend
 
@@ -62,3 +66,6 @@ Rutas base ya disponibles:
 - `GET /api/v1/control-personal/planilla-asistencia/procesos/{id}/resultados/persona/{idPersona}?fecha=YYYY-MM-DD`
 - `GET /api/v1/control-personal/planilla-asistencia/procesos/{id}/resultados-mensuales`
 - `GET /api/v1/control-personal/planilla-asistencia/procesos/{id}/resultados-mensuales/persona/{idPersona}`
+- `GET /api/v1/control-personal/planilla-asistencia/procesos/{id}/bono-refrigerio`
+- `GET /api/v1/control-personal/planilla-asistencia/procesos/{id}/bono-refrigerio/persona/{idPersona}`
+- `POST /api/v1/control-personal/planilla-asistencia/procesos/{id}/bono-refrigerio/reporte-general`

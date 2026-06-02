@@ -183,3 +183,68 @@ export interface ResultadoMensual {
 export interface ResultadoMensualDetalle extends ResultadoMensual {
   detalle_json?: Record<string, unknown> | null
 }
+
+export interface PlanillaMensualPDFData {
+  blob: Blob
+  filename: string
+  title?: string
+}
+
+export interface ReportePlanillaMensualParams {
+  filtroReporte: 'TODOS' | 'CON_ATRASO' | 'CON_SANCION' | 'CON_ATRASO_O_SANCION'
+  search?: string
+}
+
+export interface BonoRefrigerioResumen {
+  id_proceso: number
+  id_persona: number
+  id_asignacion_administrativo: number
+  dias_validos_bono: number
+  dias_excluidos_bono: number
+  dias_observados_bono: number
+  dias_no_validos_bono: number
+  dias_total_registrados: number
+  minutos_atraso_oficial: number
+  dias_descuento_oficial: number
+  estado_bono: 'CON_DIAS_PAGABLES' | 'SIN_DIAS_PAGABLES' | 'OBSERVADO' | string
+  persona?: {
+    ci?: string | null
+    genero?: string | null
+    nombre_completo?: string | null
+    nombre_cargo?: string | null
+    nombre_unidad?: string | null
+    codigo_biometrico_principal?: string | null
+  }
+}
+
+export interface BonoRefrigerioDiaDetalle {
+  id_resultado_diario: number
+  fecha?: string | null
+  estado_dia?: string | null
+  estado_bono_dia?: 'VALIDO' | 'EXCLUIDO' | 'NO_VALIDO' | 'OBSERVADO' | string
+  motivo_bono?: string | null
+  justificativo_principal?: string | null
+  tipo_horario?: string | null
+  nombre_horario_tipo?: string | null
+  cantidad_marcaciones_esperadas?: number
+  cantidad_marcaciones_validas?: number
+  minutos_atraso_oficial?: number
+  dias_descuento_oficial?: number
+  observacion?: string | null
+}
+
+export interface BonoRefrigerioDetalle {
+  resumen: BonoRefrigerioResumen
+  dias: BonoRefrigerioDiaDetalle[]
+}
+
+export interface ReporteBonoRefrigerioParams {
+  filtroReporte:
+    | 'TODOS'
+    | 'SOLO_BENEFICIARIOS'
+    | 'CON_ATRASO'
+    | 'CON_SANCION'
+    | 'CON_ATRASO_O_SANCION'
+    | 'SOLO_OBSERVADOS'
+  search?: string
+}

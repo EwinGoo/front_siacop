@@ -4,6 +4,7 @@ import ImportacionesPage from './importaciones/ImportacionesPage'
 import ProcesosPage from './procesos/ProcesosPage'
 import ResultadosDiariosPage from './resultados-diarios/ResultadosDiariosPage'
 import ResultadosMensualesPage from './resultados-mensuales/ResultadosMensualesPage'
+import BonoRefrigerioPage from './bono-refrigerio/BonoRefrigerioPage'
 
 const breadcrumbs: Array<PageLink> = [
   {
@@ -57,6 +58,15 @@ const PlanillaAsistenciaPage = () => {
             <>
               <PageTitle breadcrumbs={breadcrumbs}>Planilla de Asistencia: Resultado Mensual</PageTitle>
               <ResultadosMensualesPage />
+            </>
+          }
+        />
+        <Route
+          path='/bono-refrigerio'
+          element={
+            <>
+              <PageTitle breadcrumbs={breadcrumbs}>Planilla de Asistencia: Bono Refrigerio</PageTitle>
+              <BonoRefrigerioPage />
             </>
           }
         />

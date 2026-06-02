@@ -13,6 +13,7 @@ Debe mostrar el consolidado mensual por persona y servir como base de revisión 
 
 - `GET /api/v1/control-personal/planilla-asistencia/procesos/{id}/resultados-mensuales`
 - `GET /api/v1/control-personal/planilla-asistencia/procesos/{id}/resultados-mensuales/persona/{idPersona}`
+- `POST /api/v1/control-personal/planilla-asistencia/procesos/{id}/resultados-mensuales/reporte-general`
 
 ## Campos mínimos obligatorios
 
@@ -41,6 +42,12 @@ Tomados de la estructura del motor:
 - búsqueda por persona
 - acceso a detalle mensual por persona
 - acceso rápido al diario de una persona
+- generación de reporte PDF mensual en modal
+- filtrar el reporte PDF por:
+  - todos los registros
+  - solo con atraso oficial
+  - solo con días de sanción
+  - con atraso o sanción
 
 ## Detalle mensual por persona
 
@@ -67,6 +74,34 @@ Debe mostrar:
 ## Vista principal para presentación
 
 Si solo mostraras una pantalla final del motor, debería ser esta.
+
+## Reporte PDF mensual
+
+La vista ahora incorpora un flujo de reporte PDF con modal, siguiendo el patrón usado en permisos y comisiones.
+
+### Qué muestra el PDF
+
+- `Nro`
+- `CI`
+- `Nombre completo`
+- `Días asistidos`
+- `Días falta`
+- `Minutos atraso oficial`
+- `Días sanción`
+
+### Qué filtros permite
+
+- `Todos los registros`
+- `Solo con atraso oficial`
+- `Solo con días de sanción`
+- `Con atraso o sanción`
+- búsqueda opcional por nombre o CI
+
+### Qué datos toma
+
+- el proceso seleccionado en la vista
+- el rango del proceso (`fecha_inicio` y `fecha_fin`)
+- los resultados mensuales consolidados ya generados por el motor
 
 ## Recomendación visual
 

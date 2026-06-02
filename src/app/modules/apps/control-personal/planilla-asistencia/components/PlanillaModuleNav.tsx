@@ -5,6 +5,7 @@ const links = [
   {to: '/apps/planilla-asistencia/procesos', label: 'Procesos', icon: 'bi-diagram-3'},
   {to: '/apps/planilla-asistencia/resultados-diarios', label: 'Resultados diarios', icon: 'bi-calendar3'},
   {to: '/apps/planilla-asistencia/resultados-mensuales', label: 'Planilla mensual', icon: 'bi-table'},
+  {to: '/apps/planilla-asistencia/bono-refrigerio', label: 'Bono refrigerio', icon: 'bi-cup-hot'},
 ]
 
 const PlanillaModuleNav = () => {

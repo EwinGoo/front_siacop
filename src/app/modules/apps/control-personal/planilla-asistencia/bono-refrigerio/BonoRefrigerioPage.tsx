@@ -1,23 +1,34 @@
 import {useEffect, useMemo, useState} from 'react'
 import {useSearchParams} from 'react-router-dom'
 import {KTCard} from 'src/_metronic/helpers'
-import {SelectField} from 'src/app/modules/components/SelectField'
 import PDFModal from '../../comision/comision-list/pdf-modal/PDFModal'
+import {SelectField} from 'src/app/modules/components/SelectField'
+import {EmptyState} from '../components/EmptyState'
 import {PlanillaModuleNav} from '../components/PlanillaModuleNav'
 import {StatusBadge} from '../components/StatusBadge'
-import {EmptyState} from '../components/EmptyState'
-import {PlanillaMensualPDFData, ProcesoPlanilla, ResultadoMensual, ResultadoMensualDetalle} from '../core/_models'
-import {generarReportePlanillaMensual, getDetalleResultadoMensual, getProcesosPlanilla, getResultadosMensuales} from '../core/_requests'
+import {
+  BonoRefrigerioDetalle,
+  BonoRefrigerioResumen,
+  PlanillaMensualPDFData,
+  ProcesoPlanilla,
+  ReporteBonoRefrigerioParams,
+} from '../core/_models'
+import {
+  generarReporteBonoRefrigerio,
+  getBonoRefrigerio,
+  getDetalleBonoRefrigerio,
+  getProcesosPlanilla,
+} from '../core/_requests'
 import {ReportModal} from './report-modal/ReportModal'
 
-const ResultadosMensualesPage = () => {
+const BonoRefrigerioPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [idProceso, setIdProceso] = useState(searchParams.get('proceso') || '')
-  const [search, setSearch] = useState(searchParams.get('search') || '9874182')
+  const [search, setSearch] = useState(searchParams.get('search') || '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [rows, setRows] = useState<ResultadoMensual[]>([])
-  const [detalle, setDetalle] = useState<ResultadoMensualDetalle | null>(null)
+  const [rows, setRows] = useState<BonoRefrigerioResumen[]>([])
+  const [detalle, setDetalle] = useState<BonoRefrigerioDetalle | null>(null)
   const [procesos, setProcesos] = useState<ProcesoPlanilla[]>([])
   const [showReportModal, setShowReportModal] = useState(false)
   const [showPDFModal, setShowPDFModal] = useState(false)
@@ -28,6 +39,7 @@ const ResultadosMensualesPage = () => {
     () => procesos.find((proceso) => String(proceso.id_proceso) === idProceso) || null,
     [procesos, idProceso]
   )
+
   const procesoOptions = useMemo(
     () => [
       {value: '', label: 'Seleccione un proceso'},
@@ -55,34 +67,17 @@ const ResultadosMensualesPage = () => {
     [idProceso]
   )
 
-  const handleShowPDF = async (params: {
-    filtroReporte: 'TODOS' | 'CON_ATRASO' | 'CON_SANCION' | 'CON_ATRASO_O_SANCION'
-    search?: string
-  }) => {
-    if (!canLoad) {
-      return
-    }
-
-    const pdfData = await generarReportePlanillaMensual(Number(idProceso), params)
-    setCurrentPDFData(pdfData)
-    setShowPDFModal(true)
-  }
-
-  const handleClosePDFModal = () => {
-    setShowPDFModal(false)
-    setCurrentPDFData(null)
-  }
-
   const cargar = async () => {
     if (!canLoad) {
       setRows([])
+      setDetalle(null)
       return
     }
 
     setLoading(true)
     setError(null)
     try {
-      const data = await getResultadosMensuales(Number(idProceso), {
+      const data = await getBonoRefrigerio(Number(idProceso), {
         search: search || undefined,
       })
       setRows(data.data || [])
@@ -91,10 +86,25 @@ const ResultadosMensualesPage = () => {
       search ? next.set('search', search) : next.delete('search')
       setSearchParams(next)
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || 'No se pudo cargar resultados mensuales.')
+      setError(err?.response?.data?.message || err?.message || 'No se pudo cargar bono refrigerio.')
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleShowPDF = async (params: ReporteBonoRefrigerioParams) => {
+    if (!canLoad) {
+      return
+    }
+
+    const pdfData = await generarReporteBonoRefrigerio(Number(idProceso), params)
+    setCurrentPDFData(pdfData)
+    setShowPDFModal(true)
+  }
+
+  const handleClosePDFModal = () => {
+    setShowPDFModal(false)
+    setCurrentPDFData(null)
   }
 
   useEffect(() => {
@@ -116,16 +126,16 @@ const ResultadosMensualesPage = () => {
     }
   }, [])
 
-  const verDetalle = async (row: ResultadoMensual) => {
+  const verDetalle = async (row: BonoRefrigerioResumen) => {
     if (!canLoad || !row.id_persona) {
       return
     }
 
     try {
-      const data = await getDetalleResultadoMensual(Number(idProceso), row.id_persona)
+      const data = await getDetalleBonoRefrigerio(Number(idProceso), row.id_persona)
       setDetalle(data)
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || 'No se pudo cargar el detalle mensual.')
+      setError(err?.response?.data?.message || err?.message || 'No se pudo cargar el detalle de bono refrigerio.')
     }
   }
 
@@ -136,8 +146,10 @@ const ResultadosMensualesPage = () => {
       <KTCard className='mb-7'>
         <div className='card-header'>
           <div className='card-title d-flex flex-column'>
-            <h3 className='fw-bold m-0'>Planilla mensual consolidada</h3>
-            <span className='text-muted mt-1'>Vista final de atrasos, faltas, sanciones y justificativos por persona</span>
+            <h3 className='fw-bold m-0'>Bono refrigerio consolidado</h3>
+            <span className='text-muted mt-1'>
+              Calcula días pagables, excluidos y no válidos a partir del proceso mensual de asistencia.
+            </span>
           </div>
         </div>
         <div className='card-body'>
@@ -195,13 +207,13 @@ const ResultadosMensualesPage = () => {
           {!canLoad ? (
             <EmptyState
               title='Selecciona un proceso'
-              description='Ingresa el ID del proceso para ver la planilla mensual consolidada.'
+              description='Elige un proceso ejecutado para calcular los días pagables de bono refrigerio.'
             />
           ) : loading ? (
-            <div className='text-muted'>Cargando planilla mensual...</div>
+            <div className='text-muted'>Cargando bono refrigerio...</div>
           ) : rows.length === 0 ? (
             <EmptyState
-              title='Sin resultados mensuales'
+              title='Sin resultados de bono'
               description='No hay registros para los filtros seleccionados.'
             />
           ) : (
@@ -211,12 +223,12 @@ const ResultadosMensualesPage = () => {
                   <tr className='text-start text-muted fw-bold fs-7 text-uppercase gs-0'>
                     <th>Persona</th>
                     <th>Cargo</th>
-                    <th>Atraso calc.</th>
+                    <th>Días pagables</th>
+                    <th>Días excluidos</th>
+                    <th>Días no válidos</th>
                     <th>Atraso oficial</th>
                     <th>Días sanción</th>
-                    <th>Faltas</th>
-                    <th>Justificativos</th>
-                    <th>No desc.</th>
+                    <th>Estado</th>
                     <th className='text-end'>Acción</th>
                   </tr>
                 </thead>
@@ -234,19 +246,13 @@ const ResultadosMensualesPage = () => {
                         </div>
                       </td>
                       <td>{row.persona?.nombre_cargo || '-'}</td>
-                      <td>{row.minutos_atraso_calculado ?? 0} min</td>
+                      <td>{row.dias_validos_bono ?? 0}</td>
+                      <td>{row.dias_excluidos_bono ?? 0}</td>
+                      <td>{row.dias_no_validos_bono ?? 0}</td>
                       <td>{row.minutos_atraso_oficial ?? 0} min</td>
-                      <td>{row.dias_descuento_oficial ?? row.dias_descuento_calculado ?? 0}</td>
-                      <td>{row.dias_falta ?? 0}</td>
+                      <td>{row.dias_descuento_oficial ?? 0}</td>
                       <td>
-                        Trab.: {row.dias_trabajados ?? 0} / Just.: {row.dias_justificados ?? 0} / Aband.: {row.dias_abandono ?? 0}
-                      </td>
-                      <td>
-                        {row.estado_mensual ? (
-                          <StatusBadge value={row.estado_mensual} />
-                        ) : (
-                          <span className='text-muted'>No</span>
-                        )}
+                        <StatusBadge value={row.estado_bono} />
                       </td>
                       <td className='text-end'>
                         <button
@@ -279,9 +285,19 @@ const ResultadosMensualesPage = () => {
           <div className='col-12 col-md-3'>
             <div className='card card-flush h-100'>
               <div className='card-body'>
-                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Faltas acumuladas</div>
+                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Días pagables</div>
+                <div className='fs-1 fw-bolder text-success'>
+                  {rows.reduce((sum, row) => sum + (row.dias_validos_bono ?? 0), 0)}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className='col-12 col-md-3'>
+            <div className='card card-flush h-100'>
+              <div className='card-body'>
+                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Días no válidos</div>
                 <div className='fs-1 fw-bolder text-danger'>
-                  {rows.reduce((sum, row) => sum + (row.dias_falta ?? 0), 0)}
+                  {rows.reduce((sum, row) => sum + (row.dias_no_validos_bono ?? 0), 0)}
                 </div>
               </div>
             </div>
@@ -289,19 +305,9 @@ const ResultadosMensualesPage = () => {
           <div className='col-12 col-md-3'>
             <div className='card card-flush h-100'>
               <div className='card-body'>
-                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Atraso oficial total</div>
+                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Observados</div>
                 <div className='fs-1 fw-bolder text-warning'>
-                  {rows.reduce((sum, row) => sum + (row.minutos_atraso_oficial ?? 0), 0)}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className='col-12 col-md-3'>
-            <div className='card card-flush h-100'>
-              <div className='card-body'>
-                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>No descontables</div>
-                <div className='fs-1 fw-bolder text-primary'>
-                  {rows.filter((row) => (row.estado_mensual || '').toUpperCase() === 'JUSTIFICADO').length}
+                  {rows.reduce((sum, row) => sum + (row.dias_observados_bono ?? 0), 0)}
                 </div>
               </div>
             </div>
@@ -313,42 +319,61 @@ const ResultadosMensualesPage = () => {
         <KTCard>
           <div className='card-header'>
             <div className='card-title d-flex flex-column'>
-              <h3 className='fw-bold m-0'>Detalle mensual</h3>
+              <h3 className='fw-bold m-0'>Detalle de bono refrigerio</h3>
               <span className='text-muted mt-1'>
-                {detalle.persona?.nombre_completo || `Persona ${detalle.id_persona}`} - {detalle.persona?.ci || detalle.persona?.codigo_biometrico_principal || 'Sin CI'}
+                {detalle.resumen.persona?.nombre_completo || `Persona ${detalle.resumen.id_persona}`} - {detalle.resumen.persona?.ci || detalle.resumen.persona?.codigo_biometrico_principal || 'Sin CI'}
               </span>
             </div>
           </div>
           <div className='card-body'>
-            <div className='row g-5'>
+            <div className='row g-5 mb-7'>
               <div className='col-md-3'>
-                <div className='text-gray-600 fs-7 text-uppercase mb-1'>Atraso calculado</div>
-                <div className='fw-bold fs-4'>{detalle.minutos_atraso_calculado ?? 0} min</div>
+                <div className='text-gray-600 fs-7 text-uppercase mb-1'>Días pagables</div>
+                <div className='fw-bold fs-4 text-success'>{detalle.resumen.dias_validos_bono ?? 0}</div>
               </div>
               <div className='col-md-3'>
-                <div className='text-gray-600 fs-7 text-uppercase mb-1'>Atraso oficial</div>
-                <div className='fw-bold fs-4'>{detalle.minutos_atraso_oficial ?? 0} min</div>
+                <div className='text-gray-600 fs-7 text-uppercase mb-1'>Días excluidos</div>
+                <div className='fw-bold fs-4 text-primary'>{detalle.resumen.dias_excluidos_bono ?? 0}</div>
               </div>
               <div className='col-md-3'>
-                <div className='text-gray-600 fs-7 text-uppercase mb-1'>Días sanción oficiales</div>
-                <div className='fw-bold fs-4'>{detalle.dias_descuento_oficial ?? 0}</div>
+                <div className='text-gray-600 fs-7 text-uppercase mb-1'>Días no válidos</div>
+                <div className='fw-bold fs-4 text-danger'>{detalle.resumen.dias_no_validos_bono ?? 0}</div>
               </div>
               <div className='col-md-3'>
-                <div className='text-gray-600 fs-7 text-uppercase mb-1'>Estado mensual</div>
-                {detalle.estado_mensual ? (
-                  <StatusBadge value={detalle.estado_mensual} />
-                ) : (
-                  <div className='fw-bold fs-4'>No</div>
-                )}
+                <div className='text-gray-600 fs-7 text-uppercase mb-1'>Estado bono</div>
+                <StatusBadge value={detalle.resumen.estado_bono} />
               </div>
             </div>
-            <div className='separator my-7' />
-            <div className='row g-5'>
-              <div className='col-md-2'>Trabajados: <span className='fw-bold'>{detalle.dias_trabajados ?? 0}</span></div>
-              <div className='col-md-2'>Justificados: <span className='fw-bold'>{detalle.dias_justificados ?? 0}</span></div>
-              <div className='col-md-2'>Faltas: <span className='fw-bold'>{detalle.dias_falta ?? 0}</span></div>
-              <div className='col-md-2'>Abandonos: <span className='fw-bold'>{detalle.dias_abandono ?? 0}</span></div>
-              <div className='col-md-4'>Observación: <span className='fw-bold'>{detalle.observacion || '-'}</span></div>
+
+            <div className='table-responsive'>
+              <table className='table align-middle table-row-dashed fs-7 gy-3'>
+                <thead>
+                  <tr className='text-start text-muted fw-bold text-uppercase gs-0'>
+                    <th>Fecha</th>
+                    <th>Estado día</th>
+                    <th>Estado bono</th>
+                    <th>Horario</th>
+                    <th>Marcaciones</th>
+                    <th>Justificativo</th>
+                    <th>Motivo</th>
+                  </tr>
+                </thead>
+                <tbody className='fw-semibold text-gray-700'>
+                  {detalle.dias.map((dia) => (
+                    <tr key={dia.id_resultado_diario}>
+                      <td>{dia.fecha || '-'}</td>
+                      <td><StatusBadge value={dia.estado_dia} /></td>
+                      <td><StatusBadge value={dia.estado_bono_dia} /></td>
+                      <td>{dia.tipo_horario || dia.nombre_horario_tipo || '-'}</td>
+                      <td>
+                        {dia.cantidad_marcaciones_validas ?? 0} / {dia.cantidad_marcaciones_esperadas ?? 0}
+                      </td>
+                      <td>{dia.justificativo_principal || '-'}</td>
+                      <td>{dia.motivo_bono || dia.observacion || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </KTCard>
@@ -366,11 +391,11 @@ const ResultadosMensualesPage = () => {
         isOpen={showPDFModal}
         onClose={handleClosePDFModal}
         pdfBlob={currentPDFData?.blob || null}
-        filename={currentPDFData?.filename || 'REPORTE_PLANILLA_MENSUAL.pdf'}
-        title={currentPDFData?.title || 'Reporte de planilla mensual'}
+        filename={currentPDFData?.filename || 'REPORTE_BONO_REFRIGERIO.pdf'}
+        title={currentPDFData?.title || 'Reporte de bono refrigerio'}
       />
     </>
   )
 }
 
-export default ResultadosMensualesPage
+export default BonoRefrigerioPage

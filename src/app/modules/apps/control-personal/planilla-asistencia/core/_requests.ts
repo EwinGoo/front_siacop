@@ -2,10 +2,15 @@ import axiosClient from 'src/app/services/axiosClient'
 import {API_ROUTES} from 'src/app/config/apiRoutes'
 import {
   BackendEnvelope,
+  BonoRefrigerioDetalle,
+  BonoRefrigerioResumen,
   ImportacionResumenResponse,
   ListadoPaginado,
+  PlanillaMensualPDFData,
   ProcesoPlanilla,
   ProcesoPlanillaDetalle,
+  ReporteBonoRefrigerioParams,
+  ReportePlanillaMensualParams,
   ResultadoDiario,
   ResultadoDiarioDetalle,
   ResultadoMensual,
@@ -15,6 +20,23 @@ import {
 const BASE_URL = API_ROUTES.PLANILLA_ASISTENCIA
 
 const unwrap = <T,>(response: {data: BackendEnvelope<T>}): T => response.data.data
+
+const getBlobErrorMessage = async (error: any): Promise<string> => {
+  const fallback = error?.message || 'No se pudo generar el PDF.'
+  const blob = error?.response?.data
+
+  if (!(blob instanceof Blob)) {
+    return fallback
+  }
+
+  try {
+    const text = await blob.text()
+    const parsed = JSON.parse(text)
+    return parsed?.message || fallback
+  } catch {
+    return fallback
+  }
+}
 
 export const uploadMarcaciones = async (files: File[]) => {
   const formData = new FormData()
@@ -146,4 +168,73 @@ export const getDetalleResultadoMensual = async (idProceso: number, idPersona: n
     `${BASE_URL}/procesos/${idProceso}/resultados-mensuales/persona/${idPersona}`
   )
   return unwrap(response)
+}
+
+export const generarReportePlanillaMensual = async (
+  idProceso: number,
+  params: ReportePlanillaMensualParams
+): Promise<PlanillaMensualPDFData> => {
+  try {
+    const formData = new FormData()
+    formData.append('filtroReporte', params.filtroReporte)
+    if (params.search?.trim()) {
+      formData.append('search', params.search.trim())
+    }
+
+    const response = await axiosClient.post<Blob>(
+      `${BASE_URL}/procesos/${idProceso}/resultados-mensuales/reporte-general`,
+      formData,
+      {responseType: 'blob'}
+    )
+
+    return {
+      blob: response.data,
+      filename: `REPORTE_PLANILLA_MENSUAL_PROCESO_${idProceso}.pdf`,
+      title: 'Reporte de planilla mensual',
+    }
+  } catch (error: any) {
+    throw new Error(await getBlobErrorMessage(error))
+  }
+}
+
+export const getBonoRefrigerio = async (idProceso: number, params?: Record<string, unknown>) => {
+  const response = await axiosClient.get<BackendEnvelope<ListadoPaginado<BonoRefrigerioResumen>>>(
+    `${BASE_URL}/procesos/${idProceso}/bono-refrigerio`,
+    {params}
+  )
+  return unwrap(response)
+}
+
+export const getDetalleBonoRefrigerio = async (idProceso: number, idPersona: number) => {
+  const response = await axiosClient.get<BackendEnvelope<BonoRefrigerioDetalle>>(
+    `${BASE_URL}/procesos/${idProceso}/bono-refrigerio/persona/${idPersona}`
+  )
+  return unwrap(response)
+}
+
+export const generarReporteBonoRefrigerio = async (
+  idProceso: number,
+  params: ReporteBonoRefrigerioParams
+): Promise<PlanillaMensualPDFData> => {
+  try {
+    const formData = new FormData()
+    formData.append('filtroReporte', params.filtroReporte)
+    if (params.search?.trim()) {
+      formData.append('search', params.search.trim())
+    }
+
+    const response = await axiosClient.post<Blob>(
+      `${BASE_URL}/procesos/${idProceso}/bono-refrigerio/reporte-general`,
+      formData,
+      {responseType: 'blob'}
+    )
+
+    return {
+      blob: response.data,
+      filename: `REPORTE_BONO_REFRIGERIO_PROCESO_${idProceso}.pdf`,
+      title: 'Reporte de bono refrigerio',
+    }
+  } catch (error: any) {
+    throw new Error(await getBlobErrorMessage(error))
+  }
 }
