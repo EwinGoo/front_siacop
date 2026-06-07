@@ -1,13 +1,7 @@
-import {useIntl} from 'react-intl'
-import {MenuItem} from './MenuItem'
-import {MenuInnerWithSub} from './MenuInnerWithSub'
-import {MegaMenu} from './MegaMenu'
 import {ExternalLink} from './ExternalLink'
 import { API_BASE_URL } from 'src/app/config/apiRoutes'
 
 export function MenuInner() {
-  const intl = useIntl()
-
   return (
     <>
       <ExternalLink href={`${API_BASE_URL}/principal`} title='Principal' />

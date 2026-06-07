@@ -5,7 +5,11 @@ import {ListToolbar} from './ListToolbar'
 import {ListGrouping} from './ListGrouping'
 import {ListSearchComponent} from './ListSearchComponent'
 
-const ListHeader = () => {
+type Props = {
+  onOpenReport: () => void
+}
+
+const ListHeader = ({onOpenReport}: Props) => {
   const {selected} = useListView()
   const [showSecondaryActions, setShowSecondaryActions] = useState(false)
   const [isMobileViewport, setIsMobileViewport] = useState(
@@ -58,7 +62,7 @@ const ListHeader = () => {
                 </button>
               ) : null}
 
-              <ListToolbar isMobileCompact />
+              <ListToolbar isMobileCompact onOpenReport={onOpenReport} />
             </div>
           )}
 
@@ -89,7 +93,7 @@ const ListHeader = () => {
 
           <div className='card-toolbar ms-auto d-flex align-items-center justify-content-end gap-3'>
             <div>{columnSelector}</div>
-            <ListToolbar />
+            <ListToolbar onOpenReport={onOpenReport} />
           </div>
         </div>
       )}

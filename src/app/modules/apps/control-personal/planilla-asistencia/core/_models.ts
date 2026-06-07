@@ -27,6 +27,7 @@ export interface ImportacionArchivoResultado {
   lineas_invalidas_detalle?: Array<Record<string, unknown>>
   estado_importacion?: string
   duracion_ms?: number
+  duracion_s?: number
   mensaje_error?: string
   reintentos_batch?: number
   created_at?: string
@@ -41,6 +42,9 @@ export interface ImportacionResumenResponse {
 
 export interface ProcesoPlanilla {
   id_proceso: number
+  tipo_proceso?: string
+  gestion?: number
+  mes?: number
   fecha_inicio?: string
   fecha_fin?: string
   estado_proceso?: string
@@ -48,6 +52,7 @@ export interface ProcesoPlanilla {
   total_marcaciones?: number
   total_dias?: number
   mensaje_error?: string | null
+  observacion?: string | null
   fecha_inicio_proceso?: string | null
   fecha_fin_proceso?: string | null
   created_at?: string | null
@@ -62,6 +67,7 @@ export interface ProcesoPlanillaDetalle extends ProcesoPlanilla {
 
 export interface ListadoPaginado<T> {
   data: T[]
+  pagination?: PaginationPayload
   payload?: {
     pagination?: PaginationPayload
   }
@@ -70,6 +76,7 @@ export interface ListadoPaginado<T> {
 export interface ResultadoDiario {
   id_resultado_diario?: number
   id_persona: number
+  id_asignacion_administrativo?: number
   fecha: string
   id_horario_tipo?: number | null
   nombre_horario_tipo?: string | null
@@ -160,6 +167,7 @@ export interface ResultadoDiarioDetalle extends ResultadoDiario {
 
 export interface ResultadoMensual {
   id_persona: number
+  id_asignacion_administrativo?: number
   dias_trabajados?: number
   dias_justificados?: number
   dias_falta?: number
@@ -247,4 +255,81 @@ export interface ReporteBonoRefrigerioParams {
     | 'CON_ATRASO_O_SANCION'
     | 'SOLO_OBSERVADOS'
   search?: string
+}
+export interface MarcacionRaw {
+  id_marcacion_raw: number
+  tipo_ingesta?: string | null
+  archivo_origen?: string | null
+  linea_origen?: number | null
+  serial_dispositivo?: string | null
+  id_biometrico_dispositivo?: number | null
+  ip_origen?: string | null
+  contenido_linea?: string | null
+  payload_origen?: string | null
+  codigo_biometrico?: string | null
+  fecha_hora_marcacion?: string | null
+  tipo_verificacion?: string | null
+  estado_marcacion?: string | null
+  work_code?: string | null
+  hash_evento?: string | null
+  fecha_importacion?: string | null
+  fecha_recepcion?: string | null
+  usuario_importacion?: string | null
+  estado_importacion?: string | null
+  estado_procesamiento?: string | null
+}
+
+export interface MarcacionNormalizada {
+  id_marcacion: number
+  id_marcacion_raw?: number | null
+  id_persona?: number | null
+  id_biometrico_dispositivo?: number | null
+  serial_dispositivo?: string | null
+  codigo_biometrico?: string | null
+  fecha_hora_marcacion?: string | null
+  fecha_marcacion?: string | null
+  hora_marcacion?: string | null
+  origen_marcacion?: string | null
+  tipo_verificacion?: string | null
+  estado_marcacion?: string | null
+  work_code?: string | null
+  estado_normalizacion?: string | null
+  observacion_normalizacion?: string | null
+  hash_deduplicacion?: string | null
+  es_principal?: number | string | null
+}
+
+export interface MiMarcacionOficialPunto {
+  id_resultado_punto: number
+  codigo_punto?: string | null
+  nombre_punto?: string | null
+  orden?: number | null
+  hora_esperada?: string | null
+  hora_marcada?: string | null
+  id_marcacion?: number | null
+  fecha_hora_marcacion?: string | null
+  estado_punto?: string | null
+  minutos_desfase?: number | null
+  observacion?: string | null
+}
+
+export interface MiMarcacionOficialDia {
+  id_resultado_diario: number
+  id_proceso: number
+  id_persona: number
+  id_asignacion_administrativo: number
+  id_horario_tipo?: number | null
+  nombre_horario_tipo?: string | null
+  fecha?: string | null
+  tipo_horario?: string | null
+  estado_dia?: string | null
+  cantidad_marcaciones_esperadas?: number | null
+  cantidad_marcaciones_validas?: number | null
+  minutos_atraso_oficial?: number | null
+  observacion?: string | null
+  puntos: MiMarcacionOficialPunto[]
+}
+
+export interface MisMarcacionesResponse extends ListadoPaginado<MarcacionNormalizada> {
+  oficiales?: MiMarcacionOficialDia[]
 }

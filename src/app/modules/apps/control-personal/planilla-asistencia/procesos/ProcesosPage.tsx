@@ -1,7 +1,6 @@
 import {FormEvent, useEffect, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {KTCard} from 'src/_metronic/helpers'
-import {PlanillaModuleNav} from '../components/PlanillaModuleNav'
 import {StatusBadge} from '../components/StatusBadge'
 import {EmptyState} from '../components/EmptyState'
 import {ProcesoPlanilla, ProcesoPlanillaDetalle} from '../core/_models'
@@ -11,17 +10,19 @@ import {
   getDetalleProcesoPlanilla,
   getProcesosPlanilla,
 } from '../core/_requests'
+import useDateFormatter from 'src/app/hooks/useDateFormatter'
 
 const ProcesosPage = () => {
   const navigate = useNavigate()
-  const [fechaInicio, setFechaInicio] = useState('')
-  const [fechaFin, setFechaFin] = useState('')
+  const [fechaInicio, setFechaInicio] = useState('2026-04-21')
+  const [fechaFin, setFechaFin] = useState('2026-05-20')
   const [loading, setLoading] = useState(false)
   const [creating, setCreating] = useState(false)
   const [executingId, setExecutingId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [procesos, setProcesos] = useState<ProcesoPlanilla[]>([])
   const [detalle, setDetalle] = useState<ProcesoPlanillaDetalle | null>(null)
+  const {formatShortDate} = useDateFormatter()
 
   const cargar = async () => {
     setLoading(true)
@@ -85,13 +86,13 @@ const ProcesosPage = () => {
 
   return (
     <>
-      <PlanillaModuleNav />
-
       <div className='row g-5 mb-7'>
         <div className='col-12 col-md-4'>
           <div className='card card-flush h-100'>
             <div className='card-body'>
-              <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Procesos registrados</div>
+              <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>
+                Procesos registrados
+              </div>
               <div className='fs-1 fw-bolder text-gray-900'>{procesos.length}</div>
             </div>
           </div>
@@ -99,9 +100,15 @@ const ProcesosPage = () => {
         <div className='col-12 col-md-4'>
           <div className='card card-flush h-100'>
             <div className='card-body'>
-              <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Procesos completados</div>
+              <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>
+                Procesos completados
+              </div>
               <div className='fs-1 fw-bolder text-success'>
-                {procesos.filter((item) => (item.estado_proceso || '').toUpperCase() === 'COMPLETADO').length}
+                {
+                  procesos.filter(
+                    (item) => (item.estado_proceso || '').toUpperCase() === 'COMPLETADO'
+                  ).length
+                }
               </div>
             </div>
           </div>
@@ -109,11 +116,15 @@ const ProcesosPage = () => {
         <div className='col-12 col-md-4'>
           <div className='card card-flush h-100'>
             <div className='card-body'>
-              <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Procesos observables</div>
+              <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>
+                Procesos observables
+              </div>
               <div className='fs-1 fw-bolder text-primary'>
                 {
                   procesos.filter((item) =>
-                    ['COMPLETADO', 'PROCESANDO', 'ERROR'].includes((item.estado_proceso || '').toUpperCase())
+                    ['COMPLETADO', 'PROCESANDO', 'ERROR'].includes(
+                      (item.estado_proceso || '').toUpperCase()
+                    )
                   ).length
                 }
               </div>
@@ -126,7 +137,9 @@ const ProcesosPage = () => {
         <div className='card-header'>
           <div className='card-title d-flex flex-column'>
             <h3 className='fw-bold m-0'>Crear proceso de planilla</h3>
-            <span className='text-muted mt-1'>Define el rango mensual y genera el snapshot del cálculo</span>
+            <span className='text-muted mt-1'>
+              Define el rango mensual y genera el snapshot del cálculo
+            </span>
           </div>
         </div>
         <div className='card-body'>
@@ -166,7 +179,9 @@ const ProcesosPage = () => {
         <div className='card-header'>
           <div className='card-title d-flex flex-column'>
             <h3 className='fw-bold m-0'>Procesos registrados</h3>
-            <span className='text-muted mt-1'>Desde aquí puedes ejecutar, auditar y abrir los resultados</span>
+            <span className='text-muted mt-1'>
+              Desde aquí puedes ejecutar, auditar y abrir los resultados
+            </span>
           </div>
         </div>
         <div className='card-body'>
@@ -194,11 +209,18 @@ const ProcesosPage = () => {
                   {procesos.map((item) => (
                     <tr key={item.id_proceso}>
                       <td>{item.id_proceso}</td>
-                      <td>{item.fecha_inicio} al {item.fecha_fin}</td>
-                      <td><StatusBadge value={item.estado_proceso} /></td>
+                      <td>
+                        {item.fecha_inicio ? formatShortDate(item.fecha_inicio) : '-'}
+                        {item.fecha_fin ? <> al {formatShortDate(item.fecha_fin)}</> : ''}
+                      </td>
+                      <td>
+                        <StatusBadge value={item.estado_proceso} />
+                      </td>
                       <td>
                         <div>Funcionarios: {item.total_funcionarios ?? 0}</div>
-                        <div className='text-muted fs-7'>Marcaciones: {item.total_marcaciones ?? 0}</div>
+                        <div className='text-muted fs-7'>
+                          Marcaciones: {item.total_marcaciones ?? 0}
+                        </div>
                       </td>
                       <td>
                         <div>Inicio: {item.fecha_inicio_proceso || '-'}</div>
@@ -225,7 +247,9 @@ const ProcesosPage = () => {
                             type='button'
                             className='btn btn-sm btn-light-success'
                             onClick={() =>
-                              navigate(`/apps/planilla-asistencia/resultados-diarios?proceso=${item.id_proceso}`)
+                              navigate(
+                                `/apps/planilla-asistencia/resultados-diarios?proceso=${item.id_proceso}`
+                              )
                             }
                           >
                             Diario
@@ -234,7 +258,9 @@ const ProcesosPage = () => {
                             type='button'
                             className='btn btn-sm btn-light-info'
                             onClick={() =>
-                              navigate(`/apps/planilla-asistencia/resultados-mensuales?proceso=${item.id_proceso}`)
+                              navigate(
+                                `/apps/planilla-asistencia/resultados-mensuales?proceso=${item.id_proceso}`
+                              )
                             }
                           >
                             Mensual
@@ -290,7 +316,9 @@ const ProcesosPage = () => {
                 <div className='fw-bold fs-6'>{detalle.fecha_fin_proceso || '-'}</div>
               </div>
             </div>
-            {detalle.mensaje_error && <div className='alert alert-warning mt-6 mb-0'>{detalle.mensaje_error}</div>}
+            {detalle.mensaje_error && (
+              <div className='alert alert-warning mt-6 mb-0'>{detalle.mensaje_error}</div>
+            )}
           </div>
         </KTCard>
       )}

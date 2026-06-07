@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import {Modal} from 'react-bootstrap'
 
 type Props = {
@@ -18,6 +18,7 @@ const PDFModal: React.FC<Props> = ({
 }) => {
   const [pdfUrl, setPdfUrl] = useState('')
   const [isMobile, setIsMobile] = useState(false)
+  const previewFrameRef = useRef<HTMLIFrameElement | null>(null)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -72,20 +73,43 @@ const PDFModal: React.FC<Props> = ({
       return
     }
 
-    const iframe = document.createElement('iframe')
-    iframe.style.position = 'absolute'
-    iframe.style.top = '-1000px'
-    iframe.style.left = '-1000px'
-    iframe.style.width = '0'
-    iframe.style.height = '0'
-    iframe.style.border = 'none'
-
-    document.body.appendChild(iframe)
-    iframe.onload = () => {
-      iframe.contentWindow?.print()
-      setTimeout(() => document.body.removeChild(iframe), 1000)
+    const previewWindow = previewFrameRef.current?.contentWindow
+    if (previewWindow) {
+      previewWindow.focus()
+      previewWindow.print()
+      return
     }
-    iframe.src = pdfUrl
+
+    const printFrame = document.createElement('iframe')
+    printFrame.style.position = 'fixed'
+    printFrame.style.right = '0'
+    printFrame.style.bottom = '0'
+    printFrame.style.width = '1px'
+    printFrame.style.height = '1px'
+    printFrame.style.opacity = '0'
+    printFrame.style.border = 'none'
+
+    const cleanup = () => {
+      if (printFrame.parentNode) {
+        printFrame.parentNode.removeChild(printFrame)
+      }
+    }
+
+    printFrame.onload = () => {
+      const printWindow = printFrame.contentWindow
+      if (!printWindow) {
+        cleanup()
+        return
+      }
+
+      printWindow.focus()
+      printWindow.print()
+      printWindow.onafterprint = cleanup
+      setTimeout(cleanup, 60000)
+    }
+
+    document.body.appendChild(printFrame)
+    printFrame.src = pdfUrl
   }
 
   const renderMobileView = () => (
@@ -134,6 +158,7 @@ const PDFModal: React.FC<Props> = ({
           renderMobileView()
         ) : (
           <iframe
+            ref={previewFrameRef}
             src={pdfUrl}
             width='100%'
             height='100%'

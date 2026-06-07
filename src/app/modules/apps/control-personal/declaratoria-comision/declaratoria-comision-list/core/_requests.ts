@@ -5,6 +5,8 @@ import {
   BackendResponse,
   DeclaratoriasComisionBackendData,
   PDFResponse,
+  DeclaratoriaComisionPDFData,
+  ReporteGeneralDeclaratoriaParams,
   Unidad,
 } from './_models'
 import axiosClient from 'src/app/services/axiosClient'
@@ -139,6 +141,22 @@ const anularDeclaratoriaComision = async (
   }
 }
 
+
+const getBlobErrorMessage = async (error: any): Promise<string> => {
+  const data = error?.response?.data
+
+  if (data instanceof Blob) {
+    const text = await data.text()
+    try {
+      const parsed = JSON.parse(text)
+      return parsed.message || 'No se pudo generar el reporte. Intente más tarde.'
+    } catch {
+      return text || 'No se pudo generar el reporte. Intente más tarde.'
+    }
+  }
+
+  return error?.response?.data?.message || error?.message || 'No se pudo generar el reporte. Intente más tarde.'
+}
 const getUnidades = async (): Promise<Unidad[]> => {
   try {
     const response: AxiosResponse<ApiResponse<Unidad[]>> = await axiosClient.get(
@@ -167,6 +185,30 @@ const getUnidades = async (): Promise<Unidad[]> => {
 //     .then((response) => response.data)
 // }
 
+
+const generarReporteGeneralDeclaratoriaComision = async (
+  params: ReporteGeneralDeclaratoriaParams
+): Promise<DeclaratoriaComisionPDFData> => {
+  try {
+    const formData = new FormData()
+    formData.append('fechaInicio', params.fechaInicio)
+    formData.append('fechaFin', params.fechaFin)
+    formData.append('estado', params.estado)
+    formData.append('tipoViatico', params.tipoViatico)
+
+    const response = await axiosClient.post<Blob>(`${DECLARATORIA_URL}/reporte-general`, formData, {
+      responseType: 'blob',
+    })
+
+    return {
+      blob: response.data,
+      filename: `REPORTE_DECLARATORIAS_COMISION.PDF`,
+      title: 'Reporte de declaratorias en comisión',
+    }
+  } catch (error: any) {
+    throw new Error(await getBlobErrorMessage(error))
+  }
+}
 const imprimirDeclaratoriaComision = async (id: ID): Promise<PDFResponse> => {
   try {
     const response = await axiosClient.get(`${DECLARATORIA_URL}/reporte/${id}`, {
@@ -214,5 +256,6 @@ export {
   createDeclaratoriaComision,
   updateDeclaratoriaComision,
   imprimirDeclaratoriaComision,
+  generarReporteGeneralDeclaratoriaComision,
   getUnidades,
 }

@@ -1,8 +1,8 @@
 import {useEffect, useMemo, useState} from 'react'
+import {createPortal} from 'react-dom'
 import {useSearchParams} from 'react-router-dom'
 import {KTCard} from 'src/_metronic/helpers'
 import {SelectField} from 'src/app/modules/components/SelectField'
-import {PlanillaModuleNav} from '../components/PlanillaModuleNav'
 import {StatusBadge} from '../components/StatusBadge'
 import {EmptyState} from '../components/EmptyState'
 import {ProcesoPlanilla, ResultadoDiario, ResultadoDiarioDetalle} from '../core/_models'
@@ -158,7 +158,12 @@ const ResultadosDiariosPage = () => {
     }
 
     try {
-      const data = await getDetalleResultadoDiario(Number(idProceso), row.id_persona, row.fecha)
+      const data = await getDetalleResultadoDiario(
+        Number(idProceso),
+        row.id_persona,
+        row.fecha,
+        row.id_asignacion_administrativo
+      )
       setDetalle(data)
       window.setTimeout(() => setDetalleVisible(true), 10)
     } catch (err: any) {
@@ -173,7 +178,6 @@ const ResultadosDiariosPage = () => {
 
   return (
     <>
-      <PlanillaModuleNav />
 
       <KTCard className='mb-7'>
         <div className='card-header'>
@@ -315,7 +319,7 @@ const ResultadosDiariosPage = () => {
                 </thead>
                 <tbody className='fw-semibold text-gray-700'>
                   {rows.map((row, index) => (
-                    <tr key={`${row.id_persona}-${row.fecha}-${index}`}>
+                    <tr key={`${row.id_persona}-${row.id_asignacion_administrativo || 0}-${row.fecha}-${index}`}>
                       <td>
                         <div className='d-flex flex-column'>
                           <span className='fw-bold'>
@@ -372,7 +376,7 @@ const ResultadosDiariosPage = () => {
         </div>
       </KTCard>
 
-      {detalle && (
+      {detalle && createPortal(
         <>
           <div
             className={`modal fade d-block${detalleVisible ? ' show' : ''}`}
@@ -383,6 +387,7 @@ const ResultadosDiariosPage = () => {
               backgroundColor: 'rgba(0, 0, 0, 0.15)',
               opacity: detalleVisible ? 1 : 0,
               transition: `opacity ${MODAL_FADE_DURATION_MS}ms ease`,
+              zIndex: 2055,
             }}
           >
             <div className='modal-dialog modal-dialog-centered modal-xl'>
@@ -681,9 +686,11 @@ const ResultadosDiariosPage = () => {
             style={{
               opacity: detalleVisible ? 0.35 : 0,
               transition: `opacity ${MODAL_FADE_DURATION_MS}ms ease`,
+              zIndex: 2050,
             }}
           />
-        </>
+        </>,
+        document.body
       )}
     </>
   )

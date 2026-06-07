@@ -1,8 +1,8 @@
 {
-  "name": "demo1",
-  "version": "8.2.0",
+  "name": "siacop-frontend",
+  "version": "3.0.0",
   "private": true,
-  "homepage": "/client",
+  "homepage": "/siacop-v3",
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^42.0.0",
     "@ckeditor/ckeditor5-react": "^11.0.0",

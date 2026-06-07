@@ -3,7 +3,6 @@ import {useSearchParams} from 'react-router-dom'
 import {KTCard} from 'src/_metronic/helpers'
 import {SelectField} from 'src/app/modules/components/SelectField'
 import PDFModal from '../../comision/comision-list/pdf-modal/PDFModal'
-import {PlanillaModuleNav} from '../components/PlanillaModuleNav'
 import {StatusBadge} from '../components/StatusBadge'
 import {EmptyState} from '../components/EmptyState'
 import {PlanillaMensualPDFData, ProcesoPlanilla, ResultadoMensual, ResultadoMensualDetalle} from '../core/_models'
@@ -122,7 +121,7 @@ const ResultadosMensualesPage = () => {
     }
 
     try {
-      const data = await getDetalleResultadoMensual(Number(idProceso), row.id_persona)
+      const data = await getDetalleResultadoMensual(Number(idProceso), row.id_persona, row.id_asignacion_administrativo)
       setDetalle(data)
     } catch (err: any) {
       setError(err?.response?.data?.message || err?.message || 'No se pudo cargar el detalle mensual.')
@@ -131,7 +130,6 @@ const ResultadosMensualesPage = () => {
 
   return (
     <>
-      <PlanillaModuleNav />
 
       <KTCard className='mb-7'>
         <div className='card-header'>
@@ -222,7 +220,7 @@ const ResultadosMensualesPage = () => {
                 </thead>
                 <tbody className='fw-semibold text-gray-700'>
                   {rows.map((row, index) => (
-                    <tr key={`${row.id_persona}-${index}`}>
+                    <tr key={`${row.id_persona}-${row.id_asignacion_administrativo || 0}-${index}`}>
                       <td>
                         <div className='d-flex flex-column'>
                           <span className='fw-bold'>

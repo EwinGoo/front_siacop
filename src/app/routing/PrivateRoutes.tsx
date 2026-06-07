@@ -3,11 +3,8 @@ import {lazy, FC, Suspense} from 'react'
 import {Route, Routes, Navigate} from 'react-router-dom'
 import {MasterLayout} from '../../_metronic/layout/MasterLayout'
 import TopBarProgress from 'react-topbar-progress-indicator'
-import {DashboardWrapper} from '../pages/dashboard/DashboardWrapper'
-import {MenuTestPage} from '../pages/MenuTestPage'
 import {getCSSVariableValue} from '../../_metronic/assets/ts/_utils'
 import {WithChildren} from '../../_metronic/helpers'
-import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
 import {ProtectedRoute} from '../modules/auth/core/ProtectedRoute'
 import AccessDeniedPage from '../pages/AccessDeniedPage'
 import {GestionQrPage} from '../modules/apps/control-personal/gestion-qr'
@@ -20,15 +17,16 @@ const PrivateRoutes = () => {
   const AsistenciaPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/asistencia-permiso/AsistenciaPermisoPage'))
   const DeclaratoriaComisionPage = lazy(() => import('../modules/apps/control-personal/declaratoria-comision/DeclaratoriaComisionPage'))
   const AsignacionesAdministrativasPage = lazy(() => import('../modules/apps/control-personal/asignaciones-administrativas/AsignacionesAdministrativasPage'))
+  const HorariosPage = lazy(() => import('../modules/apps/control-personal/horarios/HorariosPage'))
   const TipoPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/tipos-permisos/TipoPermisoPage'))
   const FeriadoAsuetoPage = lazy(() => import('../modules/apps/control-personal/feriado-asueto/FeriadoAsuetoPage'))
   const PlanillaAsistenciaPage = lazy(() => import('../modules/apps/control-personal/planilla-asistencia/PlanillaAsistenciaPage'))
+  const MisMarcacionesPage = lazy(() => import('../modules/apps/control-personal/planilla-asistencia/mis-marcaciones/MisMarcacionesPage'))
 
   const BiometricoPage = lazy(() => import('../modules/apps/administrador/biometrico/BiometricoPage'))
   const BiometricoAdminPage = lazy(() => import('../modules/apps/administrador/biometrico/admin/BiometricoAdminPage'))
   const VacacionReportePage = lazy(() => import('../modules/apps/control-personal/vacaciones/reporte/VacacionReportePage'))
 
-  const enviroment = process.env.REACT_APP_ENVIRONMENT || ''
 
   return (
     <Routes>
@@ -168,6 +166,24 @@ const PrivateRoutes = () => {
           }
         />
 
+        <Route
+          path='apps/horarios/*'
+          element={
+            <SuspensedView>
+              <HorariosPage />
+            </SuspensedView>
+          }
+        />
+
+
+        <Route
+          path='apps/mis-marcaciones'
+          element={
+            <SuspensedView>
+              <MisMarcacionesPage />
+            </SuspensedView>
+          }
+        />
         <Route
           path='apps/planilla-asistencia/*'
           element={

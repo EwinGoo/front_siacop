@@ -1,18 +1,67 @@
-import {ChangeEvent, useEffect, useState} from 'react'
-import {KTCard} from 'src/_metronic/helpers'
-import {PlanillaModuleNav} from '../components/PlanillaModuleNav'
+import {ChangeEvent, DragEvent, useEffect, useMemo, useState} from 'react'
+import {KTCard, KTIcon} from 'src/_metronic/helpers'
 import {StatusBadge} from '../components/StatusBadge'
 import {EmptyState} from '../components/EmptyState'
 import {ImportacionResumenResponse} from '../core/_models'
 import {getResumenImportaciones, uploadMarcaciones} from '../core/_requests'
+import {showToast} from 'src/app/utils/toastHelper'
+
+const toNumber = (value: unknown): number => {
+  const parsed = Number(value ?? 0)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+const buildFileKey = (file: File): string => file.name + '-' + file.size + '-' + file.lastModified
+
+const formatFileSize = (bytes: number): string => {
+  if (bytes >= 1024 * 1024) {
+    return (bytes / 1024 / 1024).toFixed(2) + ' MB'
+  }
+
+  return Math.max(bytes / 1024, 1).toFixed(0) + ' KB'
+}
 
 const ImportacionesPage = () => {
   const [files, setFiles] = useState<File[]>([])
   const [submitting, setSubmitting] = useState(false)
+  const [showImportOverlay, setShowImportOverlay] = useState(false)
   const [loadingResumen, setLoadingResumen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [resumen, setResumen] = useState<ImportacionResumenResponse | null>(null)
-  const archivosResumen = Array.isArray(resumen?.archivos) ? resumen.archivos : []
+  const archivosResumen = resumen && Array.isArray(resumen.archivos) ? resumen.archivos : []
+  const totalSelectedBytes = useMemo(() => files.reduce((total, file) => total + file.size, 0), [files])
+  const totalesImportacion = useMemo(() => {
+    const total = archivosResumen.reduce(
+      (acc, item) => {
+        acc.totalLineas += toNumber(item.total_lineas_archivo)
+        acc.rawInsertados += toNumber(item.raw_insertados)
+        acc.rawDuplicados += toNumber(item.raw_duplicados)
+        acc.normalizadosInsertados += toNumber(item.normalizados_insertados)
+        acc.normalizadosDuplicados += toNumber(item.normalizados_duplicados)
+        acc.sinPersona += toNumber(item.sin_persona_relacionada)
+        acc.duracionS +=
+          item.duracion_s !== undefined && item.duracion_s !== null
+            ? toNumber(item.duracion_s)
+            : toNumber(item.duracion_ms) / 1000
+
+        return acc
+      },
+      {
+        totalLineas: 0,
+        rawInsertados: 0,
+        rawDuplicados: 0,
+        normalizadosInsertados: 0,
+        normalizadosDuplicados: 0,
+        sinPersona: 0,
+        duracionS: 0,
+      }
+    )
+
+    return {
+      ...total,
+      duracionS: Math.round(total.duracionS * 100) / 100,
+    }
+  }, [archivosResumen])
 
   const cargarResumen = async () => {
     setLoadingResumen(true)
@@ -30,15 +79,64 @@ const ImportacionesPage = () => {
     void cargarResumen()
   }, [])
 
-  const onFilesChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const selected = Array.from(event.target.files || [])
-    setFiles(selected)
+  useEffect(() => {
+    if (submitting) {
+      setShowImportOverlay(true)
+      return
+    }
+
+    const timeout = window.setTimeout(() => setShowImportOverlay(false), 240)
+    return () => window.clearTimeout(timeout)
+  }, [submitting])
+  const agregarArchivos = (selectedFiles: File[]) => {
+    const archivosDat = selectedFiles.filter((file) => file.name.toLowerCase().endsWith('.dat'))
+
+    if (selectedFiles.length > 0 && archivosDat.length === 0) {
+      showToast({message: 'Solo se permiten archivos .dat.', type: 'warning'})
+      return
+    }
+
+    setFiles((current) => {
+      const keys = new Set(current.map(buildFileKey))
+      const next = [...current]
+
+      archivosDat.forEach((file) => {
+        const key = buildFileKey(file)
+        if (!keys.has(key)) {
+          keys.add(key)
+          next.push(file)
+        }
+      })
+
+      return next
+    })
     setError(null)
+  }
+
+  const onFilesChange = (event: ChangeEvent<HTMLInputElement>) => {
+    agregarArchivos(Array.from(event.target.files || []))
+    event.target.value = ''
+  }
+
+  const onDropFiles = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+
+    if (submitting) {
+      return
+    }
+
+    agregarArchivos(Array.from(event.dataTransfer.files || []))
+  }
+
+  const removeFile = (fileKey: string) => {
+    setFiles((current) => current.filter((file) => buildFileKey(file) !== fileKey))
   }
 
   const onSubmit = async () => {
     if (files.length === 0) {
-      setError('Debes seleccionar al menos un archivo .dat.')
+      const message = 'Debes seleccionar al menos un archivo .dat.'
+      setError(message)
+      showToast({message, type: 'warning'})
       return
     }
 
@@ -48,8 +146,26 @@ const ImportacionesPage = () => {
       const response = await uploadMarcaciones(files)
       setResumen(response)
       setFiles([])
+
+      const totalArchivos = response.total_archivos ?? response.archivos?.length ?? 0
+      const totalOk = response.total_ok ?? 0
+      const totalError = response.total_error ?? 0
+
+      if (totalError > 0) {
+        showToast({
+          message: 'Importación completada con ' + totalOk + ' archivo(s) correcto(s) y ' + totalError + ' con error.',
+          type: 'warning',
+        })
+      } else {
+        showToast({
+          message: 'Importación completada correctamente. ' + totalArchivos + ' archivo(s) procesado(s).',
+          type: 'success',
+        })
+      }
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || 'No se pudo importar los archivos.')
+      const message = err?.response?.data?.message || err?.message || 'No se pudo importar los archivos.'
+      setError(message)
+      showToast({message, type: 'error'})
     } finally {
       setSubmitting(false)
     }
@@ -57,16 +173,47 @@ const ImportacionesPage = () => {
 
   return (
     <>
-      <PlanillaModuleNav />
 
+      {showImportOverlay && (
+        <div
+          className='position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center'
+          style={{
+            backgroundColor: 'rgba(15, 23, 42, 0.58)',
+            opacity: submitting ? 1 : 0,
+            pointerEvents: submitting ? 'auto' : 'none',
+            transition: 'opacity 220ms ease',
+            zIndex: 1095,
+          }}
+        >
+          <div
+            className='bg-white rounded shadow-lg p-6 text-center'
+            style={{
+              transform: submitting ? 'translateY(0) scale(1)' : 'translateY(8px) scale(0.98)',
+              transition: 'transform 220ms ease',
+              width: 'min(92vw, 420px)',
+            }}
+          >
+            <video
+              src={(process.env.PUBLIC_URL || '') + '/media/videos/transferencia.mp4'}
+              className='w-100'
+              style={{maxHeight: 260, objectFit: 'contain'}}
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+            <div className='fw-bold text-gray-900 mt-4'>Importando marcaciones...</div>
+          </div>
+        </div>
+      )}
       {resumen && (
-        <div className='row g-5 mb-7'>
+        <div className='row g-3 mb-5'>
           <div className='col-12 col-md-4'>
             <div className='card card-flush h-100'>
-              <div className='card-body'>
-                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Archivos procesados</div>
-                <div className='d-flex align-items-end gap-3'>
-                  <span className='fs-1 fw-bolder text-gray-900'>
+              <div className='card-body py-4 px-5'>
+                <div className='text-gray-500 fs-8 text-uppercase fw-bold mb-1'>Archivos procesados</div>
+                <div className='d-flex align-items-center gap-3'>
+                  <span className='fs-2 fw-bolder text-gray-900'>
                     {resumen.total_archivos ?? archivosResumen.length}
                   </span>
                   <span className='badge badge-light-primary'>Total</span>
@@ -76,10 +223,10 @@ const ImportacionesPage = () => {
           </div>
           <div className='col-12 col-md-4'>
             <div className='card card-flush h-100'>
-              <div className='card-body'>
-                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Importaciones correctas</div>
-                <div className='d-flex align-items-end gap-3'>
-                  <span className='fs-1 fw-bolder text-success'>{resumen.total_ok ?? 0}</span>
+              <div className='card-body py-4 px-5'>
+                <div className='text-gray-500 fs-8 text-uppercase fw-bold mb-1'>Importaciones correctas</div>
+                <div className='d-flex align-items-center gap-3'>
+                  <span className='fs-2 fw-bolder text-success'>{resumen.total_ok ?? 0}</span>
                   <span className='badge badge-light-success'>Completadas</span>
                 </div>
               </div>
@@ -87,10 +234,10 @@ const ImportacionesPage = () => {
           </div>
           <div className='col-12 col-md-4'>
             <div className='card card-flush h-100'>
-              <div className='card-body'>
-                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Importaciones con error</div>
-                <div className='d-flex align-items-end gap-3'>
-                  <span className='fs-1 fw-bolder text-danger'>{resumen.total_error ?? 0}</span>
+              <div className='card-body py-4 px-5'>
+                <div className='text-gray-500 fs-8 text-uppercase fw-bold mb-1'>Importaciones con error</div>
+                <div className='d-flex align-items-center gap-3'>
+                  <span className='fs-2 fw-bolder text-danger'>{resumen.total_error ?? 0}</span>
                   <span className='badge badge-light-danger'>Revisar</span>
                 </div>
               </div>
@@ -107,53 +254,116 @@ const ImportacionesPage = () => {
           </div>
         </div>
         <div className='card-body'>
-          <div className='row g-5 align-items-end'>
+          <div className='row g-5 align-items-start'>
             <div className='col-12 col-lg-8'>
-              <label className='form-label fw-semibold'>Archivos biométricos `.dat`</label>
-              <input
-                type='file'
-                multiple
-                accept='.dat'
-                className='form-control'
-                onChange={onFilesChange}
-              />
+              <div
+                className='dropzone dropzone-queue border border-dashed border-gray-300 rounded px-0 py-0'
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={onDropFiles}
+              >
+                <input
+                  id='marcaciones-uploader'
+                  type='file'
+                  multiple
+                  accept='.dat'
+                  className='d-none'
+                  disabled={submitting}
+                  onChange={onFilesChange}
+                />
+                <div className='dropzone-panel d-flex align-items-center justify-content-between flex-wrap gap-3 px-6 py-5'>
+                  <div className='d-flex align-items-center gap-4'>
+                    <div className='symbol symbol-45px symbol-light-primary'>
+                      <span className='symbol-label'>
+                        <KTIcon iconName='file-up' className='fs-2x text-primary' />
+                      </span>
+                    </div>
+                    <div>
+                      <div className='fw-bold text-gray-900'>Cola de archivos</div>
+                      <div className='text-muted fs-7'>Puedes agregar archivos .dat</div>
+                    </div>
+                  </div>
+                  <div className='d-flex gap-2'>
+                    <label
+                      htmlFor='marcaciones-uploader'
+                      className={submitting ? 'btn btn-sm btn-light-primary disabled' : 'btn btn-sm btn-light-primary'}
+                      style={{pointerEvents: submitting ? 'none' : 'auto'}}
+                    >
+                      <KTIcon iconName='plus' className='fs-3' />
+                      Agregar
+                    </label>
+                    <button
+                      type='button'
+                      className='btn btn-sm btn-light-danger'
+                      disabled={submitting || files.length === 0}
+                      onClick={() => setFiles([])}
+                    >
+                      <KTIcon iconName='trash' className='fs-3' />
+                      Quitar todos
+                    </button>
+                  </div>
+                </div>
+
+                <div className='dropzone-items px-6 pb-5'>
+                  {files.length === 0 ? (
+                    <div className='text-muted fs-7 border-top pt-4'>Arrastra archivos aquí o usa Agregar.</div>
+                  ) : (
+                    files.map((file) => {
+                      const fileKey = buildFileKey(file)
+                      return (
+                        <div key={fileKey} className='dropzone-item d-flex align-items-center py-3'>
+                          <div className='dropzone-file flex-grow-1'>
+                            <div className='dropzone-filename text-gray-900' title={file.name}>
+                              <span>{file.name}</span>{' '}
+                              <strong className='text-muted'>({formatFileSize(file.size)})</strong>
+                            </div>
+                            <div className='text-muted fs-8'>Listo para importar</div>
+                          </div>
+                          <div className='dropzone-toolbar'>
+                            <button
+                              type='button'
+                              className='btn btn-icon btn-sm btn-light-danger'
+                              disabled={submitting}
+                              onClick={() => removeFile(fileKey)}
+                              title='Quitar archivo'
+                            >
+                              <KTIcon iconName='cross' className='fs-2' />
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+              </div>
               <div className='form-text'>
-                Puedes subir uno o varios archivos a la vez. El backend los procesa de forma secuencial.
+                {files.length > 0
+                  ? files.length + ' archivo(s) en cola, ' + formatFileSize(totalSelectedBytes) + ' en total.'
+                  : 'El backend procesará los archivos de forma secuencial.'}
               </div>
             </div>
-            <div className='col-12 col-lg-4 d-flex gap-2'>
+            <div className='col-12 col-lg-4 d-flex justify-content-lg-end gap-2'>
               <button
                 type='button'
-                className='btn btn-primary flex-grow-1'
-                disabled={submitting}
+                className='btn btn-primary'
+                disabled={submitting || files.length === 0}
                 onClick={onSubmit}
+                title={submitting ? 'Importando archivos' : 'Importar archivos'}
               >
+                <KTIcon iconName={submitting ? 'loading' : 'file-up'} className='fs-2' />
                 {submitting ? 'Importando...' : 'Importar archivos'}
               </button>
               <button
                 type='button'
-                className='btn btn-light-primary'
-                disabled={loadingResumen}
+                className='btn btn-icon btn-light-primary'
+                disabled={submitting || loadingResumen}
                 onClick={() => void cargarResumen()}
+                title='Recargar resumen'
+                aria-label='Recargar resumen'
               >
-                Recargar
+                <KTIcon iconName='arrows-circle' className='fs-2' />
               </button>
             </div>
           </div>
-
-          {files.length > 0 && (
-            <div className='mt-6'>
-              <div className='fw-semibold mb-2'>Archivos seleccionados</div>
-              <div className='d-flex flex-wrap gap-2'>
-                {files.map((file) => (
-                  <span key={`${file.name}-${file.size}`} className='badge badge-light-info'>
-                    {file.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
           {error && <div className='alert alert-danger mt-6 mb-0'>{error}</div>}
         </div>
       </KTCard>
@@ -213,9 +423,26 @@ const ImportacionesPage = () => {
                         </div>
                       </td>
                       <td>{item.sin_persona_relacionada ?? 0}</td>
-                      <td>{item.duracion_ms ?? 0} ms</td>
+                      <td>{item.duracion_s ?? 0} s</td>
                     </tr>
                   ))}
+                  <tr className='fw-bold bg-light'>
+                    <td>Total</td>
+                    <td>{archivosResumen.length} archivo(s)</td>
+                    <td>{totalesImportacion.totalLineas}</td>
+                    <td>
+                      <div>Insertadas: {totalesImportacion.rawInsertados}</div>
+                      <div className='text-muted fs-7'>Duplicadas: {totalesImportacion.rawDuplicados}</div>
+                    </td>
+                    <td>
+                      <div>Insertadas: {totalesImportacion.normalizadosInsertados}</div>
+                      <div className='text-muted fs-7'>
+                        Duplicadas: {totalesImportacion.normalizadosDuplicados}
+                      </div>
+                    </td>
+                    <td>{totalesImportacion.sinPersona}</td>
+                    <td>{totalesImportacion.duracionS} s</td>
+                  </tr>
                 </tbody>
               </table>
             </div>

@@ -11,6 +11,9 @@ export const API_ROUTES = {
   PLANILLA_ASISTENCIA: `${API_BASE_URL}/api/v1/control-personal/planilla-asistencia`,
   PERSONA: `${API_BASE_URL}/api/v1/persona`,
   USUARIOS: `${API_BASE_URL}/api/v1/usuarios`,
+  HORARIO_TIPOS: `${API_BASE_URL}/api/v1/control-personal/horario-tipos`,
+  HORARIO_ALTERNOS: `${API_BASE_URL}/api/v1/control-personal/horario-alternos`,
+  HORARIOS: `${API_BASE_URL}/api/v1/control-personal/horarios`,
   REPORTES: {
     PERSONAL: {
       FORMULARIO: (hash: string) =>
