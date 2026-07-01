@@ -8,6 +8,7 @@ import {StatusBadge} from '../components/StatusBadge'
 import {
   MarcacionNormalizada,
   MiMarcacionOficialDia,
+  MisMarcacionesResponse,
   PaginationPayload,
   PlanillaMensualPDFData,
 } from '../core/_models'
@@ -18,6 +19,27 @@ const today = () => new Date().toISOString().slice(0, 10)
 
 const formatHora = (value?: string | null) => value || '-'
 const formatFechaHora = (value?: string | null) => value?.slice(11, 19) || '-'
+const formatFechaHoraCompleta = (value?: string | null) => {
+  if (!value) {
+    return 'Sin registro'
+  }
+
+  const normalizada = value.includes('T') ? value : value.replace(' ', 'T')
+  const fecha = new Date(normalizada)
+  if (Number.isNaN(fecha.getTime())) {
+    return value
+  }
+
+  return fecha.toLocaleString('es-BO', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  })
+}
 
 const MisMarcacionesPage = () => {
   const {currentUser} = useAuth()
@@ -37,6 +59,10 @@ const MisMarcacionesPage = () => {
   const [pdfData, setPdfData] = useState<PlanillaMensualPDFData | null>(null)
   const [showPDFModal, setShowPDFModal] = useState(false)
   const [generatingPdf, setGeneratingPdf] = useState(false)
+  const [estadoSincronizacion, setEstadoSincronizacion] =
+    useState<MisMarcacionesResponse['estado_sincronizacion']>(undefined)
+  const [sincronizacionExterna, setSincronizacionExterna] =
+    useState<MisMarcacionesResponse['sincronizacion_externa']>(undefined)
 
   const totalPages = useMemo(() => {
     const total = Number(pagination.total || 0)
@@ -67,6 +93,8 @@ const MisMarcacionesPage = () => {
       })
       setRows(response.data || [])
       setOficiales(response.oficiales || [])
+      setEstadoSincronizacion(response.estado_sincronizacion)
+      setSincronizacionExterna(response.sincronizacion_externa)
       setPagination(response.pagination || {page: nextPage, total: 0, items_per_page: PAGE_SIZE})
     } catch (err: any) {
       setError(
@@ -257,6 +285,58 @@ const MisMarcacionesPage = () => {
         </div>
       </KTCard>
 
+      <KTCard className='mb-5'>
+        <div className='card-body'>
+          <div className='d-flex flex-column flex-lg-row justify-content-between gap-4'>
+            <div>
+              <div className='text-muted fs-7 text-uppercase fw-bold mb-2'>
+                Estado de sincronización biométrica
+              </div>
+              <div className='fw-semibold text-gray-900 mb-1'>
+                Última sincronización registrada:{' '}
+                <span className='text-primary'>
+                  {formatFechaHoraCompleta(estadoSincronizacion?.ultima_sincronizacion_marcaciones)}
+                </span>
+              </div>
+              <div className='text-muted fs-7'>
+                Última fecha/hora cubierta por marcaciones traídas:{' '}
+                <span className='fw-semibold text-gray-700'>
+                  {formatFechaHoraCompleta(estadoSincronizacion?.ultima_fecha_marcacion_sync)}
+                </span>
+              </div>
+              {estadoSincronizacion?.mensaje && (
+                <div className='text-muted fs-7 mt-3'>{estadoSincronizacion.mensaje}</div>
+              )}
+            </div>
+            <div className='d-flex flex-wrap gap-3'>
+              <div className='border rounded px-4 py-3 min-w-175px'>
+                <div className='text-muted fs-8 text-uppercase fw-bold'>Dispositivos evaluados</div>
+                <div className='fs-2 fw-bold text-gray-900'>
+                  {estadoSincronizacion?.total_dispositivos_evaluados ?? 0}
+                </div>
+              </div>
+              <div className='border rounded px-4 py-3 min-w-175px'>
+                <div className='text-muted fs-8 text-uppercase fw-bold'>Habilitados TCP</div>
+                <div className='fs-2 fw-bold text-gray-900'>
+                  {estadoSincronizacion?.total_dispositivos_habilitados_consulta ?? 0}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {sincronizacionExterna?.message && (
+            <div
+              className={`alert mt-5 mb-0 ${
+                sincronizacionExterna?.status === 'error' ? 'alert-warning' : 'alert-primary'
+              }`}
+            >
+              <div className='fw-bold mb-1'>Sincronización externa</div>
+              <div>{sincronizacionExterna.message}</div>
+            </div>
+          )}
+        </div>
+      </KTCard>
+
       <KTCard>
         <div className='card-body'>
           {activeTab === 'historial' ? (
@@ -291,7 +371,7 @@ const MisMarcacionesPage = () => {
                           <td>
                             {row.hora_marcacion || row.fecha_hora_marcacion?.slice(11, 19) || '-'}
                           </td>
-                          <td>{row.codigo_biometrico || '-'}</td>
+                          <td>{row.user_id_biometrico || '-'}</td>
                           {/* <td>{row.serial_dispositivo || '-'}</td> */}
                           {/* <td>
                             <StatusBadge value={row.estado_marcacion || '-'} />

@@ -8,7 +8,7 @@ import {getMarcacionesNormalizadas, getMarcacionesRaw} from '../core/_requests'
 type TabKey = 'normalizadas' | 'pendientes'
 
 type Filters = {
-  codigo_biometrico: string
+  user_id_biometrico: string
   fecha_desde: string
   fecha_hasta: string
 }
@@ -19,7 +19,7 @@ const today = () => new Date().toISOString().slice(0, 10)
 
 const MarcacionesTiempoRealPage = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('normalizadas')
-  const [filters, setFilters] = useState<Filters>({codigo_biometrico: '', fecha_desde: today(), fecha_hasta: today()})
+  const [filters, setFilters] = useState<Filters>({user_id_biometrico: '', fecha_desde: today(), fecha_hasta: today()})
   const [normalizadas, setNormalizadas] = useState<MarcacionNormalizada[]>([])
   const [pendientes, setPendientes] = useState<MarcacionRaw[]>([])
   const [pagination, setPagination] = useState<PaginationPayload>({page: 1, total: 0, items_per_page: PAGE_SIZE})
@@ -43,7 +43,7 @@ const MarcacionesTiempoRealPage = () => {
 
     try {
       const params = {
-        codigo_biometrico: filters.codigo_biometrico || undefined,
+        user_id_biometrico: filters.user_id_biometrico || undefined,
         fecha_desde: filters.fecha_desde || undefined,
         fecha_hasta: filters.fecha_hasta || undefined,
       }
@@ -145,8 +145,8 @@ const MarcacionesTiempoRealPage = () => {
                 type='text'
                 className='form-control'
                 placeholder='CI o código del biométrico'
-                value={filters.codigo_biometrico}
-                onChange={(e) => setField('codigo_biometrico', e.target.value)}
+                value={filters.user_id_biometrico}
+                onChange={(e) => setField('user_id_biometrico', e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault()
@@ -210,7 +210,7 @@ const MarcacionesTiempoRealPage = () => {
                       <tr key={row.id_marcacion}>
                         <td>{row.fecha_hora_marcacion || '-'}</td>
                         <td>{row.id_persona ? `ID ${row.id_persona}` : 'Sin persona'}</td>
-                        <td>{row.codigo_biometrico || '-'}</td>
+                        <td>{row.user_id_biometrico || '-'}</td>
                         <td>
                           <div className='d-flex flex-column'>
                             <span>{row.serial_dispositivo || '-'}</span>
@@ -247,7 +247,7 @@ const MarcacionesTiempoRealPage = () => {
                     <tr key={row.id_marcacion_raw}>
                       <td>{row.fecha_recepcion || row.fecha_importacion || '-'}</td>
                       <td>{row.fecha_hora_marcacion || '-'}</td>
-                      <td>{row.codigo_biometrico || '-'}</td>
+                      <td>{row.user_id_biometrico || '-'}</td>
                       <td>
                         <div className='d-flex flex-column'>
                           <span>{row.serial_dispositivo || '-'}</span>

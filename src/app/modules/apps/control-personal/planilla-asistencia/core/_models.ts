@@ -98,7 +98,7 @@ export interface ResultadoDiario {
     nombre_completo?: string | null
     nombre_cargo?: string | null
     nombre_unidad?: string | null
-    codigo_biometrico_principal?: string | null
+    user_id_biometrico_principal?: string | null
   }
 }
 
@@ -138,7 +138,7 @@ export interface ResultadoReemplazoDetalle {
   id_persona_reemplazo?: number | null
   ci_reemplazo?: string | null
   nombre_completo_reemplazo?: string | null
-  codigo_biometrico_reemplazo?: string | null
+  user_id_biometrico_reemplazo?: string | null
   fecha?: string | null
   hora_inicio?: string | null
   hora_fin?: string | null
@@ -184,7 +184,7 @@ export interface ResultadoMensual {
     nombre_completo?: string | null
     nombre_cargo?: string | null
     nombre_unidad?: string | null
-    codigo_biometrico_principal?: string | null
+    user_id_biometrico_principal?: string | null
   }
 }
 
@@ -221,7 +221,7 @@ export interface BonoRefrigerioResumen {
     nombre_completo?: string | null
     nombre_cargo?: string | null
     nombre_unidad?: string | null
-    codigo_biometrico_principal?: string | null
+    user_id_biometrico_principal?: string | null
   }
 }
 
@@ -266,7 +266,7 @@ export interface MarcacionRaw {
   ip_origen?: string | null
   contenido_linea?: string | null
   payload_origen?: string | null
-  codigo_biometrico?: string | null
+  user_id_biometrico?: string | null
   fecha_hora_marcacion?: string | null
   tipo_verificacion?: string | null
   estado_marcacion?: string | null
@@ -285,7 +285,7 @@ export interface MarcacionNormalizada {
   id_persona?: number | null
   id_biometrico_dispositivo?: number | null
   serial_dispositivo?: string | null
-  codigo_biometrico?: string | null
+  user_id_biometrico?: string | null
   fecha_hora_marcacion?: string | null
   fecha_marcacion?: string | null
   hora_marcacion?: string | null
@@ -332,4 +332,32 @@ export interface MiMarcacionOficialDia {
 
 export interface MisMarcacionesResponse extends ListadoPaginado<MarcacionNormalizada> {
   oficiales?: MiMarcacionOficialDia[]
+  sincronizacion_externa?: {
+    status?: string
+    message?: string | null
+    origen?: string | null
+  }
+  estado_sincronizacion?: {
+    persona?: number
+    serial_solicitado?: string | null
+    total_dispositivos_evaluados?: number
+    total_dispositivos_habilitados_consulta?: number
+    ultima_sincronizacion_marcaciones?: string | null
+    ultima_fecha_marcacion_sync?: string | null
+    mensaje?: string | null
+    dispositivos?: Array<{
+      id_biometrico_dispositivo?: number | null
+      serial?: string | null
+      nombre?: string | null
+      estado?: string | null
+      ip?: string | null
+      metodo_ingesta_marcacion?: string | null
+      fuente_principal_marcacion?: string | null
+      permite_consulta_bajo_demanda?: boolean
+      consulta_bajo_demanda_habilitada?: boolean
+      ultima_sincronizacion_marcaciones?: string | null
+      ultima_fecha_marcacion_sync?: string | null
+      asociado_a_persona?: boolean
+    }>
+  }
 }

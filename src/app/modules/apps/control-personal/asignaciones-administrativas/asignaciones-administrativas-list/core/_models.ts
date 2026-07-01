@@ -1,8 +1,6 @@
-export type TipoContratacion =
-  | 'CONVOCATORIA'
-  | 'DESIGNACION'
-  | 'CONTRATO'
-  | 'HONORARIOS'
+import {PaginationState} from 'src/_metronic/helpers'
+
+export type TipoContratacion = 'CONVOCATORIA' | 'DESIGNACION' | 'CONTRATO' | 'HONORARIOS'
 
 export type PersonaAsignacionAdministrativa = {
   ci?: string | null
@@ -29,7 +27,8 @@ export type AsignacionAdministrativa = {
   fecha_finalizacion_asignacion?: string | null
   detalle_finalizacion_asignacion?: string | null
   fecha_creacion_asignacion_administrativo?: string | null
-  persona?: PersonaAsignacionAdministrativa,
+  persona?: PersonaAsignacionAdministrativa
+  nombre_cargo?: string | null
 }
 
 export type AsignacionAdministrativaListResponse = {
@@ -38,6 +37,15 @@ export type AsignacionAdministrativaListResponse = {
     page: number
     items_per_page: number
     total: number
+  }
+}
+
+export type AsignacionAdministrativaQueryResponse = {
+  data?: AsignacionAdministrativa[]
+  payload?: {
+    message?: string
+    errors?: Record<string, string[]>
+    pagination?: PaginationState
   }
 }
 

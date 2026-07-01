@@ -9,6 +9,12 @@ import {
   DeviceUsersResponse,
   DeviceInfoResponse,
   DeviceUser,
+  BiometricoEventosResponse,
+  LocalBiometricoUsersResponse,
+  SyncMarcacionesResponse,
+  SyncUsuariosResponse,
+  DeviceTimeResponse,
+  DeviceTimeSyncResponse,
 } from './_models'
 import {API_ROUTES} from 'src/app/config/apiRoutes'
 import axiosClient from 'src/app/services/axiosClient'
@@ -67,6 +73,33 @@ const getDispositivoBiometricoBySerial = (
     .then((response: AxiosResponse<ApiSiacopResponse<DispositivoBiometrico>>) => response.data.data)
 }
 
+const getBiometricoUsuariosLocales = (id: ID): Promise<LocalBiometricoUsersResponse> => {
+  return axiosClient
+    .get(`${BIOMETRICO_URL}/${id}/usuarios`)
+    .then((response: AxiosResponse<ApiSiacopResponse<LocalBiometricoUsersResponse>>) => response.data.data)
+}
+
+const getBiometricoEventos = (id: ID, limit = 30): Promise<BiometricoEventosResponse> => {
+  return axiosClient
+    .get(`${BIOMETRICO_URL}/${id}/eventos?limit=${limit}`)
+    .then((response: AxiosResponse<ApiSiacopResponse<BiometricoEventosResponse>>) => response.data.data)
+}
+
+const syncBiometricoUsuarios = (id: ID): Promise<SyncUsuariosResponse> => {
+  return axiosClient
+    .post(`${BIOMETRICO_URL}/${id}/sincronizar-usuarios`)
+    .then((response: AxiosResponse<ApiSiacopResponse<SyncUsuariosResponse>>) => response.data.data)
+}
+
+const syncBiometricoMarcaciones = (
+  id: ID,
+  payload: {fecha_desde: string; fecha_hasta: string}
+): Promise<SyncMarcacionesResponse> => {
+  return axiosClient
+    .post(`${BIOMETRICO_URL}/${id}/sincronizar-marcaciones`, payload)
+    .then((response: AxiosResponse<ApiSiacopResponse<SyncMarcacionesResponse>>) => response.data.data)
+}
+
 const createDispositivoBiometrico = (
   dispositivo: DispositivoBiometrico
 ): Promise<DispositivoBiometrico | undefined> => {
@@ -95,6 +128,30 @@ const deleteSelectedDispositivosBiometricos = (dispositivoIds: Array<ID>): Promi
 const testDeviceConnection = (id: ID): Promise<{status: string; message: string} | undefined> => {
   return axiosClient
     .get<ApiSiacopResponse<{status: string; message: string}>>(`${ZKTECO_URL}/${id}/ping`)
+    .then((response) => response.data.data)
+}
+
+const testDeviceVoice = (
+  id: ID,
+  payload: {voice_index?: number} = {}
+): Promise<{status: string; message: string; voice_index?: number} | undefined> => {
+  return axiosClient
+    .post<ApiSiacopResponse<{status: string; message: string; voice_index?: number}>>(
+      `${BIOMETRICO_URL}/${id}/sonar`,
+      payload
+    )
+    .then((response) => response.data.data)
+}
+
+const getDeviceTime = (id: ID): Promise<DeviceTimeResponse | undefined> => {
+  return axiosClient
+    .get<ApiSiacopResponse<DeviceTimeResponse>>(`${BIOMETRICO_URL}/${id}/hora-actual`)
+    .then((response) => response.data.data)
+}
+
+const syncDeviceTime = (id: ID): Promise<DeviceTimeSyncResponse | undefined> => {
+  return axiosClient
+    .post<ApiSiacopResponse<DeviceTimeSyncResponse>>(`${BIOMETRICO_URL}/${id}/sincronizar-hora`)
     .then((response) => response.data.data)
 }
 
@@ -219,9 +276,16 @@ export {
   deleteSelectedDispositivosBiometricos,
   getDispositivoBiometricoById,
   getDispositivoBiometricoBySerial,
+  getBiometricoUsuariosLocales,
+  getBiometricoEventos,
+  syncBiometricoUsuarios,
+  syncBiometricoMarcaciones,
   createDispositivoBiometrico,
   updateDispositivoBiometrico,
   testDeviceConnection,
+  testDeviceVoice,
+  getDeviceTime,
+  syncDeviceTime,
   loginBiometrico,
   logoutBiometrico,
   getDeviceUsers,

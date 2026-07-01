@@ -227,7 +227,7 @@ const ResultadosMensualesPage = () => {
                             {row.persona?.nombre_completo || `Persona ${row.id_persona}`}
                           </span>
                           <span className='text-muted fs-7'>
-                            {row.persona?.ci || row.persona?.codigo_biometrico_principal || `ID ${row.id_persona}`}
+                            {row.persona?.ci || row.persona?.user_id_biometrico_principal || `ID ${row.id_persona}`}
                           </span>
                         </div>
                       </td>
@@ -313,7 +313,7 @@ const ResultadosMensualesPage = () => {
             <div className='card-title d-flex flex-column'>
               <h3 className='fw-bold m-0'>Detalle mensual</h3>
               <span className='text-muted mt-1'>
-                {detalle.persona?.nombre_completo || `Persona ${detalle.id_persona}`} - {detalle.persona?.ci || detalle.persona?.codigo_biometrico_principal || 'Sin CI'}
+                {detalle.persona?.nombre_completo || `Persona ${detalle.id_persona}`} - {detalle.persona?.ci || detalle.persona?.user_id_biometrico_principal || 'Sin CI'}
               </span>
             </div>
           </div>

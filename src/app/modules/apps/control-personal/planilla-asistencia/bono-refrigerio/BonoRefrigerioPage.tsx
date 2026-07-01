@@ -328,7 +328,7 @@ const BonoRefrigerioPage = () => {
                             {row.persona?.nombre_completo || `Persona ${row.id_persona}`}
                           </span>
                           <span className='text-muted fs-7'>
-                            {row.persona?.ci || row.persona?.codigo_biometrico_principal || `ID ${row.id_persona}`}
+                            {row.persona?.ci || row.persona?.user_id_biometrico_principal || `ID ${row.id_persona}`}
                           </span>
                         </div>
                       </td>
@@ -415,7 +415,7 @@ const BonoRefrigerioPage = () => {
               <Modal.Title className='d-flex flex-column'>
                 <span className='fw-bold'>Detalle de bono refrigerio</span>
                 <span className='text-muted fs-7 mt-1'>
-                  {detalle.resumen.persona?.nombre_completo || `Persona ${detalle.resumen.id_persona}`} - {detalle.resumen.persona?.ci || detalle.resumen.persona?.codigo_biometrico_principal || 'Sin CI'}
+                  {detalle.resumen.persona?.nombre_completo || `Persona ${detalle.resumen.id_persona}`} - {detalle.resumen.persona?.ci || detalle.resumen.persona?.user_id_biometrico_principal || 'Sin CI'}
                 </span>
               </Modal.Title>
             </Modal.Header>

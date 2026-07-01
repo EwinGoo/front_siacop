@@ -326,7 +326,7 @@ const ResultadosDiariosPage = () => {
                             {row.persona?.nombre_completo || `Persona ${row.id_persona}`}
                           </span>
                           <span className='text-muted fs-7'>
-                            {row.persona?.ci || row.persona?.codigo_biometrico_principal || `ID ${row.id_persona}`}
+                            {row.persona?.ci || row.persona?.user_id_biometrico_principal || `ID ${row.id_persona}`}
                           </span>
                         </div>
                       </td>
@@ -655,7 +655,7 @@ const ResultadosDiariosPage = () => {
                                             {reemplazo.nombre_completo_reemplazo || `Persona ${reemplazo.id_persona_reemplazo || '-'}`}
                                           </span>
                                           <span className='text-muted fs-8'>
-                                            {reemplazo.ci_reemplazo || reemplazo.codigo_biometrico_reemplazo || `ID ${reemplazo.id_persona_reemplazo || '-'}`}
+                                            {reemplazo.ci_reemplazo || reemplazo.user_id_biometrico_reemplazo || `ID ${reemplazo.id_persona_reemplazo || '-'}`}
                                           </span>
                                         </div>
                                       </td>
