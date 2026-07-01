@@ -46,21 +46,20 @@ const HeaderUserMenu: FC = () => {
       <Languages />
 
       <div className='menu-item px-5 my-1'>
-        <a href={API_URL + '/seguridad/cuenta/configuracion'} className='menu-link px-5'>
+        <a href={'/seguridad/cuenta/configuracion'} className='menu-link px-5'>
           Cuenta
         </a>
       </div>
       <div className='menu-item px-5 my-1'>
-        <a href={API_URL + '/seguridad/usuario/modificar-contrasena'} className='menu-link px-5'>
+        <a href={'/seguridad/usuario/modificar-contrasena'} className='menu-link px-5'>
           Cambiar Contraseña
         </a>
       </div>
-
       <div className='menu-item px-5'>
         {/* <a href='' onClick={logout} className='menu-link px-5'>
           Cerrar Sesión
         </a> */}
-        <a href={API_URL + '/logout'} onClick={logout} className='menu-link px-5'>
+        <a href={'/logout'} onClick={logout} className='menu-link px-5'>
           Cerrar Sesión
         </a>
       </div>
