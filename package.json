@@ -1,8 +1,8 @@
 {
-  "name": "demo1",
-  "version": "8.2.0",
+  "name": "siacop-frontend",
+  "version": "3.0.0",
   "private": true,
-  "homepage": "/client",
+  "homepage": "/siacop-v3",
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^42.0.0",
     "@ckeditor/ckeditor5-react": "^11.0.0",
@@ -59,6 +59,7 @@
     "@types/bootstrap": "5.1.10",
     "@types/chart.js": "2.9.37",
     "@types/jest": "29.5.2",
+    "@types/node": "^25.9.1",
     "@types/prismjs": "1.26.0",
     "@types/qs": "6.9.7",
     "@types/react": "18.0.6",

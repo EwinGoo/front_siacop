@@ -7,18 +7,24 @@ import {EditModal} from './asistencia-permiso-edit-modal/EditModal'
 import {KTCard} from '../../../../../../../_metronic/helpers'
 import { ObservarModal } from './asistencia-permiso-observar-modal/ObservarModal'
 import { ReportModal } from './comision-report-modal/ReportModal'
+import {ViewModal} from './asistencia-permiso-view-modal/ViewModal'
+import {usePermisoPDFModal} from './hooks/usePermisoPDFModal'
+import PDFModal from '../../../comision/comision-list/pdf-modal/PDFModal'
 
 const AsistenciaPermisoList = () => {
+  const {handleShowPDF, pdfModalProps} = usePermisoPDFModal()
 
   return (
     <>
       <KTCard>
         <ListHeader />
-        <AsistenciaPermisoTable />
+        <AsistenciaPermisoTable onShowPDF={handleShowPDF} />
       </KTCard>
       <EditModal />
       <ObservarModal />
-      <ReportModal />
+      <ReportModal onShowPDF={handleShowPDF} />
+      <ViewModal />
+      <PDFModal {...pdfModalProps} />
 
     </>
   )

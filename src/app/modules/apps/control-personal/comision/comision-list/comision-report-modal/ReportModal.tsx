@@ -1,23 +1,23 @@
-import {useEffect, useState} from 'react'
 import {ReportModalHeader} from './ReportModalHeader'
 import {ReportModalFormWrapper} from './ReportModalFormWrapper'
 import Modal from 'react-bootstrap/Modal'
-import Button from 'react-bootstrap/Button'
 import {useListView} from '../core/ListViewProvider'
-import {KTIcon} from '../../../../../../../_metronic/helpers'
+import {ComisionPDFData} from '../core/_models'
 
-const ReportModal = () => {
-  const {accion, setItemIdForUpdate, setIsShow, isShow, itemIdForUpdate} = useListView()
-  const [selectedType, setSelectedType] = useState<string | null>(null)
+type Props = {
+  onShowPDF: (pdfData: ComisionPDFData) => void
+}
+
+const ReportModal = ({onShowPDF}: Props) => {
+  const {accion, setItemIdForUpdate, setIsShow, isShow} = useListView()
 
   // Resetear estado cuando se cierra el modal
   const handleClose = () => {
     setIsShow(false)
     setItemIdForUpdate(undefined)
-    setSelectedType(null)
   }
 
-  if ((isShow && accion === 'report')) {
+  if (isShow && accion === 'report') {
     return (
       <Modal
         show={isShow}
@@ -32,7 +32,7 @@ const ReportModal = () => {
         </Modal.Header>
 
         <Modal.Body>
-          <ReportModalFormWrapper onClose={handleClose} />
+          <ReportModalFormWrapper onClose={handleClose} onShowPDF={onShowPDF} />
         </Modal.Body>
       </Modal>
     )

@@ -1,5 +1,5 @@
 import axiosClient from 'src/app/services/axiosClient'
-import {API_BASE_URL} from 'src/app/config/apiRoutes'
+import {API_ROUTES} from 'src/app/config/apiRoutes'
 import {
   BackendResponse,
   PlanillaCarrerasResponse,
@@ -9,12 +9,12 @@ import {
 } from './_models'
 
 const routePrefix: Record<PlanillaModulo, string> = {
-  docente: 'planilla-docente',
-  estudiante: 'planilla-estudiante',
+  docente: API_ROUTES.PLANILLA_DOCENTE,
+  estudiante: API_ROUTES.PLANILLA_ESTUDIANTE,
 }
 
 const baseUrl = (modulo: PlanillaModulo) =>
-  `${API_BASE_URL}/${routePrefix[modulo]}/habilitacion/${modulo}`
+  `${routePrefix[modulo]}/habilitacion/${modulo}`
 
 export const getPlanillas = async (modulo: PlanillaModulo): Promise<PlanillaResumen[]> => {
   const response = await axiosClient.get<BackendResponse<PlanillaResumen[]>>(baseUrl(modulo))

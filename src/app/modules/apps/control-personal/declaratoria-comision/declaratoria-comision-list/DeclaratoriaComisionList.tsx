@@ -4,14 +4,30 @@ import {QueryResponseProvider} from './core/QueryResponseProvider'
 import {ListHeader} from './components/header/ListHeader'
 import {DeclaratoriaComisionTable} from './table/DeclaratoriaComisionTable'
 import {EditModal} from './form-edit-modal/EditModal'
+import {useState} from 'react'
 import {KTCard} from 'src/_metronic/helpers'
 import {useModalManager} from './hooks/useModalManager'
 import PDFModal from './pdf-modal/PDFModal'
+import GeneralPDFModal from '../../comision/comision-list/pdf-modal/PDFModal'
+import {ReportModal} from './report-modal/ReportModal'
+import {DeclaratoriaComisionPDFData} from './core/_models'
 import DataViewModal from './data-view-modal/DataViewModal'
-import ViewportSize from './table/ViewportSize'
-import { ListColumnVisibilitySelector } from './components/header/ListColumnVisibilitySelector'
 
 const DeclaratoriaComisionList = () => {
+  const [showReportModal, setShowReportModal] = useState(false)
+  const [generalPDFData, setGeneralPDFData] = useState<DeclaratoriaComisionPDFData | null>(null)
+  const [showGeneralPDFModal, setShowGeneralPDFModal] = useState(false)
+
+  const handleShowGeneralPDF = (pdfData: DeclaratoriaComisionPDFData) => {
+    setGeneralPDFData(pdfData)
+    setShowGeneralPDFModal(true)
+  }
+
+  const handleCloseGeneralPDF = () => {
+    setShowGeneralPDFModal(false)
+    setTimeout(() => setGeneralPDFData(null), 300)
+  }
+
   const {
     handleShowPDF,
     handleShowData,
@@ -24,7 +40,7 @@ const DeclaratoriaComisionList = () => {
   return (
     <>
       <KTCard>
-        <ListHeader />
+        <ListHeader onOpenReport={() => setShowReportModal(true)} />
         <DeclaratoriaComisionTable 
           onShowPDF={handleShowPDF}
           onShowData={handleShowData}
@@ -39,6 +55,18 @@ const DeclaratoriaComisionList = () => {
       {/* Modales globales optimizados - Solo UNA instancia */}
       <PDFModal {...pdfModalProps} />
       <DataViewModal {...dataModalProps} />
+      <ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        onShowPDF={handleShowGeneralPDF}
+      />
+      <GeneralPDFModal
+        isOpen={showGeneralPDFModal}
+        onClose={handleCloseGeneralPDF}
+        pdfBlob={generalPDFData?.blob || null}
+        filename={generalPDFData?.filename || 'REPORTE_DECLARATORIAS_COMISION.pdf'}
+        title={generalPDFData?.title || 'Reporte de declaratorias en comisión'}
+      />
     </>
   )
 }

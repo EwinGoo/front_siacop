@@ -27,6 +27,8 @@ export const DatePickerField = ({field, form, isFieldValid, onChange, isSubmitti
         // onChange={([date]) => onChange(date)}
         options={{
           dateFormat: 'Y-m-d',
+          altInput: true,
+          altFormat: 'd-m-Y',
           locale: Spanish,
           monthSelectorType: 'static',
           onOpen: () => {

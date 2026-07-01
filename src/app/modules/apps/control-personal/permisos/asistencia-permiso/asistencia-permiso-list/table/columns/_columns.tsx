@@ -4,16 +4,18 @@ import {ActionsCell} from './ActionsCell'
 import {CustomHeader} from './CustomHeader'
 import {SelectionCell} from './SelectionCell'
 import {SelectionHeader} from './SelectionHeader'
-import {AsistenciaPermiso} from '../../core/_models'
+import {AsistenciaPermiso, PermisoPDFData} from '../../core/_models'
 import {DateCell} from './DateCell'
 import {EstadoBadge} from 'src/app/modules/apps/control-personal/comision/comision-list/table/components/EstadoBadge'
 
 type GetColumnsProps = {
   isAdmin: boolean
+  onShowPDF: (pdfData: PermisoPDFData) => void
 }
 
 export const getColumns = ({
   isAdmin,
+  onShowPDF,
 }: GetColumnsProps): ReadonlyArray<Column<AsistenciaPermiso>> => {
   const columns: Column<AsistenciaPermiso>[] = []
 
@@ -43,6 +45,8 @@ export const getColumns = ({
           id={props.data[props.row.index].id_asistencia_permiso}
           estado={props.data[props.row.index].estado_permiso}
           hash={props.data[props.row.index].hash}
+          carnet={props.data[props.row.index].ci}
+          onShowPDF={onShowPDF}
         />
       ),
     },

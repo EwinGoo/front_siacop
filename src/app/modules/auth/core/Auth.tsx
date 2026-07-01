@@ -8,7 +8,6 @@ import {
   Dispatch,
   SetStateAction,
   useMemo,
-  useCallback,
 } from 'react'
 import {LayoutSplashScreen} from '../../../../_metronic/layout/core'
 import {AuthModel, UserModel} from './_models'

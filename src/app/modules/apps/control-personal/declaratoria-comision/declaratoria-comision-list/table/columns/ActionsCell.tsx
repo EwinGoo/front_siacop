@@ -108,7 +108,7 @@ const ActionsCell: FC<ActionsProps> = ({
     onError: (error: any) => {
       onSetLoading(declaratoria.id_declaratoria_comision, false)
       showToast({
-        message: error.response?.data?.message || 'Error al generar el PDF',
+        message: error.response?.data?.message || error.message || 'Error al generar el PDF',
         type: 'error',
       })
     },
