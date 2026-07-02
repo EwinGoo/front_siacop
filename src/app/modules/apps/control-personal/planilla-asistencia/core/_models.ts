@@ -332,6 +332,38 @@ export interface MiMarcacionOficialDia {
 
 export interface MisMarcacionesResponse extends ListadoPaginado<MarcacionNormalizada> {
   oficiales?: MiMarcacionOficialDia[]
+  resumen_atrasos?: {
+    rango?: {
+      fecha_desde?: string | null
+      fecha_hasta?: string | null
+      es_rango_operativo_actual?: boolean
+    }
+    id_asignacion_administrativo?: number | null
+    id_horario_tipo?: number | null
+    nombre_horario_tipo?: string | null
+    tolerancia_diaria_entrada_minutos?: number
+    minutos_atraso_acumulado?: number
+    dias_con_atraso?: number
+    dias_laborables_evaluados?: number
+    dias_con_marcacion_entrada?: number
+    detalle_por_dia?: Array<{
+      fecha?: string | null
+      id_horario_tipo?: number | null
+      nombre_horario_tipo?: string | null
+      minutos_atraso?: number
+      con_atraso?: boolean
+      entradas?: Array<{
+        codigo_punto?: string | null
+        nombre_punto?: string | null
+        hora_esperada?: string | null
+        hora_marcada?: string | null
+        fecha_hora_marcacion?: string | null
+        estado_punto?: string | null
+        minutos_desfase?: number | null
+      }>
+    }>
+    message?: string | null
+  }
   sincronizacion_externa?: {
     status?: string
     message?: string | null

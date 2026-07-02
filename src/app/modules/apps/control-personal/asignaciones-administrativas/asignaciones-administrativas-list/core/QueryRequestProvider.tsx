@@ -7,9 +7,15 @@ import {
 } from 'src/_metronic/helpers'
 
 const QueryRequestContext = createContext<QueryRequestContextProps>(initialQueryRequest)
+const defaultQueryState: QueryState = {
+  ...initialQueryRequest.state,
+  filter: {
+    estado: '1',
+  },
+}
 
 const QueryRequestProvider: FC<WithChildren> = ({children}) => {
-  const [state, setState] = useState<QueryState>(initialQueryRequest.state)
+  const [state, setState] = useState<QueryState>(defaultQueryState)
 
   const updateState = (updates: Partial<QueryState>) => {
     setState((prev) => ({...prev, ...updates} as QueryState))
@@ -24,4 +30,4 @@ const QueryRequestProvider: FC<WithChildren> = ({children}) => {
 
 const useQueryRequest = () => useContext(QueryRequestContext)
 
-export {QueryRequestProvider, useQueryRequest}
+export {QueryRequestProvider, useQueryRequest, defaultQueryState}

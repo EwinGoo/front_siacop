@@ -443,7 +443,7 @@ const BiometricoAdminPage = () => {
             )}
           </div>
 
-          <div className='alert alert-light-warning border border-dashed border-warning mb-6'>
+          {/* <div className='alert alert-light-warning border border-dashed border-warning mb-6'>
             <div className='fw-bold mb-2'>Eventos operativos a vigilar</div>
             <div className='row g-3 fs-7 text-gray-700'>
               <div className='col-md-4'>
@@ -469,9 +469,9 @@ const BiometricoAdminPage = () => {
                 relación biométrica.
               </div>
             </div>
-          </div>
+          </div> */}
 
-          <div className='alert alert-light-primary border border-dashed border-primary mb-6'>
+          {/* <div className='alert alert-light-primary border border-dashed border-primary mb-6'>
             <div className='fw-bold mb-2'>Modo de administración vigente</div>
             <div className='fs-7 text-gray-700'>
               La administración del biométrico ya no depende de autenticación directa contra el
@@ -479,9 +479,9 @@ const BiometricoAdminPage = () => {
               mediante el microservicio biométrico por TCP/VPN para pruebas de conexión,
               sincronización de usuarios, consulta de marcaciones y monitoreo.
             </div>
-          </div>
+          </div> */}
 
-          <div className='row g-5 mb-6'>
+          {/* <div className='row g-5 mb-6'>
             <div className='col-lg-7'>
               <div className='card border-0 bg-white shadow-sm h-100'>
                 <div className='card-body'>
@@ -609,7 +609,7 @@ const BiometricoAdminPage = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           <div className='row g-6'>
             <div className='col-lg-5'>
@@ -931,7 +931,7 @@ const BiometricoAdminPage = () => {
         </div>
       </div>
 
-      <div className='card'>
+      {/* <div className='card'>
         <div className='card-header border-0 pt-5'>
           <div>
             <h4 className='mb-1'>Administración centralizada</h4>
@@ -983,7 +983,7 @@ const BiometricoAdminPage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </>
   )
 }

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {useEffect, useState} from 'react'
 import {useQueryClient} from 'react-query'
-import {KTIcon, initialQueryState, useDebounce} from 'src/_metronic/helpers'
+import {KTIcon, useDebounce} from 'src/_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {
   ASIGNACIONES_ADMINISTRATIVAS_QUERY_KEY,
@@ -17,7 +17,7 @@ const ListSearchComponent = () => {
 
   useEffect(() => {
     updateState({
-      ...initialQueryState,
+      page: 1,
       search: debouncedSearchTerm || '',
     })
   }, [debouncedSearchTerm])

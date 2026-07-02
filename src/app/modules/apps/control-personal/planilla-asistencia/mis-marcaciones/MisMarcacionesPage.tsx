@@ -15,7 +15,35 @@ import {
 import {generarReporteMisMarcaciones, getMisMarcaciones} from '../core/_requests'
 
 const PAGE_SIZE = 25
-const today = () => new Date().toISOString().slice(0, 10)
+const formatDateInput = (date: Date) => {
+  const year = date.getFullYear()
+  const month = `${date.getMonth() + 1}`.padStart(2, '0')
+  const day = `${date.getDate()}`.padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const getOperationalRange = () => {
+  const today = new Date()
+  const day = today.getDate()
+
+  if (day >= 21) {
+    const start = new Date(today.getFullYear(), today.getMonth(), 21)
+    const end = new Date(today.getFullYear(), today.getMonth() + 1, 20)
+    return {
+      fechaDesde: formatDateInput(start),
+      fechaHasta: formatDateInput(end),
+    }
+  }
+
+  const start = new Date(today.getFullYear(), today.getMonth() - 1, 21)
+  const end = new Date(today.getFullYear(), today.getMonth(), 20)
+  return {
+    fechaDesde: formatDateInput(start),
+    fechaHasta: formatDateInput(end),
+  }
+}
+
+const operationalRange = getOperationalRange()
 
 const formatHora = (value?: string | null) => value || '-'
 const formatFechaHora = (value?: string | null) => value?.slice(11, 19) || '-'
@@ -43,8 +71,8 @@ const formatFechaHoraCompleta = (value?: string | null) => {
 
 const MisMarcacionesPage = () => {
   const {currentUser} = useAuth()
-  const [fechaDesde, setFechaDesde] = useState(today())
-  const [fechaHasta, setFechaHasta] = useState(today())
+  const [fechaDesde, setFechaDesde] = useState(operationalRange.fechaDesde)
+  const [fechaHasta, setFechaHasta] = useState(operationalRange.fechaHasta)
   const [rows, setRows] = useState<MarcacionNormalizada[]>([])
   const [oficiales, setOficiales] = useState<MiMarcacionOficialDia[]>([])
   const [pagination, setPagination] = useState<PaginationPayload>({
@@ -63,6 +91,8 @@ const MisMarcacionesPage = () => {
     useState<MisMarcacionesResponse['estado_sincronizacion']>(undefined)
   const [sincronizacionExterna, setSincronizacionExterna] =
     useState<MisMarcacionesResponse['sincronizacion_externa']>(undefined)
+  const [resumenAtrasos, setResumenAtrasos] =
+    useState<MisMarcacionesResponse['resumen_atrasos']>(undefined)
 
   const totalPages = useMemo(() => {
     const total = Number(pagination.total || 0)
@@ -95,6 +125,7 @@ const MisMarcacionesPage = () => {
       setOficiales(response.oficiales || [])
       setEstadoSincronizacion(response.estado_sincronizacion)
       setSincronizacionExterna(response.sincronizacion_externa)
+      setResumenAtrasos(response.resumen_atrasos)
       setPagination(response.pagination || {page: nextPage, total: 0, items_per_page: PAGE_SIZE})
     } catch (err: any) {
       setError(
@@ -185,6 +216,61 @@ const MisMarcacionesPage = () => {
       </KTCard>
 
       <KTCard className='mb-5'>
+        <div className='card-body'>
+          <div className='d-flex flex-column flex-lg-row justify-content-between gap-4'>
+            <div>
+              <div className='text-muted fs-7 text-uppercase fw-bold mb-2'>Atraso acumulado</div>
+              <div className='fw-bold fs-1 text-gray-900'>
+                {Number(resumenAtrasos?.minutos_atraso_acumulado || 0)} min
+              </div>
+              <div className='text-muted fs-7 mt-2'>
+                Rango evaluado:{' '}
+                <span className='fw-semibold text-gray-800'>
+                  {resumenAtrasos?.rango?.fecha_desde || fechaDesde} a{' '}
+                  {resumenAtrasos?.rango?.fecha_hasta || fechaHasta}
+                </span>
+              </div>
+              <div className='text-muted fs-7'>
+                Horario tipo:{' '}
+                <span className='fw-semibold text-gray-800'>
+                  {resumenAtrasos?.nombre_horario_tipo || 'Sin horario activo'}
+                </span>
+              </div>
+              <div className='text-muted fs-7'>
+                Tolerancia diaria entrada:{' '}
+                <span className='fw-semibold text-gray-800'>
+                  {Number(resumenAtrasos?.tolerancia_diaria_entrada_minutos || 0)} min
+                </span>
+              </div>
+              {resumenAtrasos?.message && (
+                <div className='text-warning fs-7 mt-3'>{resumenAtrasos.message}</div>
+              )}
+            </div>
+            <div className='d-none d-lg-flex flex-wrap gap-3'>
+              <div className='border rounded px-4 py-3 min-w-175px'>
+                <div className='text-muted fs-8 text-uppercase fw-bold'>Días con atraso</div>
+                <div className='fs-2 fw-bold text-gray-900'>
+                  {resumenAtrasos?.dias_con_atraso ?? 0}
+                </div>
+              </div>
+              <div className='border rounded px-4 py-3 min-w-175px'>
+                <div className='text-muted fs-8 text-uppercase fw-bold'>Días laborables</div>
+                <div className='fs-2 fw-bold text-gray-900'>
+                  {resumenAtrasos?.dias_laborables_evaluados ?? 0}
+                </div>
+              </div>
+              <div className='border rounded px-4 py-3 min-w-175px'>
+                <div className='text-muted fs-8 text-uppercase fw-bold'>Entradas marcadas</div>
+                <div className='fs-2 fw-bold text-gray-900'>
+                  {resumenAtrasos?.dias_con_marcacion_entrada ?? 0}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </KTCard>
+
+      <KTCard className='mb-5'>
         <div className='card-body py-0 px-6'>
           <div className='d-flex flex-wrap align-items-stretch gap-4 gap-md-8 overflow-auto'>
             <button
@@ -199,11 +285,11 @@ const MisMarcacionesPage = () => {
                   activeTab === 'historial' ? 'text-gray-900' : 'text-gray-600'
                 }`}
               >
-                Historial biométrico
+                Historial de Marcaciones
               </span>
               <span className='badge badge-dark fw-bold'>{resumen.historial}</span>
             </button>
-            <button
+            {/* <button
               type='button'
               className={`btn btn-flush d-flex align-items-center rounded-0 px-0 py-3 border-bottom border-3 ${
                 activeTab === 'horario' ? 'border-gray-900' : 'border-transparent'
@@ -232,7 +318,7 @@ const MisMarcacionesPage = () => {
               <span className='badge badge-light-danger text-danger fw-bold'>
                 {resumen.atrasos}
               </span>
-            </div>
+            </div> */}
           </div>
         </div>
       </KTCard>
@@ -285,7 +371,7 @@ const MisMarcacionesPage = () => {
         </div>
       </KTCard>
 
-      <KTCard className='mb-5'>
+      {/* <KTCard className='mb-5'>
         <div className='card-body'>
           <div className='d-flex flex-column flex-lg-row justify-content-between gap-4'>
             <div>
@@ -335,7 +421,7 @@ const MisMarcacionesPage = () => {
             </div>
           )}
         </div>
-      </KTCard>
+      </KTCard> */}
 
       <KTCard>
         <div className='card-body'>
@@ -358,8 +444,8 @@ const MisMarcacionesPage = () => {
                         <th>Código biométrico</th>
                         {/* <th>Dispositivo</th> */}
                         {/* <th>Marcación</th> */}
-                        <th>Verificación</th>
-                        <th>Origen</th>
+                        {/* <th>Verificación</th>
+                        <th>Origen</th> */}
                       </tr>
                     </thead>
                     <tbody className='fw-semibold text-gray-700'>
@@ -376,10 +462,10 @@ const MisMarcacionesPage = () => {
                           {/* <td>
                             <StatusBadge value={row.estado_marcacion || '-'} />
                           </td> */}
-                          <td>{row.tipo_verificacion || '-'}</td>
+                          {/* <td>{row.tipo_verificacion || '-'}</td>
                           <td>
                             <StatusBadge value={row.origen_marcacion || '-'} />
-                          </td>
+                          </td> */}
                         </tr>
                       ))}
                     </tbody>

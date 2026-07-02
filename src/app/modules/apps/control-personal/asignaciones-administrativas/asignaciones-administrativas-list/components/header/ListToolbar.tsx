@@ -1,5 +1,4 @@
 import {ChangeEvent} from 'react'
-import {initialQueryState} from 'src/_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {useQueryResponsePagination} from '../../core/QueryResponseProvider'
 import {ListFilter} from './ListFilter'
@@ -12,7 +11,7 @@ const ListToolbar = () => {
     const itemsPerPage = Number(event.target.value) as 10 | 30 | 50 | 100
 
     updateState({
-      ...initialQueryState,
+      page: 1,
       items_per_page: itemsPerPage,
     })
   }

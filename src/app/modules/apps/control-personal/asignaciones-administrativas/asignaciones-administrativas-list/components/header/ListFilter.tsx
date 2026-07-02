@@ -2,20 +2,21 @@ import {useEffect, useState} from 'react'
 import {MenuComponent} from 'src/_metronic/assets/ts/components'
 import {KTIcon, initialQueryState} from 'src/_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
+import {defaultQueryState} from '../../core/QueryRequestProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
 
 const ListFilter = () => {
   const {updateState} = useQueryRequest()
   const {isLoading} = useQueryResponse()
-  const [estado, setEstado] = useState<string>('')
+  const [estado, setEstado] = useState<string>('1')
 
   useEffect(() => {
     MenuComponent.reinitialization()
   }, [])
 
   const resetData = () => {
-    setEstado('')
-    updateState({filter: undefined, ...initialQueryState})
+    setEstado('1')
+    updateState(defaultQueryState)
   }
 
   const filterData = () => {
