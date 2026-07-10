@@ -203,6 +203,17 @@ export interface ReportePlanillaMensualParams {
   search?: string
 }
 
+export interface ReporteResultadosDiariosParams {
+  filtroReporte:
+    | 'TODOS'
+    | 'CON_ATRASO'
+    | 'CON_SANCION'
+    | 'CON_FALTA_O_ABANDONO'
+    | 'SOLO_OBSERVADOS'
+  search?: string
+  estadoDia?: string
+}
+
 export interface BonoRefrigerioResumen {
   id_proceso: number
   id_persona: number

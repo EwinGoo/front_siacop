@@ -14,6 +14,7 @@ import {
   ProcesoPlanillaDetalle,
   ReporteBonoRefrigerioParams,
   ReportePlanillaMensualParams,
+  ReporteResultadosDiariosParams,
   ResultadoDiario,
   ResultadoDiarioDetalle,
   ResultadoMensual,
@@ -258,6 +259,36 @@ export const getDetalleResultadoDiario = async (
         }))
       : [],
   } as ResultadoDiarioDetalle
+}
+
+export const generarReporteResultadosDiarios = async (
+  idProceso: number,
+  params: ReporteResultadosDiariosParams
+): Promise<PlanillaMensualPDFData> => {
+  try {
+    const formData = new FormData()
+    formData.append('filtroReporte', params.filtroReporte)
+    if (params.search?.trim()) {
+      formData.append('search', params.search.trim())
+    }
+    if (params.estadoDia?.trim()) {
+      formData.append('estadoDia', params.estadoDia.trim())
+    }
+
+    const response = await axiosClient.post<Blob>(
+      `${BASE_URL}/procesos/${idProceso}/resultados/reporte-general`,
+      formData,
+      {responseType: 'blob'}
+    )
+
+    return {
+      blob: response.data,
+      filename: `REPORTE_RESULTADOS_DIARIOS_PROCESO_${idProceso}.pdf`,
+      title: 'Reporte de resultados diarios',
+    }
+  } catch (error: any) {
+    throw new Error(await getBlobErrorMessage(error))
+  }
 }
 
 export const getResultadosMensuales = async (idProceso: number, params?: Record<string, unknown>) => {

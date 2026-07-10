@@ -28,8 +28,6 @@ export const getLocalDateTime = () => {
   return `${year}-${month}-${day}T${hours}:${minutes}`
 }
 
-
-
 const useDateFormatter = () => {
   const defaultOptions = {
     timeZone: 'America/La_Paz',
@@ -70,7 +68,7 @@ const useDateFormatter = () => {
     if (!date) return 'N/A'
     const dateObj = typeof date === 'string' ? new Date(date) : date
     const adjustedDate = adjustToLocalTimezone(dateObj)
-    return format(adjustedDate, 'dd/MM/yyyy', {locale: es})
+    return format(adjustedDate, 'dd-MM-yyyy', {locale: es})
   }
 
   // Función para formatear fecha combinando formatos

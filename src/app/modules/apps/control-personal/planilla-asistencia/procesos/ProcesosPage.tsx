@@ -14,8 +14,8 @@ import useDateFormatter from 'src/app/hooks/useDateFormatter'
 
 const ProcesosPage = () => {
   const navigate = useNavigate()
-  const [fechaInicio, setFechaInicio] = useState('2026-04-21')
-  const [fechaFin, setFechaFin] = useState('2026-05-20')
+  const [fechaInicio, setFechaInicio] = useState('2026-05-21')
+  const [fechaFin, setFechaFin] = useState('2026-06-20')
   const [loading, setLoading] = useState(false)
   const [creating, setCreating] = useState(false)
   const [executingId, setExecutingId] = useState<number | null>(null)

@@ -5,14 +5,24 @@ import {SelectField} from 'src/app/modules/components/SelectField'
 import PDFModal from '../../comision/comision-list/pdf-modal/PDFModal'
 import {StatusBadge} from '../components/StatusBadge'
 import {EmptyState} from '../components/EmptyState'
-import {PlanillaMensualPDFData, ProcesoPlanilla, ResultadoMensual, ResultadoMensualDetalle} from '../core/_models'
-import {generarReportePlanillaMensual, getDetalleResultadoMensual, getProcesosPlanilla, getResultadosMensuales} from '../core/_requests'
+import {
+  PlanillaMensualPDFData,
+  ProcesoPlanilla,
+  ResultadoMensual,
+  ResultadoMensualDetalle,
+} from '../core/_models'
+import {
+  generarReportePlanillaMensual,
+  getDetalleResultadoMensual,
+  getProcesosPlanilla,
+  getResultadosMensuales,
+} from '../core/_requests'
 import {ReportModal} from './report-modal/ReportModal'
 
 const ResultadosMensualesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [idProceso, setIdProceso] = useState(searchParams.get('proceso') || '')
-  const [search, setSearch] = useState(searchParams.get('search') || '9874182')
+  const [search, setSearch] = useState(searchParams.get('search') || '8360936')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [rows, setRows] = useState<ResultadoMensual[]>([])
@@ -32,7 +42,9 @@ const ResultadosMensualesPage = () => {
       {value: '', label: 'Seleccione un proceso'},
       ...procesos.map((proceso) => ({
         value: String(proceso.id_proceso),
-        label: `#${proceso.id_proceso} - ${proceso.fecha_inicio || '-'} a ${proceso.fecha_fin || '-'}${proceso.estado_proceso ? ` (${proceso.estado_proceso})` : ''}`,
+        label: `#${proceso.id_proceso} - ${proceso.fecha_inicio || '-'} a ${
+          proceso.fecha_fin || '-'
+        }${proceso.estado_proceso ? ` (${proceso.estado_proceso})` : ''}`,
       })),
     ],
     [procesos]
@@ -90,7 +102,9 @@ const ResultadosMensualesPage = () => {
       search ? next.set('search', search) : next.delete('search')
       setSearchParams(next)
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || 'No se pudo cargar resultados mensuales.')
+      setError(
+        err?.response?.data?.message || err?.message || 'No se pudo cargar resultados mensuales.'
+      )
     } finally {
       setLoading(false)
     }
@@ -121,21 +135,28 @@ const ResultadosMensualesPage = () => {
     }
 
     try {
-      const data = await getDetalleResultadoMensual(Number(idProceso), row.id_persona, row.id_asignacion_administrativo)
+      const data = await getDetalleResultadoMensual(
+        Number(idProceso),
+        row.id_persona,
+        row.id_asignacion_administrativo
+      )
       setDetalle(data)
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || 'No se pudo cargar el detalle mensual.')
+      setError(
+        err?.response?.data?.message || err?.message || 'No se pudo cargar el detalle mensual.'
+      )
     }
   }
 
   return (
     <>
-
       <KTCard className='mb-7'>
         <div className='card-header'>
           <div className='card-title d-flex flex-column'>
             <h3 className='fw-bold m-0'>Planilla mensual consolidada</h3>
-            <span className='text-muted mt-1'>Vista final de atrasos, faltas, sanciones y justificativos por persona</span>
+            <span className='text-muted mt-1'>
+              Vista final de atrasos, faltas, sanciones y justificativos por persona
+            </span>
           </div>
         </div>
         <div className='card-body'>
@@ -167,7 +188,11 @@ const ResultadosMensualesPage = () => {
               />
             </div>
             <div className='col-12 col-md-2 d-flex gap-2'>
-              <button type='button' className='btn btn-primary flex-grow-1' onClick={() => void cargar()}>
+              <button
+                type='button'
+                className='btn btn-primary flex-grow-1'
+                onClick={() => void cargar()}
+              >
                 Buscar
               </button>
             </div>
@@ -215,7 +240,7 @@ const ResultadosMensualesPage = () => {
                     <th>Faltas</th>
                     <th>Justificativos</th>
                     <th>No desc.</th>
-                    <th className='text-end'>Acción</th>
+                    {/* <th className='text-end'>Acción</th> */}
                   </tr>
                 </thead>
                 <tbody className='fw-semibold text-gray-700'>
@@ -227,7 +252,9 @@ const ResultadosMensualesPage = () => {
                             {row.persona?.nombre_completo || `Persona ${row.id_persona}`}
                           </span>
                           <span className='text-muted fs-7'>
-                            {row.persona?.ci || row.persona?.user_id_biometrico_principal || `ID ${row.id_persona}`}
+                            {row.persona?.ci ||
+                              row.persona?.user_id_biometrico_principal ||
+                              `ID ${row.id_persona}`}
                           </span>
                         </div>
                       </td>
@@ -237,7 +264,8 @@ const ResultadosMensualesPage = () => {
                       <td>{row.dias_descuento_oficial ?? row.dias_descuento_calculado ?? 0}</td>
                       <td>{row.dias_falta ?? 0}</td>
                       <td>
-                        Trab.: {row.dias_trabajados ?? 0} / Just.: {row.dias_justificados ?? 0} / Aband.: {row.dias_abandono ?? 0}
+                        Trab.: {row.dias_trabajados ?? 0} / Just.: {row.dias_justificados ?? 0} /
+                        Aband.: {row.dias_abandono ?? 0}
                       </td>
                       <td>
                         {row.estado_mensual ? (
@@ -246,7 +274,7 @@ const ResultadosMensualesPage = () => {
                           <span className='text-muted'>No</span>
                         )}
                       </td>
-                      <td className='text-end'>
+                      {/* <td className='text-end'>
                         <button
                           type='button'
                           className='btn btn-sm btn-light-primary'
@@ -254,7 +282,7 @@ const ResultadosMensualesPage = () => {
                         >
                           Ver detalle
                         </button>
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
                 </tbody>
@@ -269,7 +297,9 @@ const ResultadosMensualesPage = () => {
           <div className='col-12 col-md-3'>
             <div className='card card-flush h-100'>
               <div className='card-body'>
-                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Personas listadas</div>
+                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>
+                  Personas listadas
+                </div>
                 <div className='fs-1 fw-bolder text-gray-900'>{rows.length}</div>
               </div>
             </div>
@@ -277,7 +307,9 @@ const ResultadosMensualesPage = () => {
           <div className='col-12 col-md-3'>
             <div className='card card-flush h-100'>
               <div className='card-body'>
-                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Faltas acumuladas</div>
+                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>
+                  Faltas acumuladas
+                </div>
                 <div className='fs-1 fw-bolder text-danger'>
                   {rows.reduce((sum, row) => sum + (row.dias_falta ?? 0), 0)}
                 </div>
@@ -287,7 +319,9 @@ const ResultadosMensualesPage = () => {
           <div className='col-12 col-md-3'>
             <div className='card card-flush h-100'>
               <div className='card-body'>
-                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Atraso oficial total</div>
+                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>
+                  Atraso oficial total
+                </div>
                 <div className='fs-1 fw-bolder text-warning'>
                   {rows.reduce((sum, row) => sum + (row.minutos_atraso_oficial ?? 0), 0)}
                 </div>
@@ -297,9 +331,14 @@ const ResultadosMensualesPage = () => {
           <div className='col-12 col-md-3'>
             <div className='card card-flush h-100'>
               <div className='card-body'>
-                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>No descontables</div>
+                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>
+                  No descontables
+                </div>
                 <div className='fs-1 fw-bolder text-primary'>
-                  {rows.filter((row) => (row.estado_mensual || '').toUpperCase() === 'JUSTIFICADO').length}
+                  {
+                    rows.filter((row) => (row.estado_mensual || '').toUpperCase() === 'JUSTIFICADO')
+                      .length
+                  }
                 </div>
               </div>
             </div>
@@ -313,7 +352,8 @@ const ResultadosMensualesPage = () => {
             <div className='card-title d-flex flex-column'>
               <h3 className='fw-bold m-0'>Detalle mensual</h3>
               <span className='text-muted mt-1'>
-                {detalle.persona?.nombre_completo || `Persona ${detalle.id_persona}`} - {detalle.persona?.ci || detalle.persona?.user_id_biometrico_principal || 'Sin CI'}
+                {detalle.persona?.nombre_completo || `Persona ${detalle.id_persona}`} -{' '}
+                {detalle.persona?.ci || detalle.persona?.user_id_biometrico_principal || 'Sin CI'}
               </span>
             </div>
           </div>
@@ -342,11 +382,21 @@ const ResultadosMensualesPage = () => {
             </div>
             <div className='separator my-7' />
             <div className='row g-5'>
-              <div className='col-md-2'>Trabajados: <span className='fw-bold'>{detalle.dias_trabajados ?? 0}</span></div>
-              <div className='col-md-2'>Justificados: <span className='fw-bold'>{detalle.dias_justificados ?? 0}</span></div>
-              <div className='col-md-2'>Faltas: <span className='fw-bold'>{detalle.dias_falta ?? 0}</span></div>
-              <div className='col-md-2'>Abandonos: <span className='fw-bold'>{detalle.dias_abandono ?? 0}</span></div>
-              <div className='col-md-4'>Observación: <span className='fw-bold'>{detalle.observacion || '-'}</span></div>
+              <div className='col-md-2'>
+                Trabajados: <span className='fw-bold'>{detalle.dias_trabajados ?? 0}</span>
+              </div>
+              <div className='col-md-2'>
+                Justificados: <span className='fw-bold'>{detalle.dias_justificados ?? 0}</span>
+              </div>
+              <div className='col-md-2'>
+                Faltas: <span className='fw-bold'>{detalle.dias_falta ?? 0}</span>
+              </div>
+              <div className='col-md-2'>
+                Abandonos: <span className='fw-bold'>{detalle.dias_abandono ?? 0}</span>
+              </div>
+              <div className='col-md-4'>
+                Observación: <span className='fw-bold'>{detalle.observacion || '-'}</span>
+              </div>
             </div>
           </div>
         </KTCard>

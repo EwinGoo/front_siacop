@@ -27,7 +27,9 @@ const BonoRefrigerioPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const fechaActual = new Date()
   const [idProceso, setIdProceso] = useState(searchParams.get('proceso') || '')
-  const [gestion, setGestion] = useState(Number(searchParams.get('gestion')) || fechaActual.getFullYear())
+  const [gestion, setGestion] = useState(
+    Number(searchParams.get('gestion')) || fechaActual.getFullYear()
+  )
   const [mes, setMes] = useState(Number(searchParams.get('mes')) || fechaActual.getMonth() + 1)
   const [search, setSearch] = useState(searchParams.get('search') || '')
   const [loading, setLoading] = useState(false)
@@ -51,7 +53,9 @@ const BonoRefrigerioPage = () => {
       {value: '', label: 'Seleccione un proceso de bono'},
       ...procesos.map((proceso) => ({
         value: String(proceso.id_proceso),
-        label: `#${proceso.id_proceso} - ${proceso.fecha_inicio || '-'} a ${proceso.fecha_fin || '-'}${proceso.estado_proceso ? ` (${proceso.estado_proceso})` : ''}`,
+        label: `#${proceso.id_proceso} - ${proceso.fecha_inicio || '-'} a ${
+          proceso.fecha_fin || '-'
+        }${proceso.estado_proceso ? ` (${proceso.estado_proceso})` : ''}`,
       })),
     ],
     [procesos]
@@ -145,7 +149,9 @@ const BonoRefrigerioPage = () => {
       search ? next.set('search', search) : next.delete('search')
       setSearchParams(next)
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || 'No se pudo generar el bono refrigerio.')
+      setError(
+        err?.response?.data?.message || err?.message || 'No se pudo generar el bono refrigerio.'
+      )
     } finally {
       setGenerating(false)
       setLoading(false)
@@ -190,16 +196,23 @@ const BonoRefrigerioPage = () => {
     }
 
     try {
-      const data = await getDetalleBonoRefrigerio(Number(idProceso), row.id_persona, row.id_asignacion_administrativo)
+      const data = await getDetalleBonoRefrigerio(
+        Number(idProceso),
+        row.id_persona,
+        row.id_asignacion_administrativo
+      )
       setDetalle(data)
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || 'No se pudo cargar el detalle de bono refrigerio.')
+      setError(
+        err?.response?.data?.message ||
+          err?.message ||
+          'No se pudo cargar el detalle de bono refrigerio.'
+      )
     }
   }
 
   return (
     <>
-
       <KTCard className='mb-7'>
         <div className='card-header'>
           <div className='card-title d-flex flex-column'>
@@ -224,9 +237,15 @@ const BonoRefrigerioPage = () => {
             </div>
             <div className='col-12 col-md-3'>
               <label className='form-label fw-semibold'>Mes calendario</label>
-              <select className='form-select' value={mes} onChange={(e) => setMes(Number(e.target.value))}>
+              <select
+                className='form-select'
+                value={mes}
+                onChange={(e) => setMes(Number(e.target.value))}
+              >
                 {meses.map((item) => (
-                  <option key={item.value} value={item.value}>{item.label}</option>
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
                 ))}
               </select>
             </div>
@@ -237,7 +256,11 @@ const BonoRefrigerioPage = () => {
                 onClick={() => void generarBonoCalendario()}
                 disabled={generating || loading}
               >
-                {generating ? <span className='spinner-border spinner-border-sm me-2' /> : <i className='bi bi-play-circle me-2'></i>}
+                {generating ? (
+                  <span className='spinner-border spinner-border-sm me-2' />
+                ) : (
+                  <i className='bi bi-play-circle me-2'></i>
+                )}
                 Generar bono
               </button>
             </div>
@@ -268,7 +291,11 @@ const BonoRefrigerioPage = () => {
               />
             </div>
             <div className='col-12 col-md-2 d-flex gap-2'>
-              <button type='button' className='btn btn-primary flex-grow-1' onClick={() => void cargar()}>
+              <button
+                type='button'
+                className='btn btn-primary flex-grow-1'
+                onClick={() => void cargar()}
+              >
                 Buscar
               </button>
             </div>
@@ -313,10 +340,10 @@ const BonoRefrigerioPage = () => {
                     <th>Días pagables</th>
                     <th>Días excluidos</th>
                     <th>Días no válidos</th>
-                    <th>Atraso oficial</th>
-                    <th>Días sanción</th>
+                    {/* <th>Atraso oficial</th>
+                    <th>Días sanción</th> */}
                     <th>Estado</th>
-                    <th className='text-end'>Acción</th>
+                    {/* <th className='text-end'>Acción</th> */}
                   </tr>
                 </thead>
                 <tbody className='fw-semibold text-gray-700'>
@@ -328,7 +355,9 @@ const BonoRefrigerioPage = () => {
                             {row.persona?.nombre_completo || `Persona ${row.id_persona}`}
                           </span>
                           <span className='text-muted fs-7'>
-                            {row.persona?.ci || row.persona?.user_id_biometrico_principal || `ID ${row.id_persona}`}
+                            {row.persona?.ci ||
+                              row.persona?.user_id_biometrico_principal ||
+                              `ID ${row.id_persona}`}
                           </span>
                         </div>
                       </td>
@@ -336,12 +365,12 @@ const BonoRefrigerioPage = () => {
                       <td>{row.dias_validos_bono ?? 0}</td>
                       <td>{row.dias_excluidos_bono ?? 0}</td>
                       <td>{row.dias_no_validos_bono ?? 0}</td>
-                      <td>{row.minutos_atraso_oficial ?? 0} min</td>
-                      <td>{row.dias_descuento_oficial ?? 0}</td>
+                      {/* <td>{row.minutos_atraso_oficial ?? 0} min</td>
+                      <td>{row.dias_descuento_oficial ?? 0}</td> */}
                       <td>
                         <StatusBadge value={row.estado_bono} />
                       </td>
-                      <td className='text-end'>
+                      {/* <td className='text-end'>
                         <button
                           type='button'
                           className='btn btn-sm btn-light-primary'
@@ -349,7 +378,7 @@ const BonoRefrigerioPage = () => {
                         >
                           Ver detalle
                         </button>
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
                 </tbody>
@@ -364,7 +393,9 @@ const BonoRefrigerioPage = () => {
           <div className='col-12 col-md-3'>
             <div className='card card-flush h-100'>
               <div className='card-body'>
-                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Personas listadas</div>
+                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>
+                  Personas listadas
+                </div>
                 <div className='fs-1 fw-bolder text-gray-900'>{rows.length}</div>
               </div>
             </div>
@@ -382,7 +413,9 @@ const BonoRefrigerioPage = () => {
           <div className='col-12 col-md-3'>
             <div className='card card-flush h-100'>
               <div className='card-body'>
-                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>Días no válidos</div>
+                <div className='text-gray-500 fs-7 text-uppercase fw-bold mb-2'>
+                  Días no válidos
+                </div>
                 <div className='fs-1 fw-bolder text-danger'>
                   {rows.reduce((sum, row) => sum + (row.dias_no_validos_bono ?? 0), 0)}
                 </div>
@@ -415,7 +448,12 @@ const BonoRefrigerioPage = () => {
               <Modal.Title className='d-flex flex-column'>
                 <span className='fw-bold'>Detalle de bono refrigerio</span>
                 <span className='text-muted fs-7 mt-1'>
-                  {detalle.resumen.persona?.nombre_completo || `Persona ${detalle.resumen.id_persona}`} - {detalle.resumen.persona?.ci || detalle.resumen.persona?.user_id_biometrico_principal || 'Sin CI'}
+                  {detalle.resumen.persona?.nombre_completo ||
+                    `Persona ${detalle.resumen.id_persona}`}{' '}
+                  -{' '}
+                  {detalle.resumen.persona?.ci ||
+                    detalle.resumen.persona?.user_id_biometrico_principal ||
+                    'Sin CI'}
                 </span>
               </Modal.Title>
             </Modal.Header>
@@ -423,15 +461,21 @@ const BonoRefrigerioPage = () => {
               <div className='row g-5 mb-7'>
                 <div className='col-md-3'>
                   <div className='text-gray-600 fs-7 text-uppercase mb-1'>Días pagables</div>
-                  <div className='fw-bold fs-4 text-success'>{detalle.resumen.dias_validos_bono ?? 0}</div>
+                  <div className='fw-bold fs-4 text-success'>
+                    {detalle.resumen.dias_validos_bono ?? 0}
+                  </div>
                 </div>
                 <div className='col-md-3'>
                   <div className='text-gray-600 fs-7 text-uppercase mb-1'>Días excluidos</div>
-                  <div className='fw-bold fs-4 text-primary'>{detalle.resumen.dias_excluidos_bono ?? 0}</div>
+                  <div className='fw-bold fs-4 text-primary'>
+                    {detalle.resumen.dias_excluidos_bono ?? 0}
+                  </div>
                 </div>
                 <div className='col-md-3'>
                   <div className='text-gray-600 fs-7 text-uppercase mb-1'>Días no válidos</div>
-                  <div className='fw-bold fs-4 text-danger'>{detalle.resumen.dias_no_validos_bono ?? 0}</div>
+                  <div className='fw-bold fs-4 text-danger'>
+                    {detalle.resumen.dias_no_validos_bono ?? 0}
+                  </div>
                 </div>
                 <div className='col-md-3'>
                   <div className='text-gray-600 fs-7 text-uppercase mb-1'>Estado bono</div>
@@ -456,11 +500,16 @@ const BonoRefrigerioPage = () => {
                     {detalle.dias.map((dia) => (
                       <tr key={dia.id_resultado_diario}>
                         <td>{dia.fecha || '-'}</td>
-                        <td><StatusBadge value={dia.estado_dia} /></td>
-                        <td><StatusBadge value={dia.estado_bono_dia} /></td>
+                        <td>
+                          <StatusBadge value={dia.estado_dia} />
+                        </td>
+                        <td>
+                          <StatusBadge value={dia.estado_bono_dia} />
+                        </td>
                         <td>{dia.tipo_horario || dia.nombre_horario_tipo || '-'}</td>
                         <td>
-                          {dia.cantidad_marcaciones_validas ?? 0} / {dia.cantidad_marcaciones_esperadas ?? 0}
+                          {dia.cantidad_marcaciones_validas ?? 0} /{' '}
+                          {dia.cantidad_marcaciones_esperadas ?? 0}
                         </td>
                         <td>{dia.justificativo_principal || '-'}</td>
                         <td>{dia.motivo_bono || dia.observacion || '-'}</td>
