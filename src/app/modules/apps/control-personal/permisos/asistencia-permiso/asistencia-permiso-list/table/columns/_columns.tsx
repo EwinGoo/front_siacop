@@ -10,12 +10,16 @@ import {EstadoBadge} from 'src/app/modules/apps/control-personal/comision/comisi
 
 type GetColumnsProps = {
   isAdmin: boolean
+  onPreparePDF: (title?: string) => void
   onShowPDF: (pdfData: PermisoPDFData) => void
+  onCancelPDF: () => void
 }
 
 export const getColumns = ({
   isAdmin,
+  onPreparePDF,
   onShowPDF,
+  onCancelPDF,
 }: GetColumnsProps): ReadonlyArray<Column<AsistenciaPermiso>> => {
   const columns: Column<AsistenciaPermiso>[] = []
 
@@ -46,7 +50,9 @@ export const getColumns = ({
           estado={props.data[props.row.index].estado_permiso}
           hash={props.data[props.row.index].hash}
           carnet={props.data[props.row.index].ci}
+          onPreparePDF={onPreparePDF}
           onShowPDF={onShowPDF}
+          onCancelPDF={onCancelPDF}
         />
       ),
     },

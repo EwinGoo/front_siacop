@@ -27,7 +27,9 @@ type Props = {
   buttonLabel?: string
   buttonClassName?: string
   inlinePrimaryActions?: boolean
+  onPreparePDF: (title?: string) => void
   onShowPDF: (pdfData: ComisionPDFData) => void
+  onCancelPDF: () => void
 }
 
 const ActionsCell: FC<Props> = ({
@@ -39,7 +41,9 @@ const ActionsCell: FC<Props> = ({
   buttonLabel = 'Acciones',
   buttonClassName = 'btn btn-outline btn-outline-primary btn-sm',
   inlinePrimaryActions = false,
+  onPreparePDF,
   onShowPDF,
+  onCancelPDF,
 }) => {
   const {setAccion, setItemIdForUpdate, setIsShow} = useListView()
   const [isPrinting, setIsPrinting] = useState(false)
@@ -129,6 +133,8 @@ const ActionsCell: FC<Props> = ({
     },
   })
   const handlePrintConfirm = async () => {
+    let didOpenPdf = false
+
     try {
       if (!hash) {
         showToast({message: 'No se encontró el código del reporte', type: 'error'})
@@ -137,7 +143,9 @@ const ActionsCell: FC<Props> = ({
 
       if (estado !== 'GENERADO') {
         setIsPrinting(true)
+        onPreparePDF(tipo === 'CAJA SALUD' ? 'Boleta de permiso' : 'Boleta de comisión')
         const pdfData = await imprimirComisionFormulario(hash, carnet)
+        didOpenPdf = true
         onShowPDF(pdfData)
         return
       }
@@ -153,12 +161,17 @@ const ActionsCell: FC<Props> = ({
       })
 
       if (result.isConfirmed) {
-        await sendItem.mutateAsync()
         setIsPrinting(true)
+        onPreparePDF(tipo === 'CAJA SALUD' ? 'Boleta de permiso' : 'Boleta de comisión')
+        await sendItem.mutateAsync()
         const pdfData = await imprimirComisionFormulario(hash, carnet)
+        didOpenPdf = true
         onShowPDF(pdfData)
       }
     } catch (error: any) {
+      if (!didOpenPdf) {
+        onCancelPDF()
+      }
       showToast({
         message: error?.message || 'Datos personales no disponibles. Intente más tarde.',
         type: 'error',

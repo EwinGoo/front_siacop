@@ -9,10 +9,18 @@ import {EstadoBadge} from 'src/app/modules/apps/control-personal/comision/comisi
 type Props = {
   items: AsistenciaPermiso[]
   canManage: boolean
+  onPreparePDF: (title?: string) => void
   onShowPDF: (pdfData: PermisoPDFData) => void
+  onCancelPDF: () => void
 }
 
-const AsistenciaPermisoCards: FC<Props> = ({items, canManage, onShowPDF}) => {
+const AsistenciaPermisoCards: FC<Props> = ({
+  items,
+  canManage,
+  onPreparePDF,
+  onShowPDF,
+  onCancelPDF,
+}) => {
   const {formatLongDate} = useDateFormatter()
   const {selected, onSelect} = useListView()
 
@@ -122,7 +130,9 @@ const AsistenciaPermisoCards: FC<Props> = ({items, canManage, onShowPDF}) => {
                     buttonLabel='Acciones'
                     buttonClassName='btn btn-outline btn-outline-primary btn-sm flex-fill'
                     inlinePrimaryActions
+                    onPreparePDF={onPreparePDF}
                     onShowPDF={onShowPDF}
+                    onCancelPDF={onCancelPDF}
                   />
                 </div>
               </div>

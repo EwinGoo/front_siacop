@@ -86,6 +86,7 @@ const MisMarcacionesPage = () => {
   const [activeTab, setActiveTab] = useState<'historial' | 'horario'>('historial')
   const [pdfData, setPdfData] = useState<PlanillaMensualPDFData | null>(null)
   const [showPDFModal, setShowPDFModal] = useState(false)
+  const [isPreparingPdf, setIsPreparingPdf] = useState(false)
   const [generatingPdf, setGeneratingPdf] = useState(false)
   const [estadoSincronizacion, setEstadoSincronizacion] =
     useState<MisMarcacionesResponse['estado_sincronizacion']>(undefined)
@@ -149,6 +150,9 @@ const MisMarcacionesPage = () => {
   const generarReporte = async () => {
     setGeneratingPdf(true)
     setError(null)
+    setPdfData(null)
+    setIsPreparingPdf(true)
+    setShowPDFModal(true)
     try {
       const tipo = activeTab === 'horario' ? 'HORARIO' : 'HISTORIAL'
       const response = await generarReporteMisMarcaciones(tipo, {
@@ -156,15 +160,17 @@ const MisMarcacionesPage = () => {
         fecha_hasta: fechaHasta || undefined,
       })
       setPdfData(response)
-      setShowPDFModal(true)
     } catch (err: any) {
+      setShowPDFModal(false)
       setError(err?.message || 'No se pudo generar el reporte PDF.')
     } finally {
+      setIsPreparingPdf(false)
       setGeneratingPdf(false)
     }
   }
 
   const cerrarPDF = () => {
+    setIsPreparingPdf(false)
     setShowPDFModal(false)
     setPdfData(null)
   }
@@ -549,6 +555,7 @@ const MisMarcacionesPage = () => {
       <PDFModal
         isOpen={showPDFModal}
         onClose={cerrarPDF}
+        isPreparing={isPreparingPdf}
         pdfBlob={pdfData?.blob || null}
         filename={pdfData?.filename || 'MIS_MARCACIONES.pdf'}
         title={pdfData?.title || 'Reporte de marcaciones'}

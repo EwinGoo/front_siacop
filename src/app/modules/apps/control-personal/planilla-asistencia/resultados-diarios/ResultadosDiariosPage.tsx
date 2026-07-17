@@ -81,6 +81,7 @@ const ResultadosDiariosPage = () => {
   const [showReportModal, setShowReportModal] = useState(false)
   const [showPDFModal, setShowPDFModal] = useState(false)
   const [currentPDFData, setCurrentPDFData] = useState<PlanillaMensualPDFData | null>(null)
+  const [isPreparingPdf, setIsPreparingPdf] = useState(false)
 
   const canLoad = useMemo(() => Number(idProceso) > 0, [idProceso])
   const procesoSeleccionado = useMemo(
@@ -213,17 +214,30 @@ const ResultadosDiariosPage = () => {
     window.setTimeout(() => setDetalle(null), MODAL_FADE_DURATION_MS)
   }
 
-  const handleShowPDF = async (params: ReporteResultadosDiariosParams) => {
+  const handleShowPDF = (params: ReporteResultadosDiariosParams) => {
     if (!canLoad) {
       return
     }
 
-    const pdfData = await generarReporteResultadosDiarios(Number(idProceso), params)
-    setCurrentPDFData(pdfData)
+    setCurrentPDFData(null)
+    setIsPreparingPdf(true)
     setShowPDFModal(true)
+
+    void (async () => {
+      try {
+        const pdfData = await generarReporteResultadosDiarios(Number(idProceso), params)
+        setCurrentPDFData(pdfData)
+      } catch (err: any) {
+        setShowPDFModal(false)
+        setError(err?.message || 'No se pudo generar el reporte PDF.')
+      } finally {
+        setIsPreparingPdf(false)
+      }
+    })()
   }
 
   const handleClosePDFModal = () => {
+    setIsPreparingPdf(false)
     setShowPDFModal(false)
     setCurrentPDFData(null)
   }
@@ -849,6 +863,7 @@ const ResultadosDiariosPage = () => {
       <PDFModal
         isOpen={showPDFModal}
         onClose={handleClosePDFModal}
+        isPreparing={isPreparingPdf}
         pdfBlob={currentPDFData?.blob || null}
         filename={currentPDFData?.filename || 'REPORTE_RESULTADOS_DIARIOS.pdf'}
         title={currentPDFData?.title || 'Reporte de resultados diarios'}

@@ -20,10 +20,12 @@ import {useListView} from '../core/ListViewProvider'
 import {ComisionCards} from './ComisionCards'
 
 type Props = {
+  onPreparePDF: (title?: string) => void
   onShowPDF: (pdfData: ComisionPDFData) => void
+  onCancelPDF: () => void
 }
 
-const ComisionTable = ({onShowPDF}: Props) => {
+const ComisionTable = ({onPreparePDF, onShowPDF, onCancelPDF}: Props) => {
   const comisiones = useQueryResponseData()
   const isLoading = useQueryResponseLoading()
   const warning = useQueryResponseWarning()
@@ -60,6 +62,8 @@ const ComisionTable = ({onShowPDF}: Props) => {
         canManage: canManage,
         hasActionPermissions: comision.canEdit || comision.canDelete || comision.canManage,
         onShowPDF,
+        onPreparePDF,
+        onCancelPDF,
       }),
     [
       comision.canView,
@@ -69,6 +73,8 @@ const ComisionTable = ({onShowPDF}: Props) => {
       comision.canManage,
       canManage,
       onShowPDF,
+      onPreparePDF,
+      onCancelPDF,
     ]
   )
 
@@ -92,9 +98,15 @@ const ComisionTable = ({onShowPDF}: Props) => {
   }
 
   return (
-    <KTCardBody className='py-4'>
+    <KTCardBody className='py-4 position-relative' style={{minHeight: '240px'}}>
       {viewMode === 'cards' ? (
-        <ComisionCards comisiones={data} canManage={canManage} onShowPDF={onShowPDF} />
+        <ComisionCards
+          comisiones={data}
+          canManage={canManage}
+          onPreparePDF={onPreparePDF}
+          onShowPDF={onShowPDF}
+          onCancelPDF={onCancelPDF}
+        />
       ) : (
         <div className='table-responsive'>
           <table
@@ -129,7 +141,11 @@ const ComisionTable = ({onShowPDF}: Props) => {
         </div>
       )}
       <ListPagination />
-      {isLoading && <ListLoading />}
+      {isLoading && (
+        <ListLoading
+          message={data.length ? 'Actualizando listado...' : 'Cargando listado de permisos...'}
+        />
+      )}
     </KTCardBody>
   )
 }

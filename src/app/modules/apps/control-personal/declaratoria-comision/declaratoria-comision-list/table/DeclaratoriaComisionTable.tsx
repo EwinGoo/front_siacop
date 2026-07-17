@@ -15,7 +15,9 @@ import {DeclaratoriaComisionCards} from './DeclaratoriaComisionCards'
 
 interface DeclaratoriaComisionTableProps extends ModalHandlers {} // Usa la interface
 const DeclaratoriaComisionTable: React.FC<DeclaratoriaComisionTableProps> = ({
+  onPreparePDF,
   onShowPDF,
+  onCancelPDF,
   onShowData,
   onSetLoading,
   getLoadingState,
@@ -39,12 +41,14 @@ const DeclaratoriaComisionTable: React.FC<DeclaratoriaComisionTableProps> = ({
   const columns = useMemo(
     () =>
       getColumns({
+        onPreparePDF,
         onShowPDF,
+        onCancelPDF,
         onShowData,
         onSetLoading,
         getLoadingState,
       }),
-    []
+    [onPreparePDF, onShowPDF, onCancelPDF, onShowData, onSetLoading, getLoadingState]
   )
 
   const { getTableProps, getTableBodyProps, headers, rows, prepareRow } = useTable({
@@ -91,11 +95,13 @@ const DeclaratoriaComisionTable: React.FC<DeclaratoriaComisionTableProps> = ({
   // }, [columnConfig, toggleColumn, showAllColumns, hideAllOptionalColumns, resetToDefaults])
 
   return (
-    <KTCardBody className='py-4'>
+    <KTCardBody className='py-4 position-relative' style={{minHeight: '240px'}}>
       {isMobileViewport ? (
         <DeclaratoriaComisionCards
           items={data}
+          onPreparePDF={onPreparePDF}
           onShowPDF={onShowPDF}
+          onCancelPDF={onCancelPDF}
           onShowData={onShowData}
           onSetLoading={onSetLoading}
           getLoadingState={getLoadingState}
@@ -134,7 +140,11 @@ const DeclaratoriaComisionTable: React.FC<DeclaratoriaComisionTableProps> = ({
         </div>
       )}
       <ListPagination />
-      {isLoading && <ListLoading />}
+      {isLoading && (
+        <ListLoading
+          message={data.length ? 'Actualizando listado...' : 'Cargando declaratorias...'}
+        />
+      )}
     </KTCardBody>
   )
 }

@@ -6,10 +6,12 @@ import {useListView} from '../core/ListViewProvider'
 import {PermisoPDFData} from '../core/_models'
 
 type Props = {
+  onPreparePDF: (title?: string) => void
   onShowPDF: (pdfData: PermisoPDFData) => void
+  onCancelPDF: () => void
 }
 
-const ReportModal = ({onShowPDF}: Props) => {
+const ReportModal = ({onPreparePDF, onShowPDF, onCancelPDF}: Props) => {
   const {accion, setItemIdForUpdate, setIsShow, isShow} = useListView()
   const [, setSelectedType] = useState<string | null>(null)
 
@@ -35,7 +37,12 @@ const ReportModal = ({onShowPDF}: Props) => {
         </Modal.Header>
 
         <Modal.Body>
-          <ReportModalFormWrapper onClose={handleClose} onShowPDF={onShowPDF} />
+          <ReportModalFormWrapper
+            onClose={handleClose}
+            onPreparePDF={onPreparePDF}
+            onShowPDF={onShowPDF}
+            onCancelPDF={onCancelPDF}
+          />
         </Modal.Body>
       </Modal>
     )

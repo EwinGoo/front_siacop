@@ -14,7 +14,9 @@ interface PDFData {
 }
 
 interface ModalHandlers {
+  onPreparePDF: (title?: string) => void
   onShowPDF: (pdfData: PDFData) => void
+  onCancelPDF: () => void
   onShowData: (declaratoria: any) => void
   onSetLoading: (declaratoriaId: string, isLoading: boolean) => void
   getLoadingState: (declaratoriaId: string) => boolean
@@ -22,7 +24,9 @@ interface ModalHandlers {
 
 // Función que retorna las columnas con los handlers necesarios
 const getColumns = ({
+  onPreparePDF,
   onShowPDF,
+  onCancelPDF,
   onShowData,
   onSetLoading,
   getLoadingState,
@@ -38,7 +42,9 @@ const getColumns = ({
     Cell: ({row}) => (
       <ActionsCell
         declaratoria={row.original}
+        onPreparePDF={onPreparePDF}
         onShowPDF={onShowPDF}
+        onCancelPDF={onCancelPDF}
         onShowData={onShowData}
         onSetLoading={onSetLoading}
         isLoading={getLoadingState(row.original.id_declaratoria_comision?.toString() || '')}

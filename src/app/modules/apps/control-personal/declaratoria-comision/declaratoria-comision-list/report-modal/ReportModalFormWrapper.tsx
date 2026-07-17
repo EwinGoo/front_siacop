@@ -8,10 +8,17 @@ import {reportValidationSchema} from './schema/reportValidationSchema'
 
 type Props = {
   onClose: () => void
+  onPreparePDF: (title?: string) => void
   onShowPDF: (pdfData: DeclaratoriaComisionPDFData) => void
+  onCancelPDF: () => void
 }
 
-export const ReportModalFormWrapper = ({onClose, onShowPDF}: Props) => {
+export const ReportModalFormWrapper = ({
+  onClose,
+  onPreparePDF,
+  onShowPDF,
+  onCancelPDF,
+}: Props) => {
   const formik = useFormik({
     validationSchema: reportValidationSchema,
     initialValues: {
@@ -22,6 +29,8 @@ export const ReportModalFormWrapper = ({onClose, onShowPDF}: Props) => {
     },
     onSubmit: async (values, helpers) => {
       try {
+        onClose()
+        onPreparePDF('Reporte de declaratorias en comision')
         const pdfData = await generarReporteGeneralDeclaratoriaComision({
           fechaInicio: formatDate(values.fechaInicio),
           fechaFin: formatDate(values.fechaFin),
@@ -29,9 +38,9 @@ export const ReportModalFormWrapper = ({onClose, onShowPDF}: Props) => {
           tipoViatico: values.tipoViatico,
         })
 
-        onClose()
         onShowPDF(pdfData)
       } catch (error: any) {
+        onCancelPDF()
         showToast({
           message: error?.message || 'No se pudo generar el reporte. Intente más tarde.',
           type: 'error',

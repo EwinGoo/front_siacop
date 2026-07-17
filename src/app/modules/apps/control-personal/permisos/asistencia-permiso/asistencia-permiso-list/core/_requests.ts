@@ -67,8 +67,11 @@ const createAsistenciaPermiso = async (
     return response.data.data
   } catch (error: any) {
     if (error.response?.status === 422 || error.response?.status === 400) {
+      const validationErrors =
+        error.response.data.validation_errors || error.response.data.data || {}
+
       throw new ValidationError(
-        error.response.data.validation_errors || {},
+        validationErrors,
         error.response.data.message
       )
     }
@@ -76,13 +79,27 @@ const createAsistenciaPermiso = async (
   }
 }
 
-const updateAsistenciaPermiso = (
+const updateAsistenciaPermiso = async (
   asistenciaPermiso: AsistenciaPermiso
 ): Promise<AsistenciaPermiso | undefined> => {
-  return axios
-    .put(`${ASISTENCIA_PERMISO_URL}/${asistenciaPermiso.id_asistencia_permiso}`, asistenciaPermiso)
-    .then((response: AxiosResponse<Response<AsistenciaPermiso>>) => response.data)
-    .then((response: Response<AsistenciaPermiso>) => response.data)
+  try {
+    const response = await axiosClient.put(
+      `${ASISTENCIA_PERMISO_URL}/${asistenciaPermiso.id_asistencia_permiso}`,
+      asistenciaPermiso
+    )
+    return response.data.data
+  } catch (error: any) {
+    if (error.response?.status === 422 || error.response?.status === 400) {
+      const validationErrors =
+        error.response.data.validation_errors || error.response.data.data || {}
+
+      throw new ValidationError(
+        validationErrors,
+        error.response.data.message
+      )
+    }
+    throw error
+  }
 }
 
 const deleteAsistenciaPermiso = (asistenciaPermisoId: ID): Promise<void> => {

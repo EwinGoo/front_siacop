@@ -15,10 +15,12 @@ import useIsMobileViewport from 'src/app/hooks/useIsMobileViewport'
 import {AsistenciaPermisoCards} from './AsistenciaPermisoCards'
 
 type Props = {
+  onPreparePDF: (title?: string) => void
   onShowPDF: (pdfData: PermisoPDFData) => void
+  onCancelPDF: () => void
 }
 
-const AsistenciaPermisoTable = ({onShowPDF}: Props) => {
+const AsistenciaPermisoTable = ({onPreparePDF, onShowPDF, onCancelPDF}: Props) => {
   const tiposPermiso = useQueryResponseData()
   const isLoading = useQueryResponseLoading()
   const warning = useQueryResponseWarning()
@@ -37,7 +39,10 @@ const AsistenciaPermisoTable = ({onShowPDF}: Props) => {
   const {currentUser} = useAuth()
   const canManage = currentUser?.groups ? canManageComisiones(currentUser.groups) : false
   const isMobileViewport = useIsMobileViewport()
-  const columns = useMemo(() => getColumns({isAdmin: canManage, onShowPDF}), [canManage, onShowPDF])
+  const columns = useMemo(
+    () => getColumns({isAdmin: canManage, onPreparePDF, onShowPDF, onCancelPDF}),
+    [canManage, onPreparePDF, onShowPDF, onCancelPDF]
+  )
 
   const {getTableProps, getTableBodyProps, headers, rows, prepareRow} = useTable({
     columns,
@@ -45,9 +50,15 @@ const AsistenciaPermisoTable = ({onShowPDF}: Props) => {
   })
 
   return (
-    <KTCardBody className='py-4'>
+    <KTCardBody className='py-4 position-relative' style={{minHeight: '240px'}}>
       {isMobileViewport ? (
-        <AsistenciaPermisoCards items={data} canManage={canManage} onShowPDF={onShowPDF} />
+        <AsistenciaPermisoCards
+          items={data}
+          canManage={canManage}
+          onPreparePDF={onPreparePDF}
+          onShowPDF={onShowPDF}
+          onCancelPDF={onCancelPDF}
+        />
       ) : (
         <div className='table-responsive'>
           <table
@@ -82,7 +93,11 @@ const AsistenciaPermisoTable = ({onShowPDF}: Props) => {
         </div>
       )}
       <ListPagination />
-      {isLoading && <ListLoading />}
+      {isLoading && (
+        <ListLoading
+          message={data.length ? 'Actualizando listado...' : 'Cargando listado de permisos...'}
+        />
+      )}
     </KTCardBody>
   )
 }

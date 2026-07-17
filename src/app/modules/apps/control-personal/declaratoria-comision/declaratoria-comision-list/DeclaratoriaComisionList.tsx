@@ -17,19 +17,36 @@ const DeclaratoriaComisionList = () => {
   const [showReportModal, setShowReportModal] = useState(false)
   const [generalPDFData, setGeneralPDFData] = useState<DeclaratoriaComisionPDFData | null>(null)
   const [showGeneralPDFModal, setShowGeneralPDFModal] = useState(false)
+  const [isPreparingGeneralPDF, setIsPreparingGeneralPDF] = useState(false)
 
-  const handleShowGeneralPDF = (pdfData: DeclaratoriaComisionPDFData) => {
-    setGeneralPDFData(pdfData)
+  const handlePrepareGeneralPDF = (title = 'Reporte de declaratorias en comision') => {
+    setGeneralPDFData(null)
+    setIsPreparingGeneralPDF(true)
     setShowGeneralPDFModal(true)
   }
 
+  const handleShowGeneralPDF = (pdfData: DeclaratoriaComisionPDFData) => {
+    setGeneralPDFData(pdfData)
+    setIsPreparingGeneralPDF(false)
+    setShowGeneralPDFModal(true)
+  }
+
+  const handleCancelGeneralPDF = () => {
+    setIsPreparingGeneralPDF(false)
+    setShowGeneralPDFModal(false)
+    setTimeout(() => setGeneralPDFData(null), 300)
+  }
+
   const handleCloseGeneralPDF = () => {
+    setIsPreparingGeneralPDF(false)
     setShowGeneralPDFModal(false)
     setTimeout(() => setGeneralPDFData(null), 300)
   }
 
   const {
+    handlePreparePDF,
     handleShowPDF,
+    handleCancelPDF,
     handleShowData,
     handleSetLoading,
     getLoadingState,
@@ -42,7 +59,9 @@ const DeclaratoriaComisionList = () => {
       <KTCard>
         <ListHeader onOpenReport={() => setShowReportModal(true)} />
         <DeclaratoriaComisionTable 
+          onPreparePDF={handlePreparePDF}
           onShowPDF={handleShowPDF}
+          onCancelPDF={handleCancelPDF}
           onShowData={handleShowData}
           onSetLoading={handleSetLoading}
           getLoadingState={getLoadingState}
@@ -58,11 +77,14 @@ const DeclaratoriaComisionList = () => {
       <ReportModal
         isOpen={showReportModal}
         onClose={() => setShowReportModal(false)}
+        onPreparePDF={handlePrepareGeneralPDF}
         onShowPDF={handleShowGeneralPDF}
+        onCancelPDF={handleCancelGeneralPDF}
       />
       <GeneralPDFModal
         isOpen={showGeneralPDFModal}
         onClose={handleCloseGeneralPDF}
+        isPreparing={isPreparingGeneralPDF}
         pdfBlob={generalPDFData?.blob || null}
         filename={generalPDFData?.filename || 'REPORTE_DECLARATORIAS_COMISION.pdf'}
         title={generalPDFData?.title || 'Reporte de declaratorias en comisión'}

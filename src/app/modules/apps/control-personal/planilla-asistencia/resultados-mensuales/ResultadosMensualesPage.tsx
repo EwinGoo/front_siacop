@@ -31,6 +31,7 @@ const ResultadosMensualesPage = () => {
   const [showReportModal, setShowReportModal] = useState(false)
   const [showPDFModal, setShowPDFModal] = useState(false)
   const [currentPDFData, setCurrentPDFData] = useState<PlanillaMensualPDFData | null>(null)
+  const [isPreparingPdf, setIsPreparingPdf] = useState(false)
 
   const canLoad = useMemo(() => Number(idProceso) > 0, [idProceso])
   const procesoSeleccionado = useMemo(
@@ -66,7 +67,7 @@ const ResultadosMensualesPage = () => {
     [idProceso]
   )
 
-  const handleShowPDF = async (params: {
+  const handleShowPDF = (params: {
     filtroReporte: 'TODOS' | 'CON_ATRASO' | 'CON_SANCION' | 'CON_ATRASO_O_SANCION'
     search?: string
   }) => {
@@ -74,12 +75,25 @@ const ResultadosMensualesPage = () => {
       return
     }
 
-    const pdfData = await generarReportePlanillaMensual(Number(idProceso), params)
-    setCurrentPDFData(pdfData)
+    setCurrentPDFData(null)
+    setIsPreparingPdf(true)
     setShowPDFModal(true)
+
+    void (async () => {
+      try {
+        const pdfData = await generarReportePlanillaMensual(Number(idProceso), params)
+        setCurrentPDFData(pdfData)
+      } catch (err: any) {
+        setShowPDFModal(false)
+        setError(err?.message || 'No se pudo generar el reporte PDF.')
+      } finally {
+        setIsPreparingPdf(false)
+      }
+    })()
   }
 
   const handleClosePDFModal = () => {
+    setIsPreparingPdf(false)
     setShowPDFModal(false)
     setCurrentPDFData(null)
   }
@@ -413,6 +427,7 @@ const ResultadosMensualesPage = () => {
       <PDFModal
         isOpen={showPDFModal}
         onClose={handleClosePDFModal}
+        isPreparing={isPreparingPdf}
         pdfBlob={currentPDFData?.blob || null}
         filename={currentPDFData?.filename || 'REPORTE_PLANILLA_MENSUAL.pdf'}
         title={currentPDFData?.title || 'Reporte de planilla mensual'}

@@ -1,4 +1,3 @@
-import {useMemo} from 'react'
 import {format} from 'date-fns'
 import {es} from 'date-fns/locale'
 
@@ -102,17 +101,14 @@ const useDateFormatter = () => {
     return timeStr.substring(0, 5)
   }
 
-  return useMemo(
-    () => ({
-      formatToBolivianDate,
-      formatLongDate,
-      formatShortDate,
-      formatDate,
-      formatTime,
-      formatTimeFromString,
-    }),
-    []
-  )
+  return {
+    formatToBolivianDate,
+    formatLongDate,
+    formatShortDate,
+    formatDate,
+    formatTime,
+    formatTimeFromString,
+  }
 }
 
 export default useDateFormatter

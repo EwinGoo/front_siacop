@@ -6,13 +6,14 @@
  */
 
 import {FC} from 'react'
-import {Routes, Route, BrowserRouter, Navigate} from 'react-router-dom'
+import {Route, BrowserRouter, Navigate} from 'react-router-dom'
 import {PrivateRoutes} from './PrivateRoutes'
 import {ErrorsPage} from '../modules/errors/ErrorsPage'
 import {Logout, useAuth} from '../modules/auth'
 import {App} from '../App'
 import {ExternalRedirect} from './components/ExternalRedirect'
 import {API_URL} from '../config/apiRoutes'
+import {getInstrumentedRoutesRenderer} from '../config/runtimeMonitoring'
 
 /**
  * Base URL of the website.
@@ -24,9 +25,10 @@ const enviroment = process.env.REACT_APP_ENVIRONMENT || ''
 
 const AppRoutes: FC = () => {
   const {currentUser} = useAuth()
+  const RoutesRenderer = getInstrumentedRoutesRenderer()
   return (
     <BrowserRouter>
-      <Routes>
+      <RoutesRenderer>
         <Route element={<App />}>
           <Route path='error/*' element={<ErrorsPage />} />
           <Route path='logout' element={<Logout />} />
@@ -52,7 +54,7 @@ const AppRoutes: FC = () => {
             </>
           )}
         </Route>
-      </Routes>
+      </RoutesRenderer>
     </BrowserRouter>
   )
 }

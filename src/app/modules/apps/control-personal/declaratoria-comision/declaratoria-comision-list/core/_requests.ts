@@ -88,8 +88,11 @@ const createDeclaratoriaComision = async (
     return response.data.data
   } catch (error: any) {
     if (error.response?.status === 422 || error.response?.status === 400) {
+      const validationErrors =
+        error.response.data.validation_errors || error.response.data.data || {}
+
       throw new ValidationError(
-        error.response.data.validation_errors || {},
+        validationErrors,
         error.response.data.message
       )
     }
@@ -108,8 +111,11 @@ const updateDeclaratoriaComision = async (
     return response.data.data
   } catch (error: any) {
     if (error.response?.status === 422 || error.response?.status === 400) {
+      const validationErrors =
+        error.response.data.validation_errors || error.response.data.data || {}
+
       throw new ValidationError(
-        error.response.data.validation_errors || {},
+        validationErrors,
         error.response.data.message
       )
     }
@@ -132,8 +138,11 @@ const anularDeclaratoriaComision = async (
     return response
   } catch (error: any) {
     if (error.response?.status === 422 || error.response?.status === 400) {
+      const validationErrors =
+        error.response.data.validation_errors || error.response.data.data || {}
+
       throw new ValidationError(
-        error.response.data.validation_errors || {},
+        validationErrors,
         error.response.data.message
       )
     }

@@ -1,33 +1,63 @@
 // PrivateRoutes.tsx (versión actualizada)
-import { lazy, FC, Suspense } from 'react'
-import { Route, Routes, Navigate } from 'react-router-dom'
-import { MasterLayout } from '../../_metronic/layout/MasterLayout'
+import {lazy, FC, Suspense} from 'react'
+import {Route, Routes, Navigate} from 'react-router-dom'
+import {MasterLayout} from '../../_metronic/layout/MasterLayout'
 import TopBarProgress from 'react-topbar-progress-indicator'
-import { getCSSVariableValue } from '../../_metronic/assets/ts/_utils'
-import { WithChildren } from '../../_metronic/helpers'
-import { ProtectedRoute } from '../modules/auth/core/ProtectedRoute'
+import {getCSSVariableValue} from '../../_metronic/assets/ts/_utils'
+import {WithChildren} from '../../_metronic/helpers'
+import {ProtectedRoute} from '../modules/auth/core/ProtectedRoute'
 import AccessDeniedPage from '../pages/AccessDeniedPage'
-import { GestionQrPage } from '../modules/apps/control-personal/gestion-qr'
-import { PERMISSIONS } from '../modules/auth/core/roles/permissions'
+import {PERMISSIONS} from '../modules/auth/core/roles/permissions'
+import {ListLoading} from '../modules/components/loading/ListLoading'
 
 const PrivateRoutes = () => {
-
   const ComisionPage = lazy(() => import('../modules/apps/control-personal/comision/ComisionPage'))
-  const GestionGuardiasPage = lazy(() => import('../modules/apps/control-personal/guardias-seguridad/GestionGuardiasPage'))
-  const AsistenciaPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/asistencia-permiso/AsistenciaPermisoPage'))
-  const DeclaratoriaComisionPage = lazy(() => import('../modules/apps/control-personal/declaratoria-comision/DeclaratoriaComisionPage'))
-  const AsignacionesAdministrativasPage = lazy(() => import('../modules/apps/control-personal/asignaciones-administrativas/AsignacionesAdministrativasPage'))
+  const GestionGuardiasPage = lazy(
+    () => import('../modules/apps/control-personal/guardias-seguridad/GestionGuardiasPage')
+  )
+  const AsistenciaPermisoPage = lazy(
+    () =>
+      import('../modules/apps/control-personal/permisos/asistencia-permiso/AsistenciaPermisoPage')
+  )
+  const DeclaratoriaComisionPage = lazy(
+    () => import('../modules/apps/control-personal/declaratoria-comision/DeclaratoriaComisionPage')
+  )
+  const AsignacionesAdministrativasPage = lazy(
+    () =>
+      import(
+        '../modules/apps/control-personal/asignaciones-administrativas/AsignacionesAdministrativasPage'
+      )
+  )
   const HorariosPage = lazy(() => import('../modules/apps/control-personal/horarios/HorariosPage'))
-  const TipoPermisoPage = lazy(() => import('../modules/apps/control-personal/permisos/tipos-permisos/TipoPermisoPage'))
-  const FeriadoAsuetoPage = lazy(() => import('../modules/apps/control-personal/feriado-asueto/FeriadoAsuetoPage'))
+  const TipoPermisoPage = lazy(
+    () => import('../modules/apps/control-personal/permisos/tipos-permisos/TipoPermisoPage')
+  )
+  const FeriadoAsuetoPage = lazy(
+    () => import('../modules/apps/control-personal/feriado-asueto/FeriadoAsuetoPage')
+  )
   const PlanillaControlPage = lazy(() => import('../modules/apps/planillas/PlanillaControlPage'))
-  const PlanillaAsistenciaPage = lazy(() => import('../modules/apps/control-personal/planilla-asistencia/PlanillaAsistenciaPage'))
-  const MisMarcacionesPage = lazy(() => import('../modules/apps/control-personal/planilla-asistencia/mis-marcaciones/MisMarcacionesPage'))
+  const PlanillaAsistenciaPage = lazy(
+    () => import('../modules/apps/control-personal/planilla-asistencia/PlanillaAsistenciaPage')
+  )
+  const MisMarcacionesPage = lazy(
+    () =>
+      import(
+        '../modules/apps/control-personal/planilla-asistencia/mis-marcaciones/MisMarcacionesPage'
+      )
+  )
+  const GestionQrPage = lazy(
+    () => import('../modules/apps/control-personal/gestion-qr/GestionQrPage')
+  )
 
-  const BiometricoPage = lazy(() => import('../modules/apps/administrador/biometrico/BiometricoPage'))
-  const BiometricoAdminPage = lazy(() => import('../modules/apps/administrador/biometrico/admin/BiometricoAdminPage'))
-  const VacacionReportePage = lazy(() => import('../modules/apps/control-personal/vacaciones/reporte/VacacionReportePage'))
-
+  const BiometricoPage = lazy(
+    () => import('../modules/apps/administrador/biometrico/BiometricoPage')
+  )
+  const BiometricoAdminPage = lazy(
+    () => import('../modules/apps/administrador/biometrico/admin/BiometricoAdminPage')
+  )
+  const VacacionReportePage = lazy(
+    () => import('../modules/apps/control-personal/vacaciones/reporte/VacacionReportePage')
+  )
 
   return (
     <Routes>
@@ -97,7 +127,10 @@ const PrivateRoutes = () => {
           path='apps/comisiones/*'
           element={
             <SuspensedView>
-              <ProtectedRoute requiredSpecificPermissions={[PERMISSIONS.COMISION.VIEW]} excludeDocenteAdministrativo={true}>
+              <ProtectedRoute
+                requiredSpecificPermissions={[PERMISSIONS.COMISION.VIEW]}
+                excludeDocenteAdministrativo={true}
+              >
                 <ComisionPage />
               </ProtectedRoute>
             </SuspensedView>
@@ -176,7 +209,7 @@ const PrivateRoutes = () => {
               <ProtectedRoute
                 requiredSpecificPermissions={[
                   PERMISSIONS.DECLARATORIA_COMISION.VIEW,
-                  PERMISSIONS.DECLARATORIA_COMISION.CREATE
+                  PERMISSIONS.DECLARATORIA_COMISION.CREATE,
                 ]}
                 requireAllPermissions={false} // OR logic - al menos uno
               >
@@ -203,7 +236,6 @@ const PrivateRoutes = () => {
             </SuspensedView>
           }
         />
-
 
         <Route
           path='apps/mis-marcaciones'
@@ -239,7 +271,7 @@ const PrivateRoutes = () => {
   )
 }
 
-const SuspensedView: FC<WithChildren> = ({ children }) => {
+const SuspensedView: FC<WithChildren> = ({children}) => {
   const baseColor = getCSSVariableValue('--bs-primary') || '#0d6efd'
   TopBarProgress.config({
     barColors: {
@@ -248,7 +280,20 @@ const SuspensedView: FC<WithChildren> = ({ children }) => {
     barThickness: 1,
     shadowBlur: 5,
   })
-  return <Suspense fallback={<TopBarProgress />}>{children}</Suspense>
+  return (
+    <Suspense
+      fallback={
+        <>
+          <TopBarProgress />
+          <div className='d-flex flex-column-fluid align-items-center justify-content-center py-20'>
+            <ListLoading message='Cargando contenido...' overlay={false} />
+          </div>
+        </>
+      }
+    >
+      {children}
+    </Suspense>
+  )
 }
 
-export { PrivateRoutes }
+export {PrivateRoutes}

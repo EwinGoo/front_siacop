@@ -1,7 +1,11 @@
-import {useEffect, useState} from 'react'
+import {useCallback, useEffect, useState} from 'react'
 
 const useIsMobileViewport = (breakpoint = 992) => {
-  const getMatches = () => (typeof window !== 'undefined' ? window.innerWidth < breakpoint : false)
+  const getMatches = useCallback(
+    () => (typeof window !== 'undefined' ? window.innerWidth < breakpoint : false),
+    [breakpoint]
+  )
+
   const [isMobileViewport, setIsMobileViewport] = useState<boolean>(getMatches)
 
   useEffect(() => {
@@ -9,7 +13,7 @@ const useIsMobileViewport = (breakpoint = 992) => {
 
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [breakpoint])
+  }, [getMatches])
 
   return isMobileViewport
 }

@@ -4,6 +4,7 @@ import {Modal} from 'react-bootstrap'
 type Props = {
   isOpen: boolean
   onClose: () => void
+  isPreparing?: boolean
   pdfBlob: Blob | null
   filename: string
   title?: string
@@ -12,6 +13,7 @@ type Props = {
 const PDFModal: React.FC<Props> = ({
   isOpen,
   onClose,
+  isPreparing = false,
   pdfBlob,
   filename,
   title = 'Vista de PDF',
@@ -145,13 +147,15 @@ const PDFModal: React.FC<Props> = ({
       </Modal.Header>
 
       <Modal.Body className='p-0 bg-white' style={{height: isMobile ? 'auto' : '80vh'}}>
-        {!pdfUrl ? (
+        {isPreparing || !pdfUrl ? (
           <div className='d-flex justify-content-center align-items-center h-100 py-10'>
             <div className='text-center'>
               <div className='spinner-border text-primary mb-3' role='status'>
                 <span className='visually-hidden'>Cargando...</span>
               </div>
-              <p className='text-muted mb-0'>Cargando PDF...</p>
+              <p className='text-muted mb-0'>
+                {isPreparing ? 'Preparando documento...' : 'Cargando PDF...'}
+              </p>
             </div>
           </div>
         ) : isMobile ? (
@@ -175,7 +179,7 @@ const PDFModal: React.FC<Props> = ({
             type='button'
             className='btn btn-sm btn-light-secondary'
             onClick={handleOpenInNewTab}
-            disabled={!pdfUrl}
+            disabled={!pdfUrl || isPreparing}
           >
             <i className='las la-external-link-alt fs-4'></i>
             Nueva pestaña
@@ -184,7 +188,7 @@ const PDFModal: React.FC<Props> = ({
             type='button'
             className='btn btn-sm btn-light-primary'
             onClick={handleDownload}
-            disabled={!pdfUrl}
+            disabled={!pdfUrl || isPreparing}
           >
             <i className='las la-download fs-4'></i>
             Descargar
@@ -193,7 +197,7 @@ const PDFModal: React.FC<Props> = ({
             type='button'
             className='btn btn-sm btn-light-info'
             onClick={handlePrint}
-            disabled={!pdfUrl}
+            disabled={!pdfUrl || isPreparing}
           >
             <i className='las la-print fs-4'></i>
             Imprimir

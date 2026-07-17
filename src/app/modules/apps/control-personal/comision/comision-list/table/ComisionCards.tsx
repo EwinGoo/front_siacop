@@ -9,10 +9,18 @@ import {EstadoBadge} from './components/EstadoBadge'
 type Props = {
   comisiones: Comision[]
   canManage: boolean
+  onPreparePDF: (title?: string) => void
   onShowPDF: (pdfData: ComisionPDFData) => void
+  onCancelPDF: () => void
 }
 
-const ComisionCards: FC<Props> = ({comisiones, canManage, onShowPDF}) => {
+const ComisionCards: FC<Props> = ({
+  comisiones,
+  canManage,
+  onPreparePDF,
+  onShowPDF,
+  onCancelPDF,
+}) => {
   const {formatLongDate, formatTimeFromString} = useDateFormatter()
   const {selected, onSelect} = useListView()
 
@@ -138,7 +146,9 @@ const ComisionCards: FC<Props> = ({comisiones, canManage, onShowPDF}) => {
                       buttonLabel='Acciones'
                       buttonClassName='btn btn-outline btn-outline-primary btn-sm flex-fill'
                       inlinePrimaryActions
+                      onPreparePDF={onPreparePDF}
                       onShowPDF={onShowPDF}
+                      onCancelPDF={onCancelPDF}
                     />
                   ) : null}
                 </div>

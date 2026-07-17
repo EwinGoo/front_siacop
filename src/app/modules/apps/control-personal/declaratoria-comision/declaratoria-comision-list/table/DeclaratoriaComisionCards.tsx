@@ -8,7 +8,9 @@ import {EstadoBadge} from '../components/EstadoBadge'
 
 type Props = {
   items: DeclaratoriaComision[]
+  onPreparePDF: (title?: string) => void
   onShowPDF: (pdfData: PDFData) => void
+  onCancelPDF: () => void
   onShowData: (declaratoria: any) => void
   onSetLoading: (declaratoriaId: string, isLoading: boolean) => void
   getLoadingState: (declaratoriaId: string) => boolean
@@ -16,7 +18,9 @@ type Props = {
 
 const DeclaratoriaComisionCards: FC<Props> = ({
   items,
+  onPreparePDF,
   onShowPDF,
+  onCancelPDF,
   onShowData,
   onSetLoading,
   getLoadingState,
@@ -88,7 +92,9 @@ const DeclaratoriaComisionCards: FC<Props> = ({
             <div className='card-footer border-0 pt-0 px-5 pb-5'>
               <ActionsCell
                 declaratoria={item}
+                onPreparePDF={onPreparePDF}
                 onShowPDF={onShowPDF}
+                onCancelPDF={onCancelPDF}
                 onShowData={onShowData}
                 onSetLoading={onSetLoading}
                 isLoading={getLoadingState(item.id_declaratoria_comision?.toString() || '')}

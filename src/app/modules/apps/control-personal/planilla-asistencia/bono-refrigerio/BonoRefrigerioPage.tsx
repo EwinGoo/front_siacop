@@ -41,6 +41,7 @@ const BonoRefrigerioPage = () => {
   const [showReportModal, setShowReportModal] = useState(false)
   const [showPDFModal, setShowPDFModal] = useState(false)
   const [currentPDFData, setCurrentPDFData] = useState<PlanillaMensualPDFData | null>(null)
+  const [isPreparingPdf, setIsPreparingPdf] = useState(false)
 
   const canLoad = useMemo(() => Number(idProceso) > 0, [idProceso])
   const procesoSeleccionado = useMemo(
@@ -157,17 +158,30 @@ const BonoRefrigerioPage = () => {
       setLoading(false)
     }
   }
-  const handleShowPDF = async (params: ReporteBonoRefrigerioParams) => {
+  const handleShowPDF = (params: ReporteBonoRefrigerioParams) => {
     if (!canLoad) {
       return
     }
 
-    const pdfData = await generarReporteBonoRefrigerio(Number(idProceso), params)
-    setCurrentPDFData(pdfData)
+    setCurrentPDFData(null)
+    setIsPreparingPdf(true)
     setShowPDFModal(true)
+
+    void (async () => {
+      try {
+        const pdfData = await generarReporteBonoRefrigerio(Number(idProceso), params)
+        setCurrentPDFData(pdfData)
+      } catch (err: any) {
+        setShowPDFModal(false)
+        setError(err?.message || 'No se pudo generar el reporte PDF.')
+      } finally {
+        setIsPreparingPdf(false)
+      }
+    })()
   }
 
   const handleClosePDFModal = () => {
+    setIsPreparingPdf(false)
     setShowPDFModal(false)
     setCurrentPDFData(null)
   }
@@ -539,6 +553,7 @@ const BonoRefrigerioPage = () => {
       <PDFModal
         isOpen={showPDFModal}
         onClose={handleClosePDFModal}
+        isPreparing={isPreparingPdf}
         pdfBlob={currentPDFData?.blob || null}
         filename={currentPDFData?.filename || 'REPORTE_BONO_REFRIGERIO.pdf'}
         title={currentPDFData?.title || 'Reporte de bono refrigerio'}

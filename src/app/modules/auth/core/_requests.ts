@@ -52,5 +52,7 @@ export function getUserByToken(token: string) {
 }
 
 export function getUserBySession() {
-  return axios.get<UserCheckRequest>(GET_USER_BY_SESSION_URL)
+  return axios.get<UserCheckRequest>(GET_USER_BY_SESSION_URL, {
+    timeout: 15000,
+  })
 }

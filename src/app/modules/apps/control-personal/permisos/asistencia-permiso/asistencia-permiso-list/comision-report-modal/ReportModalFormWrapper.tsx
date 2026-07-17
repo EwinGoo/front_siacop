@@ -9,10 +9,17 @@ import {showToast} from 'src/app/utils/toastHelper'
 
 type Props = {
   onClose: () => void
+  onPreparePDF: (title?: string) => void
   onShowPDF: (pdfData: PermisoPDFData) => void
+  onCancelPDF: () => void
 }
 
-export const ReportModalFormWrapper = ({onClose, onShowPDF}: Props) => {
+export const ReportModalFormWrapper = ({
+  onClose,
+  onPreparePDF,
+  onShowPDF,
+  onCancelPDF,
+}: Props) => {
   const formik = useFormik({
     validationSchema: reportValidationSchema,
     initialValues: {
@@ -23,6 +30,8 @@ export const ReportModalFormWrapper = ({onClose, onShowPDF}: Props) => {
     },
     onSubmit: async (values, helpers) => {
       try {
+        onClose()
+        onPreparePDF('Reporte de permisos')
         const pdfData = await generarReporteGeneralPermiso({
           fechaInicio: formatDate(values.fechaInicio),
           fechaFin: formatDate(values.fechaFin),
@@ -30,9 +39,9 @@ export const ReportModalFormWrapper = ({onClose, onShowPDF}: Props) => {
           tipoPermiso: values.tipoPermiso,
         })
 
-        onClose()
         onShowPDF(pdfData)
       } catch (error: any) {
+        onCancelPDF()
         showToast({
           message: error?.message || 'No se pudo generar el reporte. Intente más tarde.',
           type: 'error',

@@ -12,17 +12,25 @@ import {useComisionPDFModal} from './hooks/useComisionPDFModal'
 import PDFModal from './pdf-modal/PDFModal'
 
 const ComisionList = () => {
-  const {handleShowPDF, pdfModalProps} = useComisionPDFModal()
+  const {handlePreparePDF, handleShowPDF, handleCancelPDF, pdfModalProps} = useComisionPDFModal()
 
   return (
     <>
       <KTCard>
         <ListHeader />
-        <ComisionTable onShowPDF={handleShowPDF} />
+        <ComisionTable
+          onPreparePDF={handlePreparePDF}
+          onShowPDF={handleShowPDF}
+          onCancelPDF={handleCancelPDF}
+        />
       </KTCard>
       <EditModal />
       <ObservarModal />
-      <ReportModal onShowPDF={handleShowPDF} />
+      <ReportModal
+        onPreparePDF={handlePreparePDF}
+        onShowPDF={handleShowPDF}
+        onCancelPDF={handleCancelPDF}
+      />
       <ViewModal />
       <PDFModal {...pdfModalProps} />
     </>

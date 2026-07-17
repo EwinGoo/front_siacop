@@ -12,17 +12,25 @@ import {usePermisoPDFModal} from './hooks/usePermisoPDFModal'
 import PDFModal from '../../../comision/comision-list/pdf-modal/PDFModal'
 
 const AsistenciaPermisoList = () => {
-  const {handleShowPDF, pdfModalProps} = usePermisoPDFModal()
+  const {handlePreparePDF, handleShowPDF, handleCancelPDF, pdfModalProps} = usePermisoPDFModal()
 
   return (
     <>
       <KTCard>
         <ListHeader />
-        <AsistenciaPermisoTable onShowPDF={handleShowPDF} />
+        <AsistenciaPermisoTable
+          onPreparePDF={handlePreparePDF}
+          onShowPDF={handleShowPDF}
+          onCancelPDF={handleCancelPDF}
+        />
       </KTCard>
       <EditModal />
       <ObservarModal />
-      <ReportModal onShowPDF={handleShowPDF} />
+      <ReportModal
+        onPreparePDF={handlePreparePDF}
+        onShowPDF={handleShowPDF}
+        onCancelPDF={handleCancelPDF}
+      />
       <ViewModal />
       <PDFModal {...pdfModalProps} />
 

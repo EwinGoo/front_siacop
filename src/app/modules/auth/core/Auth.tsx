@@ -9,7 +9,6 @@ import {
   SetStateAction,
   useMemo,
 } from 'react'
-import {LayoutSplashScreen} from '../../../../_metronic/layout/core'
 import {AuthModel, UserModel} from './_models'
 import * as authHelper from './AuthHelpers'
 import {getUserBySession} from './_requests'
@@ -18,6 +17,11 @@ import {APP_ROLES, PERMISSION_GROUPS, RoleKey} from './roles'
 import {useNavigate} from 'react-router-dom'
 import {Permission} from './roles/permissions'
 import {ROLE_PERMISSIONS} from './roles/roleDefinitions'
+import {
+  disableSplashScreen,
+  enableSplashScreen,
+} from '../../../../_metronic/layout/core/_LayoutProvider'
+import {AppBootstrapScreen} from '../../components/loading/AppBootstrapScreen'
 
 type AuthContextProps = {
   auth: AuthModel | undefined
@@ -145,11 +149,16 @@ const AuthInit: FC<WithChildren> = ({children}) => {
   const navigate = useNavigate()
 
   useEffect(() => {
+    let isMounted = true
+
+    enableSplashScreen()
+
     const requestUser = async () => {
       try {
         if (!didRequest.current) {
+          didRequest.current = true
           const {data} = await getUserBySession()
-          if (data) {
+          if (data && isMounted) {
             setCurrentUser(data.user)
             const authModel: AuthModel = {
               api_token: 'session-based',
@@ -160,26 +169,36 @@ const AuthInit: FC<WithChildren> = ({children}) => {
         }
       } catch (error: any) {
         console.error(error)
-        if (error.code === 'ERR_NETWORK') {
+        if (!isMounted) {
+          return
+        }
+
+        if (error.code === 'ERR_NETWORK' || error.code === 'ECONNABORTED') {
           navigate('/error/500')
           return
         }
 
-        if (!didRequest.current) {
-          logout()
-        }
+        logout()
       } finally {
-        setShowSplashScreen(false)
+        if (isMounted) {
+          disableSplashScreen()
+          setShowSplashScreen(false)
+        }
       }
-
-      return () => (didRequest.current = true)
     }
 
     requestUser()
-  // }, [logout, navigate, setCurrentUser])
-  }, [])
 
-  return showSplashScreen ? <LayoutSplashScreen /> : <>{children}</>
+    return () => {
+      isMounted = false
+    }
+  }, [logout, navigate, setCurrentUser])
+
+  return showSplashScreen ? (
+    <AppBootstrapScreen description='Cargando ...' />
+  ) : (
+    <>{children}</>
+  )
 }
 
 export {AuthProvider, AuthInit, useAuth}

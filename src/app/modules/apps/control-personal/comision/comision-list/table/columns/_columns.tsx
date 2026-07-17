@@ -20,7 +20,9 @@ interface ComisionTablePermissions {
   canCreate: boolean
   canManage: boolean
   hasActionPermissions: boolean // Computed property
+  onPreparePDF: (title?: string) => void
   onShowPDF: (pdfData: ComisionPDFData) => void
+  onCancelPDF: () => void
 }
 
 export const getColumns = (
@@ -55,7 +57,9 @@ export const getColumns = (
           hash={props.data[props.row.index].hash}
           carnet={props.data[props.row.index].ci}
           tipo={props.data[props.row.index].tipo_comision}
+          onPreparePDF={permissions.onPreparePDF}
           onShowPDF={permissions.onShowPDF}
+          onCancelPDF={permissions.onCancelPDF}
         />
       ),
     },
